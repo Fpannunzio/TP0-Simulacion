@@ -55,17 +55,22 @@ public class ParticleNeighbours {
 
         particles.sort(Comparator.comparing(Particle::getId));
 
+        final int particleCount = particles.size();
+
         int i = 0;
         for(final Particle particle : particles) {
-            final ListIterator<Particle> possibleNeighbours = particles.listIterator(i);
-            while(possibleNeighbours.hasNext()) {
-                final Particle possibleNeighbour = possibleNeighbours.next();
+            if(i + 1 < particleCount) {
+                final ListIterator<Particle> possibleNeighbours = particles.listIterator(i + 1);
+                while (possibleNeighbours.hasNext()) {
+                    final Particle possibleNeighbour = possibleNeighbours.next();
 
-                if(particle.distanceTo(possibleNeighbour) < config.actionRadius) {
-                    ret.get(particle.getId()).add(possibleNeighbour);
-                    ret.get(possibleNeighbour.getId()).add(particle);
+                    if (particle.distanceTo(possibleNeighbour) < config.actionRadius) {
+                        ret.get(particle.getId()).add(possibleNeighbour);
+                        ret.get(possibleNeighbour.getId()).add(particle);
+                    }
                 }
             }
+            i++;
         }
 
         return ret;
