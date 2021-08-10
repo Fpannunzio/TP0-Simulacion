@@ -1,4 +1,4 @@
-
+package org.apache.maven.tp0;
 
 public class Particle {
 
