@@ -4,11 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class ParticleGeneration {
+
+    private static final int MAX_FAILURE_TOLERANCE = 10_000;
 
     public static void main(final String[] args) throws IOException {
         if(args.length < 1) {
@@ -17,6 +20,19 @@ public class ParticleGeneration {
         final ObjectMapper mapper = new ObjectMapper();
 
         final ParticleGenerationConfig config = mapper.readValue(Path.of(args[0]).toFile(), ParticleGenerationConfig.class);
+
+        final List<Particle> ret = new ArrayList<>(config.particleCount);
+
+        int tries = 0;
+        int particleCount = 0;
+        while(particleCount < config.particleCount && tries < MAX_FAILURE_TOLERANCE) {
+            final Particle particle = Particle.randomParticle(particleCount, config.L, config.maxRadius);
+            if(!particle.collides(ret)) {
+                ret.add(particle);
+                particleCount++;
+            }
+            tries++;
+        }
 
         final List<Particle> particles = IntStream
             .range(0, config.particleCount)
