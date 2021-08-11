@@ -24,3 +24,8 @@ hs_err_pid*
 
 .idea
 *.iml
+
+# Carpetas de archivos generados y config
+/config
+/output
+/particles

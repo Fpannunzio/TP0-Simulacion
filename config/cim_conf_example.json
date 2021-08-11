@@ -1,0 +1,9 @@
+{
+  "strategy": "CIM",
+  "M": 1,
+  "L": 6.5,
+  "actionRadius": 0.75,
+  "periodicOutline": true,
+  "particlesFile": "particles/test2.json",
+  "outputFile": "cim.json"
+}
