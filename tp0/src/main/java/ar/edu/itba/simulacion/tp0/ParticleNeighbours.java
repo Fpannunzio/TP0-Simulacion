@@ -14,6 +14,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 public class ParticleNeighbours {
 
@@ -33,7 +34,14 @@ public class ParticleNeighbours {
 
         final long start = System.nanoTime();
 
-        final Map<Integer, ? extends Collection<Particle>> ret = config.strategy.strategy.apply(config, particles);
+        final Map<Integer, ? extends Collection<Particle>> neighbours = config.strategy.strategy.apply(config, particles);
+        final Map<Integer, List<Integer>> ret = neighbours.entrySet()
+            .stream()
+            .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue()
+                .stream()
+                .map(Particle::getId)
+                .collect(Collectors.toList()))
+            );
 
         final long end = System.nanoTime();
 
