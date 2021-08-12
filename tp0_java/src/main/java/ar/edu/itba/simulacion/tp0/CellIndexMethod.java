@@ -1,5 +1,7 @@
 package ar.edu.itba.simulacion.tp0;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -8,7 +10,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.IntConsumer;
 
 public class CellIndexMethod {
     
@@ -17,37 +18,27 @@ public class CellIndexMethod {
     private final double    actionRadius;
     private final boolean   periodicOutline;
 
-    public CellIndexMethod(final int M, final double L, final double actionRadius, final boolean periodicOutline) {
-        
-        int maxMValue = (int) (L / actionRadius);
+    @JsonIgnore
+    private final double    cellLength;
 
+    public CellIndexMethod(final int M, final double L, final double actionRadius, final boolean periodicOutline) {
+        int maxMValue = (int) (L / actionRadius);
         if(maxMValue < M) {
             throw new IllegalArgumentException("L to M ratio is too small. Max possible value for M is " + maxMValue);
         }
 
-        this.M = M;
-        this.L = L;
-        this.actionRadius = actionRadius;
-        this.periodicOutline = periodicOutline;
+        this.M                  = M;
+        this.L                  = L;
+        this.actionRadius       = actionRadius;
+        this.periodicOutline    = periodicOutline;
+        this.cellLength         = this.L / this.M;
     }
 
-    private int particleCell(final Particle particle) {
-        return coordinateToCell(particle.getX(), particle.getY());
-    }
-
-    private int coordinateToCell(final double x, final double y) {
-        int cellX = (int) (x / (L / M));
-        int cellY = (int) (y / (L / M));
-        return indexToCell(cellX, cellY);
-    }
-
-    private int indexToCell(final int x, final int y) {
-        return y * M + x;
+    private int particleToCellAxis(final double particleAxis) {
+        return (int) (particleAxis / cellLength);
     }
 
     public Map<Integer, Set<Particle>> calculateNeighbours(final List<Particle> particles) {
-        final Map<Integer, Set<Particle>> ret = new HashMap<>(particles.size());
-
         final double maxRadius = particles
             .stream()
             .max(Comparator.comparing(Particle::getRadius))
@@ -56,10 +47,12 @@ public class CellIndexMethod {
             ;
 
         int maxMValue = (int) (L / (actionRadius + 2*maxRadius));
-        
+
         if(maxMValue < M) {
             throw new IllegalArgumentException("L to M ratio is too small. Max possible value for M is " + maxMValue);
         }
+
+        final Map<Integer, Set<Particle>> ret = new HashMap<>(particles.size());
 
         // Inicializamos mapa de respuesta
         for(final Particle particle : particles) {
@@ -67,33 +60,37 @@ public class CellIndexMethod {
         }
 
         // Inicializamos celdas
-        final List<Particle>[] cells = buildCells(particles);
+        final List<Particle>[][] cells = buildCells(particles);
 
-        for(final List<Particle> cellValues : cells) {
-            for(final Particle particle : cellValues) {
-                // Agregamos las particulas de la misma celda
-                addNeighbours(particle, cellValues, ret);
+        for(final List<Particle>[] cellRows : cells) {
+            for(final List<Particle> cellValues : cellRows) {
+                for(final Particle particle : cellValues) {
+                    // Agregamos las particulas de la misma celda
+                    addNeighbours(particle, cellValues, ret);
 
-                // Agregamos las particulas de las celdas vecinas
-                listCellNeighbours(particleCell(particle), neighbourCellId -> addNeighbours(particle, cells[neighbourCellId], ret));
+                    // Agregamos las particulas de las celdas vecinas
+                    listCellNeighbours(particle, (cellX, cellY) -> addNeighbours(particle, cells[cellX][cellY], ret));
+                }
             }
         }
 
         return ret;
     }
 
-    private List<Particle>[] buildCells(final List<Particle> particles) {
+    private List<Particle>[][] buildCells(final List<Particle> particles) {
         @SuppressWarnings("unchecked")
-        final List<Particle>[] ret = new List[M * M];
+        final List<Particle>[][] ret = new List[M][M];
 
         // Inicializamos todas las celdas en el mapa, asignandoles un id unico segun su posicion
-        for(int i = 0; i < M * M; i++) {
-            ret[i] = new LinkedList<>();
+        for(int x = 0; x < M; x++) {
+            for(int y = 0; y < M; y++) {
+                ret[x][y] = new LinkedList<>();
+            }
         }
 
         // Distribuimos las particulas en la celda correspondiente
         for(final Particle particle : particles) {
-            ret[particleCell(particle)].add(particle);
+            ret[particleToCellAxis(particle.getX())][particleToCellAxis(particle.getY())].add(particle);
         }
 
         return ret;
@@ -112,27 +109,30 @@ public class CellIndexMethod {
 
     // Como optimizacion, solo listamos la mitad de los vecinos
     // Como todos listan la misma mitad, todos terminan siendo listados
-    private void listCellNeighbours(final int cell, final IntConsumer consumer) {
-        int cellPositionX = cell % M;
-        int cellPositionY = cell / M;
-
-        // System.out.println(cellPositionX * 10000 + cellPositionY);
+    private void listCellNeighbours(final Particle particle, final CoordinateConsumer consumer) {
+        final int cellX = particleToCellAxis(particle.getX());
+        final int cellY = particleToCellAxis(particle.getY());
 
         // Top
-        if(periodicOutline || cellPositionY + 1 < M) {
-            consumer.accept(indexToCell(cellPositionX, (cellPositionY + 1) % M));
+        if(periodicOutline || cellY + 1 < M) {
+            consumer.accept(cellX, Math.floorMod(cellY + 1, M));
         }
         // Top-Right
-        if(periodicOutline || (cellPositionY + 1 < M && cellPositionX + 1 < M)) {
-            consumer.accept(indexToCell((cellPositionX + 1) % M, (cellPositionY + 1) % M));
+        if(periodicOutline || (cellX + 1 < M && cellY + 1 < M)) {
+            consumer.accept(Math.floorMod(cellX + 1, M), Math.floorMod(cellY + 1, M));
         }
         // Right
-        if(periodicOutline || cellPositionX + 1 < M) {
-            consumer.accept(indexToCell((cellPositionX + 1) % M, cellPositionY));
+        if(periodicOutline || cellX + 1 < M) {
+            consumer.accept(Math.floorMod(cellX + 1, M), cellY);
         }
         // Bottom-Right
-        if (periodicOutline || (cellPositionY - 1 < 0 && cellPositionX + 1 < M)) {
-            consumer.accept(indexToCell((cellPositionX + 1) % M, (cellPositionY - 1) % M));
+        if (periodicOutline || (cellX + 1 < M && cellY - 1 < 0)) {
+            consumer.accept(Math.floorMod(cellX + 1, M), Math.floorMod(cellY - 1, M));
         }
+    }
+
+    @FunctionalInterface
+    private interface CoordinateConsumer {
+        void accept(final int a, final int b);
     }
 }
