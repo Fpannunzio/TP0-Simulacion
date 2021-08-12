@@ -19,5 +19,7 @@ def main(config_path: str):
 if __name__ == '__main__':
     if len(sys.argv) < 2:
         raise ValueError('Config path must be given by argument')
-
-    main(sys.argv[1])
+    try:
+        main(sys.argv[1])
+    except KeyboardInterrupt:
+        pass
