@@ -18,7 +18,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
-public class ParticleNeighbours {
+public final class ParticleNeighbours {
+
+    private ParticleNeighbours() {
+        // static class
+    }
 
     public static void main(String[] args) throws IOException {
         if(args.length < 1) {
