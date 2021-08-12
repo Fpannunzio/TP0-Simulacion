@@ -7,7 +7,8 @@ from models import Particle
 
 class Plotter:
 
-    def __init__(self, particles: List[Particle], action_radius: float, neighbours_dict: Dict[str, List[int]], M: int, L: float, periodic_outline: bool, initial_particle: int = 0) -> None:
+    def __init__(self, strategy: str, particles: List[Particle], action_radius: float, neighbours_dict: Dict[str, List[int]], M: int, L: float, periodic_outline: bool, initial_particle: int = 0) -> None:
+        self.strategy_name: str = strategy.replace('_', ' ').capitalize()
         self.particles: List[Particle] = particles
         self.action_radius: float = action_radius
         self.neighbours_dict: Dict[str, List[int]] = neighbours_dict
@@ -79,7 +80,7 @@ class Plotter:
         self.axes.set_xticks(ticks)
         self.axes.set_yticks(ticks)
 
-        plt.title('Cell Index')
+        plt.title(self.strategy_name)
 
         plt.xlim([0, self.L])
         plt.ylim([0, self.L])
@@ -105,35 +106,66 @@ class Plotter:
 
         def build_particle_circle(x, y):
             self.build_particle_circle(Particle(particle.id, x, y, particle.radius), axes)
+
+        def big_axis(ax: float):
+            return ax - self.L
+
+        def small_axis(ax: float):
+            return self.L + ax
+
+        offset_x = None
+        offset_y = None
             
         # Derecha
         if x + r > self.L:
-            build_particle_circle(-x, y)
+            offset_x = big_axis
         # Izquierda
         elif x - r < 0:
-            build_particle_circle(self.L + x, y)
+            offset_x = small_axis
 
         # Arriba
         if y + r > self.L:
-            build_particle_circle(x, -y)
+            offset_y = big_axis
         # Abajo
         elif y - r < 0:
-            build_particle_circle(x, self.L + y)
-    
+            offset_y = small_axis
+
+        if offset_x is not None:
+            build_particle_circle(offset_x(x), y)
+
+        if offset_y is not None:
+            build_particle_circle(x, offset_y(y))
+
+        if offset_x is not None and offset_y is not None:
+            build_particle_circle(offset_x(x), offset_y(y))
+
         if self.is_selected(particle):
             def build_interaction_radius(x, y):
                 self.build_interaction_radius(Particle(particle.id, x, y, particle.radius), axes)
 
+            offset_x = None
+            offset_y = None
+
             # Derecha
             if x + r + ar > self.L:
-                build_interaction_radius(-x, y)
+                offset_x = big_axis
             # Izquierda
             elif x - r - ar < 0:
-                build_interaction_radius(self.L + x, y)
+                offset_x = small_axis
 
             # Arriba
             if y + r + ar > self.L:
-                build_interaction_radius(x, -y)
+                offset_y = big_axis
             # Abajo
             elif y - r - ar < 0:
+                offset_y = small_axis
                 build_interaction_radius(x, self.L + y)
+
+            if offset_x is not None:
+                build_interaction_radius(offset_x(x), y)
+
+            if offset_y is not None:
+                build_interaction_radius(x, offset_y(y))
+
+            if offset_x is not None and offset_y is not None:
+                build_interaction_radius(offset_x(x), offset_y(y))

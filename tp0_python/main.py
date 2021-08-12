@@ -13,7 +13,7 @@ def main(config_path: str):
         particles: List[Particle] = json.load(particles_fd, object_hook=lambda d: Particle(**d))
         neighbours: Dict[str, List[int]] = json.load(neighbours_fd)
 
-    Plotter(particles, config.actionRadius, neighbours, config.M, config.L, config.periodicOutline).plot()
+    Plotter(config.strategy, particles, config.actionRadius, neighbours, config.M, config.L, config.periodicOutline).plot()
 
 
 if __name__ == '__main__':
