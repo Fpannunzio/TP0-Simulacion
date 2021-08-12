@@ -34,7 +34,7 @@ public class ParticleNeighbours {
 
         final long start = System.nanoTime();
 
-        final Map<Integer, ? extends Collection<Particle>> neighbours = config.strategy.strategy.apply(config, particles);
+        final Map<Integer, ? extends Collection<Particle>> neighbours = config.strategy.apply(config, particles);
         final Map<Integer, List<Integer>> ret = neighbours.entrySet()
             .stream()
             .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue()
@@ -51,11 +51,11 @@ public class ParticleNeighbours {
         mapper.writeValue(new File(config.outputFile), ret);
     }
 
-    private static Map<Integer, Set<Particle>> CIM(final ParticleNeighboursConfig config, final List<Particle> particles) {
+    public static Map<Integer, Set<Particle>> CIM(final ParticleNeighboursConfig config, final List<Particle> particles) {
         return config.toCim().calculateNeighbours(particles);
     }
 
-    private static Map<Integer, List<Particle>> bruteForce(final ParticleNeighboursConfig config, final List<Particle> particles) {
+    public static Map<Integer, List<Particle>> bruteForce(final ParticleNeighboursConfig config, final List<Particle> particles) {
         final Map<Integer, List<Particle>> ret = new HashMap<>();
         for(final Particle particle : particles) {
             ret.put(particle.getId(), new ArrayList<>(particles.size()));
@@ -72,7 +72,7 @@ public class ParticleNeighbours {
                 while (possibleNeighbours.hasNext()) {
                     final Particle possibleNeighbour = possibleNeighbours.next();
 
-                    if (particle.distanceTo(possibleNeighbour) < config.actionRadius) {
+                    if(particle.distanceTo(possibleNeighbour, config.L, config.periodicOutline) < config.actionRadius) {
                         ret.get(particle.getId()).add(possibleNeighbour);
                         ret.get(possibleNeighbour.getId()).add(particle);
                     }
@@ -93,6 +93,10 @@ public class ParticleNeighbours {
 
         Strategy(final BiFunction<ParticleNeighboursConfig, List<Particle>, Map<Integer, ? extends Collection<Particle>>> strategy) {
             this.strategy = strategy;
+        }
+
+        public Map<Integer, ? extends Collection<Particle>> apply(final ParticleNeighboursConfig config, final List<Particle> particles) {
+            return strategy.apply(config, particles);
         }
     }
 

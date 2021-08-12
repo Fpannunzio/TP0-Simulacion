@@ -32,7 +32,7 @@ public final class ParticleGeneration {
         int particleCount = 0;
         while(particleCount < config.particleCount && tries < MAX_FAILURE_TOLERANCE) {
             final Particle particle = Particle.randomParticle(particleCount, config.L, minRadius, config.maxRadius);
-            if(!particle.collides(ret)) {
+            if(!particle.collides(ret, config.L, config.periodicOutline)) {
                 ret.add(particle);
                 particleCount++;
             }
@@ -45,6 +45,7 @@ public final class ParticleGeneration {
     private static class ParticleGenerationConfig {
         public int          particleCount;
         public double       L;
+        public boolean      periodicOutline;
         public double       minRadius;
         public double       maxRadius;
         public String       outputFile;

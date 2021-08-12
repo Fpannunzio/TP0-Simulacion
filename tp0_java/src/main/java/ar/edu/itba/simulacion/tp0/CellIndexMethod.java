@@ -77,7 +77,7 @@ public class CellIndexMethod {
         final Collection<Particle> currentNeighbours = cellsNeighbours.get(particle.getId());
 
         for(final Particle neighbour: potentialNeighbours) {
-            if(!particle.equals(neighbour) && !currentNeighbours.contains(neighbour) && particle.distanceTo(neighbour) < actionRadius) {
+            if(!particle.equals(neighbour) && !currentNeighbours.contains(neighbour) && particle.distanceTo(neighbour, L, periodicOutline) < actionRadius) {
                 currentNeighbours.add(neighbour);
                 cellsNeighbours.get(neighbour.getId()).add(particle);
             }

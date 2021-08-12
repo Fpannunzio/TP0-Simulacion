@@ -1,6 +1,7 @@
 {
   "particleCount": 50,
   "L": 6.5,
+  "periodicOutline": true,
   "minRadius": 0.1,
   "maxRadius": 1,
   "outputFile": "particles/gen3.json"

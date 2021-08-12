@@ -6,10 +6,10 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class Particle {
 
-    private int id;
-    private double x;
-    private double y;
-    private double radius;
+    private int     id;
+    private double  x;
+    private double  y;
+    private double  radius;
 
     public static Particle randomParticle(final int id, final double L, final double minRadius, final double maxRadius) {
         final ThreadLocalRandom rand = ThreadLocalRandom.current();
@@ -27,18 +27,30 @@ public class Particle {
         this.radius = radius;
     }
 
-    public double distanceTo(final Particle other) {
-        double deltaX = this.x - other.x;
-        double deltaY = this.y - other.y;
-        return Math.sqrt(deltaX*deltaX + deltaY*deltaY) - this.radius - other.radius;
+    private static double axisDistance(final double ax1, final double ax2, final double L, final boolean periodicOutline) {
+        double dist = Math.abs(ax1 - ax2);
+        if(periodicOutline) {
+            if(dist > L/2) {
+                // Si espacio toroidal, la distancia no puede ser mayor a la mitad del largo total del espacio
+                dist = L - dist;
+            }
+        }
+        return dist;
     }
 
-    public boolean collides(final Particle particle) {
-        return distanceTo(particle) <= 0;
+    public double distanceTo(final Particle other, final double L, final boolean periodicOutline) {
+        final double dx = axisDistance(x, other.x, L, periodicOutline);
+        final double dy = axisDistance(y, other.y, L, periodicOutline);
+
+        return Math.sqrt(dx*dx + dy*dy) - radius - other.radius;
     }
 
-    public boolean collides(final Collection<Particle> particles) {
-        return particles.stream().anyMatch(this::collides);
+    public boolean collides(final Particle particle, final double L, final boolean periodicOutline) {
+        return distanceTo(particle, L, periodicOutline) <= 0;
+    }
+
+    public boolean collides(final Collection<Particle> particles, final double L, final boolean periodicOutline) {
+        return particles.stream().anyMatch(p -> collides(p, L, periodicOutline));
     }
 
     @Override
