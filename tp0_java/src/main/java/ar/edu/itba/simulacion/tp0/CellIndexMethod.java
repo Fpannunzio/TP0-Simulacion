@@ -1,6 +1,7 @@
 package ar.edu.itba.simulacion.tp0;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -17,6 +18,13 @@ public class CellIndexMethod {
     private final boolean   periodicOutline;
 
     public CellIndexMethod(final int M, final double L, final double actionRadius, final boolean periodicOutline) {
+        
+        int maxMValue = (int) (L / actionRadius);
+
+        if(maxMValue < M) {
+            throw new IllegalArgumentException("L to M ratio is too small. Max possible value for M is " + maxMValue);
+        }
+
         this.M = M;
         this.L = L;
         this.actionRadius = actionRadius;
@@ -30,11 +38,28 @@ public class CellIndexMethod {
     private int coordinateToCell(final double x, final double y) {
         int cellX = (int) (x / (L / M));
         int cellY = (int) (y / (L / M));
-        return cellY * M + cellX;
+        return indexToCell(cellX, cellY);
+    }
+
+    private int indexToCell(final int x, final int y) {
+        return y * M + x;
     }
 
     public Map<Integer, Set<Particle>> calculateNeighbours(final List<Particle> particles) {
         final Map<Integer, Set<Particle>> ret = new HashMap<>(particles.size());
+
+        final double maxRadius = particles
+            .stream()
+            .max(Comparator.comparing(Particle::getRadius))
+            .map(Particle::getRadius)
+            .orElseThrow(() -> new IllegalArgumentException("No particles were supplied"))
+            ;
+
+        int maxMValue = (int) (L / (actionRadius + 2*maxRadius));
+        
+        if(maxMValue < M) {
+            throw new IllegalArgumentException("L to M ratio is too small. Max possible value for M is " + maxMValue);
+        }
 
         // Inicializamos mapa de respuesta
         for(final Particle particle : particles) {
@@ -44,14 +69,13 @@ public class CellIndexMethod {
         // Inicializamos celdas
         final List<Particle>[] cells = buildCells(particles);
 
-        int cellId = 0;
         for(final List<Particle> cellValues : cells) {
             for(final Particle particle : cellValues) {
                 // Agregamos las particulas de la misma celda
                 addNeighbours(particle, cellValues, ret);
 
                 // Agregamos las particulas de las celdas vecinas
-                listCellNeighbours(cellId, neighbourCellId -> addNeighbours(particle, cells[neighbourCellId], ret));
+                listCellNeighbours(particleCell(particle), neighbourCellId -> addNeighbours(particle, cells[neighbourCellId], ret));
             }
         }
 
@@ -90,23 +114,25 @@ public class CellIndexMethod {
     // Como todos listan la misma mitad, todos terminan siendo listados
     private void listCellNeighbours(final int cell, final IntConsumer consumer) {
         int cellPositionX = cell % M;
-        int cellPositionY = (int) (cell / L);
+        int cellPositionY = cell / M;
+
+        // System.out.println(cellPositionX * 10000 + cellPositionY);
 
         // Top
         if(periodicOutline || cellPositionY + 1 < M) {
-            consumer.accept(coordinateToCell(cellPositionX, cellPositionY + 1 % M));
+            consumer.accept(indexToCell(cellPositionX, (cellPositionY + 1) % M));
         }
         // Top-Right
         if(periodicOutline || (cellPositionY + 1 < M && cellPositionX + 1 < M)) {
-            consumer.accept(coordinateToCell(cellPositionX + 1 % M, cellPositionY + 1 % M));
+            consumer.accept(indexToCell((cellPositionX + 1) % M, (cellPositionY + 1) % M));
         }
         // Right
         if(periodicOutline || cellPositionX + 1 < M) {
-            consumer.accept(coordinateToCell(cellPositionX + 1 % M, cellPositionY));
+            consumer.accept(indexToCell((cellPositionX + 1) % M, cellPositionY));
         }
         // Bottom-Right
         if (periodicOutline || (cellPositionY - 1 < 0 && cellPositionX + 1 < M)) {
-            consumer.accept(coordinateToCell(cellPositionX + 1 % M, cellPositionY - 1 % M));
+            consumer.accept(indexToCell((cellPositionX + 1) % M, (cellPositionY - 1) % M));
         }
     }
 }

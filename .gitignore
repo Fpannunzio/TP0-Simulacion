@@ -28,6 +28,9 @@ __pycache__/
 .idea
 *.iml
 target/
+.settings/
+.project
+.classpath
 
 # Carpetas de archivos generados y config
 config/
