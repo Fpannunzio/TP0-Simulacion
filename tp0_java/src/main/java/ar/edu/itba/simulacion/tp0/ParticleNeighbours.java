@@ -11,8 +11,10 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
@@ -44,9 +46,13 @@ public class ParticleNeighbours {
             );
 
         final long end = System.nanoTime();
+        final long executionNanos = end - start;
 
         // Queremos hacer otra cosa con esto??
-        System.out.println(end - start);
+        System.out.printf(Locale.ROOT, "Tiempo de ejecución: %d sec, %d millis\n",
+            TimeUnit.NANOSECONDS.toSeconds(executionNanos),
+            TimeUnit.NANOSECONDS.toMillis(executionNanos) - TimeUnit.MINUTES.toMillis(TimeUnit.NANOSECONDS.toSeconds(executionNanos))
+        );
 
         mapper.writeValue(new File(config.outputFile), ret);
     }
