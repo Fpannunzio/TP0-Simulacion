@@ -1,6 +1,6 @@
 {
-  "particleCount": 50,
-  "L": 6.5,
+  "particleCount": 500,
+  "L": 100,
   "periodicOutline": true,
   "minRadius": 0.1,
   "maxRadius": 1,
