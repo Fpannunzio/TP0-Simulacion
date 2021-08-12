@@ -76,7 +76,8 @@ class Plotter:
         # Centros
         plt.scatter(particles_x, particles_y, s=particles_r, color=particles_color, alpha=0.5)
 
-        ticks = [self.M * i for i in range(int(self.L / self.M) + 1)]
+        cell_length: float = self.L / self.M
+        ticks = [cell_length * i for i in range(self.M + 1)]
         self.axes.set_xticks(ticks)
         self.axes.set_yticks(ticks)
 
