@@ -1,13 +1,13 @@
 package ar.edu.itba.simulacion.tp0;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 
 public class CellIndexMethod {
     
@@ -42,32 +42,34 @@ public class CellIndexMethod {
         }
 
         // Inicializamos celdas
-        final Map<Integer, List<Particle>> cells = buildCells(particles);
+        final List<Particle>[] cells = buildCells(particles);
 
-        cells.forEach((cell, cellValues) -> {
+        int cellId = 0;
+        for(final List<Particle> cellValues : cells) {
             for(final Particle particle : cellValues) {
                 // Agregamos las particulas de la misma celda
                 addNeighbours(particle, cellValues, ret);
 
                 // Agregamos las particulas de las celdas vecinas
-                listCellNeighbours(cell, neighbourCell -> addNeighbours(particle, cells.get(neighbourCell), ret));
+                listCellNeighbours(cellId, neighbourCellId -> addNeighbours(particle, cells[neighbourCellId], ret));
             }
-        });
+        }
 
         return ret;
     }
 
-    private Map<Integer, List<Particle>> buildCells(final List<Particle> particles) {
-        final Map<Integer, List<Particle>> ret = new HashMap<>(M * M);
+    private List<Particle>[] buildCells(final List<Particle> particles) {
+        @SuppressWarnings("unchecked")
+        final List<Particle>[] ret = new List[M * M];
 
         // Inicializamos todas las celdas en el mapa, asignandoles un id unico segun su posicion
-        for(int i = 0; i < M * M; i++){
-            ret.put(i, new ArrayList<>());
+        for(int i = 0; i < M * M; i++) {
+            ret[i] = new LinkedList<>();
         }
 
         // Distribuimos las particulas en la celda correspondiente
         for(final Particle particle : particles) {
-            ret.get(particleCell(particle)).add(particle);
+            ret[particleCell(particle)].add(particle);
         }
 
         return ret;
@@ -86,7 +88,7 @@ public class CellIndexMethod {
 
     // Como optimizacion, solo listamos la mitad de los vecinos
     // Como todos listan la misma mitad, todos terminan siendo listados
-    private void listCellNeighbours(final int cell, final Consumer<Integer> consumer) {
+    private void listCellNeighbours(final int cell, final IntConsumer consumer) {
         int cellPositionX = cell % M;
         int cellPositionY = (int) (cell / L);
 
