@@ -11,9 +11,9 @@ public class Particle {
     private double y;
     private double radius;
 
-    public static Particle randomParticle(final int id, final double L, final double maxRadius) {
+    public static Particle randomParticle(final int id, final double L, final double minRadius, final double maxRadius) {
         final ThreadLocalRandom rand = ThreadLocalRandom.current();
-        return new Particle(id, rand.nextDouble(Double.MIN_VALUE, L), rand.nextDouble(Double.MIN_VALUE, L), rand.nextDouble(Double.MIN_VALUE, maxRadius));
+        return new Particle(id, rand.nextDouble(minRadius, L), rand.nextDouble(minRadius, L), rand.nextDouble(minRadius, maxRadius));
     }
 
     private Particle() {
