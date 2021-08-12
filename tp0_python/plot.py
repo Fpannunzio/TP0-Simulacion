@@ -37,7 +37,6 @@ class Plotter:
 
     def build_particle_circle(self, particle: Particle, axes) -> None:
         draw_particle_radius = plt.Circle((particle.x, particle.y), particle.radius, color=(self.get_circle_color(particle)), alpha=0.5, picker=True)
-        draw_particle_radius.set_label(particle.id)
         axes.add_artist(draw_particle_radius)
 
     def build_interaction_radius(self, particle: Particle, axes) -> None:
@@ -70,11 +69,10 @@ class Plotter:
 
         particles_x: List[int] = list(map(lambda p: p.x, self.particles))
         particles_y: List[int] = list(map(lambda p: p.y, self.particles))
-        particles_r: List[int] = list(map(lambda p: p.radius, self.particles))
         particles_color: List[str] = list(map(lambda p: self.get_circle_color(p), self.particles))
 
         # Centros
-        plt.scatter(particles_x, particles_y, s=particles_r, color=particles_color, alpha=0.5)
+        plt.scatter(particles_x, particles_y, s=self.L/100, color=particles_color, alpha=0.5)
 
         cell_length: float = self.L / self.M
         ticks = [cell_length * i for i in range(self.M + 1)]
