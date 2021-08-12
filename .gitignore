@@ -27,6 +27,7 @@ __pycache__/
 
 .idea
 *.iml
+target/
 
 # Carpetas de archivos generados y config
 config/
