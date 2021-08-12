@@ -7,14 +7,14 @@ from models import Particle
 
 class Plotter:
 
-    def __init__(self, particles: List[Particle], initial_particle: int, action_radius: float, neighbours_dict: Dict[str, List[int]], M: int, L: float, periodic_outline: bool) -> None:
+    def __init__(self, particles: List[Particle], action_radius: float, neighbours_dict: Dict[str, List[int]], M: int, L: float, periodic_outline: bool, initial_particle: int = 0) -> None:
         self.particles: List[Particle] = particles
-        self.selected_particle: int = initial_particle
         self.action_radius: float = action_radius
         self.neighbours_dict: Dict[str, List[int]] = neighbours_dict
         self.M: int = M
         self.L: float = L
         self.periodic_outline: bool = periodic_outline
+        self.selected_particle: int = initial_particle
 
         # Plot init
         figure, self.axes = plt.subplots()
