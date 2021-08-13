@@ -22,19 +22,17 @@ public class Simulation {
         int counter =0;
 
         final ObjectMapper mapper = new ObjectMapper();
-        final ParticleNeighboursConfig config = mapper.readValue(new File(args[0]), ParticleNeighboursConfig.class);
+        final ParticleNeighboursConfig config = new ParticleNeighboursConfig(Strategy.BRUTE_FORCE, 10, 100, 5, true, "particles/gen3.json", "output/cim.json");
 
-        final ParticleGenerationConfig particleConfig = new ParticleGenerationConfig(100, 100, true, 1, 2.5, "particles/gen3.json");
+        final ParticleGenerationConfig particleConfig = new ParticleGenerationConfig(505, 100, true, 1, 2.5, "particles/gen3.json");
         
-        if (config.strategy == null) {
-            throw new IllegalArgumentException("Strategy must be provided");
-        }
-
+        ParticleGeneration.particleGenerator(particleConfig);
+        
         List<Particle> particles = Arrays
-                .asList(mapper.readValue(new File(config.particlesFile), Particle[].class));
+            .asList(mapper.readValue(new File(config.particlesFile), Particle[].class));
+
 
         final List<BenchmarkTimes> benchmarks = new LinkedList<>();
-
 
         config.strategy = Strategy.BRUTE_FORCE;
         benchmarks.add(new BenchmarkTimes(config, 501));
