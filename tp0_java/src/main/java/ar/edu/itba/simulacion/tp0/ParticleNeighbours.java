@@ -57,7 +57,7 @@ public final class ParticleNeighbours {
             TimeUnit.NANOSECONDS.toSeconds(executionNanos),
             TimeUnit.NANOSECONDS.toMillis(executionNanos) - TimeUnit.MINUTES.toMillis(TimeUnit.NANOSECONDS.toSeconds(executionNanos))
         );
-
+        
         mapper.writeValue(new File(config.outputFile), ret);
     }
 
@@ -94,7 +94,7 @@ public final class ParticleNeighbours {
         return ret;
     }
 
-    private enum Strategy {
+    public enum Strategy {
         CIM         (ParticleNeighbours::CIM),
         BRUTE_FORCE (ParticleNeighbours::bruteForce),
         ;
@@ -110,7 +110,7 @@ public final class ParticleNeighbours {
         }
     }
 
-    private static class ParticleNeighboursConfig {
+    public static class ParticleNeighboursConfig {
         public Strategy     strategy;
         public int          M;
         public double       L;
@@ -119,8 +119,26 @@ public final class ParticleNeighbours {
         public String       particlesFile;
         public String       outputFile;
 
+        private ParticleNeighboursConfig() {
+            //Deserialization
+        }
+
+        public ParticleNeighboursConfig(Strategy strategy, int M, double L, double actionRadius, boolean periodicOutline, String particlesFile, String outputFile) {
+            this.strategy = strategy;
+            this.M = M;
+            this.L = L;
+            this.actionRadius = actionRadius;
+            this.periodicOutline = periodicOutline;
+            this.particlesFile = particlesFile;
+            this.outputFile = outputFile;
+        }      
+
         public CellIndexMethod toCim() {
             return new CellIndexMethod(M, L, actionRadius, periodicOutline);
+        }
+
+        public ParticleNeighboursConfig copy() {
+            return new ParticleNeighboursConfig(strategy, M, L, actionRadius, periodicOutline, particlesFile, outputFile);
         }
     }
 }

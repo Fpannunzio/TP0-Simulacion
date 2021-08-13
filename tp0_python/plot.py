@@ -168,3 +168,5 @@ class Plotter:
 
             if offset_x is not None and offset_y is not None:
                 build_interaction_radius(offset_x(x), offset_y(y))
+
+    

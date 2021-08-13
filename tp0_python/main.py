@@ -2,10 +2,11 @@ import json
 import sys
 from typing import List, Dict
 
-from models import Config, Particle
+from models import Config, Particle, Benchmark
 from plot import Plotter
+from plotBenchmark import PlotBenchmark
 
-def main(config_path: str):
+def excercise(config_path: str):
     with open(config_path) as config_fd:
         config: Config = json.load(config_fd, object_hook=lambda d: Config(**d))
 
@@ -15,11 +16,23 @@ def main(config_path: str):
 
     Plotter(config.strategy, particles, config.actionRadius, neighbours, config.M, config.L, config.periodicOutline).plot()
 
+def benchmark(config_path: str):
+    with open(config_path) as config_fd:
+        benchmarks: List[Benchmark] = json.load(config_fd, object_hook=deserializeBenchmark)
+    
+    PlotBenchmark(benchmarks).plot()
+    
+def deserializeBenchmark (d): 
+    if 'strategy' in d:
+        return Config(**d)
+    else:
+        return Benchmark(**d)
+    
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
         raise ValueError('Config path must be given by argument')
     try:
-        main(sys.argv[1])
+        benchmark(sys.argv[1])
     except KeyboardInterrupt:
         pass

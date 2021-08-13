@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from typing import List
+
 @dataclass
 class Config:
     strategy: str
@@ -17,3 +19,9 @@ class Particle:
     x: float
     y: float
     radius: float
+
+@dataclass
+class Benchmark:
+    config: Config
+    particles: int
+    timeList: List[int]
