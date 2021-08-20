@@ -6,7 +6,7 @@
 
     <groupId>ar.edu.itba.simulacion</groupId>
     <artifactId>tps</artifactId>
-    <version>${revision}</version>
+    <version>1.0.0</version>
     <name>tps</name>
     <url>https://www.pipo.com</url>
 

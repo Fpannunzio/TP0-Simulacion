@@ -4,7 +4,7 @@ echo "Ejecutando Simulacion 🕐️"
 # Ignore illegal access warnings
 export MAVEN_OPTS="--add-opens java.base/java.lang=ALL-UNNAMED"
 
-mvn -f ../ package -DskipTests || exit
+mvn -f ../ clean install -DskipTests -q || exit
 
 echo "Creando particulas 🕓️"
 

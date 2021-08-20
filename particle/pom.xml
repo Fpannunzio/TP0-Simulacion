@@ -7,9 +7,10 @@
     <parent>
         <groupId>ar.edu.itba.simulacion</groupId>
         <artifactId>tps</artifactId>
-        <version>${revision}</version>
+        <version>1.0.0</version>
     </parent>
     <artifactId>particle</artifactId>
+    <name>particle</name>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
