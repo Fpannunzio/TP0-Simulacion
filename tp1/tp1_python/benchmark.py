@@ -12,9 +12,9 @@ def benchmark(config_path: str):
 
 def deserializeBenchmark (d): 
     if 'strategy' in d:
-        return Config(**d)
+        return Config.from_dict(d)
     else:
-        return Benchmark(**d)
+        return Benchmark.from_dict(d)
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
