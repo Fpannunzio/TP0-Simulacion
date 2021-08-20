@@ -21,14 +21,14 @@ public class Particle2D {
         return new Builder();
     }
 
-    public static Particle2D randomParticle(final int id, final double spaceWidth, final double minRadius, final double maxRadius) {
+    public static Particle2D randomParticle(final int id, final double spaceWidth, final double velocityMod, final double minRadius, final double maxRadius) {
         final ThreadLocalRandom rand = ThreadLocalRandom.current();
         return Particle2D.builder()
             .withId(id)
             .withX(rand.nextDouble(minRadius, spaceWidth))
             .withY(rand.nextDouble(minRadius, spaceWidth))
-            .withVelocityMod(0)
-            .withVelocityDir(0)
+            .withVelocityMod(velocityMod)
+            .withVelocityDir(rand.nextDouble(-Math.PI, -Math.PI))
             .withRadius(rand.nextDouble(minRadius, maxRadius))
             .build()
             ;
@@ -67,6 +67,14 @@ public class Particle2D {
 
     public boolean collides(final Collection<Particle2D> particles, final double L, final boolean periodicOutline) {
         return particles.stream().anyMatch(p -> collides(p, L, periodicOutline));
+    }
+
+    public double getXShift(int time) {
+        return Math.cos(velocityDir) * velocityMod * time;
+    }
+
+    public double getYShift(int time) {
+        return Math.sin(velocityDir) * velocityMod * time;
     }
 
     @Override
@@ -159,6 +167,7 @@ public class Particle2D {
     public double getVelocityDir() {
         return velocityDir;
     }
+    
 
     public double getRadius() {
         return this.radius;

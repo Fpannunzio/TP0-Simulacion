@@ -36,7 +36,7 @@ public final class ParticleGeneration {
         int tries = 0;
         int particleCount = 0;
         while (particleCount < config.particleCount && tries < MAX_FAILURE_TOLERANCE) {
-            final Particle2D particle = Particle2D.randomParticle(particleCount, config.L, minRadius, config.maxRadius);
+            final Particle2D particle = Particle2D.randomParticle(particleCount, config.L, config.velocity, minRadius, config.maxRadius);
             if (!particle.collides(ret, config.L, config.periodicOutline)) {
                 ret.add(particle);
                 particleCount++;
@@ -50,6 +50,7 @@ public final class ParticleGeneration {
     public static class ParticleGenerationConfig {
         public int particleCount;
         public double L;
+        public double velocity;
         public boolean periodicOutline;
         public double minRadius;
         public double maxRadius;
@@ -60,10 +61,11 @@ public final class ParticleGeneration {
             //deserialization
         }
 
-        public ParticleGenerationConfig(int particleCount, double L, boolean periodicOutline, double minRadius,
+        public ParticleGenerationConfig(int particleCount, double L, double velocity, boolean periodicOutline, double minRadius,
                 double maxRadius, String outputFile) {
             this.particleCount = particleCount;
             this.L = L;
+            this.velocity = velocity;
             this.periodicOutline = periodicOutline;
             this.minRadius = minRadius;
             this.maxRadius = maxRadius;
