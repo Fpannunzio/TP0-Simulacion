@@ -16,7 +16,7 @@ import ar.edu.itba.simulacion.tp0.ParticleNeighbours.ParticleNeighboursConfig;
 import ar.edu.itba.simulacion.tp0.ParticleNeighbours.Strategy;
 
 public class Simulation {
-    public static void main(String[] args) throws JsonGenerationException, JsonMappingException, IOException {
+    public static void main(String[] args) throws IOException {
         long start;
         long end;
         int counter =0;
@@ -28,8 +28,8 @@ public class Simulation {
         
         ParticleGeneration.particleGenerator(particleConfig);
         
-        List<Particle> particles = Arrays
-            .asList(mapper.readValue(new File(config.particlesFile), Particle[].class));
+        List<Particle2D> particles = Arrays
+            .asList(mapper.readValue(new File(config.particlesFile), Particle2D[].class));
 
 
         final List<BenchmarkTimes> benchmarks = new LinkedList<>();
@@ -62,7 +62,7 @@ public class Simulation {
             particleConfig.particleCount = (i + 1) * 100;
             ParticleGeneration.particleGenerator(particleConfig);
             particles = Arrays
-                .asList(mapper.readValue(new File(config.particlesFile), Particle[].class));
+                .asList(mapper.readValue(new File(config.particlesFile), Particle2D[].class));
             benchmarks.add(new BenchmarkTimes(config, (i + 1) * 100));
             for (int j = 0; j < 500; j++) {
                 start = System.nanoTime();

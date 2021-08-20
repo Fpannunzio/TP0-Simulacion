@@ -38,11 +38,11 @@ public class CellIndexMethod {
         return (int) (particleAxis / cellLength);
     }
 
-    public Map<Integer, Set<Particle>> calculateNeighbours(final List<Particle> particles) {
+    public Map<Integer, Set<Particle2D>> calculateNeighbours(final List<Particle2D> particles) {
         final double maxRadius = particles
             .stream()
-            .max(Comparator.comparing(Particle::getRadius))
-            .map(Particle::getRadius)
+            .max(Comparator.comparing(Particle2D::getRadius))
+            .map(Particle2D::getRadius)
             .orElseThrow(() -> new IllegalArgumentException("No particles were supplied"))
             ;
 
@@ -52,19 +52,19 @@ public class CellIndexMethod {
             throw new IllegalArgumentException("L to M ratio is too small. Max possible value for M is " + maxMValue);
         }
 
-        final Map<Integer, Set<Particle>> ret = new HashMap<>(particles.size());
+        final Map<Integer, Set<Particle2D>> ret = new HashMap<>(particles.size());
 
         // Inicializamos mapa de respuesta
-        for(final Particle particle : particles) {
+        for(final Particle2D particle : particles) {
             ret.put(particle.getId(), new HashSet<>());
         }
 
         // Inicializamos celdas
-        final List<Particle>[][] cells = buildCells(particles);
+        final List<Particle2D>[][] cells = buildCells(particles);
 
-        for(final List<Particle>[] cellRows : cells) {
-            for(final List<Particle> cellValues : cellRows) {
-                for(final Particle particle : cellValues) {
+        for(final List<Particle2D>[] cellRows : cells) {
+            for(final List<Particle2D> cellValues : cellRows) {
+                for(final Particle2D particle : cellValues) {
                     // Agregamos las particulas de la misma celda
                     addNeighbours(particle, cellValues, ret);
 
@@ -77,9 +77,9 @@ public class CellIndexMethod {
         return ret;
     }
 
-    private List<Particle>[][] buildCells(final List<Particle> particles) {
+    private List<Particle2D>[][] buildCells(final List<Particle2D> particles) {
         @SuppressWarnings("unchecked")
-        final List<Particle>[][] ret = new List[M][M];
+        final List<Particle2D>[][] ret = new List[M][M];
 
         // Inicializamos todas las celdas en el mapa, asignandoles un id unico segun su posicion
         for(int x = 0; x < M; x++) {
@@ -89,17 +89,17 @@ public class CellIndexMethod {
         }
 
         // Distribuimos las particulas en la celda correspondiente
-        for(final Particle particle : particles) {
+        for(final Particle2D particle : particles) {
             ret[particleToCellAxis(particle.getX())][particleToCellAxis(particle.getY())].add(particle);
         }
 
         return ret;
     }
 
-    private void addNeighbours(final Particle particle, final List<Particle> potentialNeighbours, final Map<Integer, ? extends Collection<Particle>> cellsNeighbours) {
-        final Collection<Particle> currentNeighbours = cellsNeighbours.get(particle.getId());
+    private void addNeighbours(final Particle2D particle, final List<Particle2D> potentialNeighbours, final Map<Integer, ? extends Collection<Particle2D>> cellsNeighbours) {
+        final Collection<Particle2D> currentNeighbours = cellsNeighbours.get(particle.getId());
 
-        for(final Particle neighbour: potentialNeighbours) {
+        for(final Particle2D neighbour: potentialNeighbours) {
             if(!particle.equals(neighbour) && !currentNeighbours.contains(neighbour) && particle.distanceTo(neighbour, L, periodicOutline) < actionRadius) {
                 currentNeighbours.add(neighbour);
                 cellsNeighbours.get(neighbour.getId()).add(particle);
@@ -109,7 +109,7 @@ public class CellIndexMethod {
 
     // Como optimizacion, solo listamos la mitad de los vecinos
     // Como todos listan la misma mitad, todos terminan siendo listados
-    private void listCellNeighbours(final Particle particle, final CoordinateConsumer consumer) {
+    private void listCellNeighbours(final Particle2D particle, final CoordinateConsumer consumer) {
         final int cellX = particleToCellAxis(particle.getX());
         final int cellY = particleToCellAxis(particle.getY());
 

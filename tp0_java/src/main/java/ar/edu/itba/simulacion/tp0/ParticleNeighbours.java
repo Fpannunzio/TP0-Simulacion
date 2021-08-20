@@ -36,16 +36,16 @@ public final class ParticleNeighbours {
             throw new IllegalArgumentException("Strategy must be provided");
         }
 
-        final List<Particle> particles = Arrays.asList(mapper.readValue(new File(config.particlesFile), Particle[].class));
+        final List<Particle2D> particles = Arrays.asList(mapper.readValue(new File(config.particlesFile), Particle2D[].class));
 
         final long start = System.nanoTime();
 
-        final Map<Integer, ? extends Collection<Particle>> neighbours = config.strategy.apply(config, particles);
+        final Map<Integer, ? extends Collection<Particle2D>> neighbours = config.strategy.apply(config, particles);
         final Map<Integer, List<Integer>> ret = neighbours.entrySet()
             .stream()
             .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue()
                 .stream()
-                .map(Particle::getId)
+                .map(Particle2D::getId)
                 .collect(Collectors.toList()))
             );
 
@@ -61,26 +61,26 @@ public final class ParticleNeighbours {
         mapper.writeValue(new File(config.outputFile), ret);
     }
 
-    public static Map<Integer, Set<Particle>> CIM(final ParticleNeighboursConfig config, final List<Particle> particles) {
+    public static Map<Integer, Set<Particle2D>> CIM(final ParticleNeighboursConfig config, final List<Particle2D> particles) {
         return config.toCim().calculateNeighbours(particles);
     }
 
-    public static Map<Integer, List<Particle>> bruteForce(final ParticleNeighboursConfig config, final List<Particle> particles) {
-        final Map<Integer, List<Particle>> ret = new HashMap<>();
-        for(final Particle particle : particles) {
+    public static Map<Integer, List<Particle2D>> bruteForce(final ParticleNeighboursConfig config, final List<Particle2D> particles) {
+        final Map<Integer, List<Particle2D>> ret = new HashMap<>();
+        for(final Particle2D particle : particles) {
             ret.put(particle.getId(), new ArrayList<>(particles.size()));
         }
 
-        particles.sort(Comparator.comparing(Particle::getId));
+        particles.sort(Comparator.comparing(Particle2D::getId));
 
         final int particleCount = particles.size();
 
         int i = 0;
-        for(final Particle particle : particles) {
+        for(final Particle2D particle : particles) {
             if(i + 1 < particleCount) {
-                final ListIterator<Particle> possibleNeighbours = particles.listIterator(i + 1);
+                final ListIterator<Particle2D> possibleNeighbours = particles.listIterator(i + 1);
                 while (possibleNeighbours.hasNext()) {
-                    final Particle possibleNeighbour = possibleNeighbours.next();
+                    final Particle2D possibleNeighbour = possibleNeighbours.next();
 
                     if(particle.distanceTo(possibleNeighbour, config.L, config.periodicOutline) < config.actionRadius) {
                         ret.get(particle.getId()).add(possibleNeighbour);
@@ -99,13 +99,13 @@ public final class ParticleNeighbours {
         BRUTE_FORCE (ParticleNeighbours::bruteForce),
         ;
 
-        private final BiFunction<ParticleNeighboursConfig, List<Particle>, Map<Integer, ? extends Collection<Particle>>> strategy;
+        private final BiFunction<ParticleNeighboursConfig, List<Particle2D>, Map<Integer, ? extends Collection<Particle2D>>> strategy;
 
-        Strategy(final BiFunction<ParticleNeighboursConfig, List<Particle>, Map<Integer, ? extends Collection<Particle>>> strategy) {
+        Strategy(final BiFunction<ParticleNeighboursConfig, List<Particle2D>, Map<Integer, ? extends Collection<Particle2D>>> strategy) {
             this.strategy = strategy;
         }
 
-        public Map<Integer, ? extends Collection<Particle>> apply(final ParticleNeighboursConfig config, final List<Particle> particles) {
+        public Map<Integer, ? extends Collection<Particle2D>> apply(final ParticleNeighboursConfig config, final List<Particle2D> particles) {
             return strategy.apply(config, particles);
         }
     }

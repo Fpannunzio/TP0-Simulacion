@@ -1,7 +1,5 @@
 package ar.edu.itba.simulacion.tp0;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
@@ -29,17 +27,16 @@ public final class ParticleGeneration {
 
     }
 
-    public static List<Particle> particleGenerator(ParticleGenerationConfig config)
-            throws JsonParseException, JsonMappingException, IOException {
+    public static List<Particle2D> particleGenerator(ParticleGenerationConfig config) {
 
         final double minRadius = Math.max(MIN_RADIUS, config.minRadius);
 
-        final List<Particle> ret = new ArrayList<>(config.particleCount);
+        final List<Particle2D> ret = new ArrayList<>(config.particleCount);
 
         int tries = 0;
         int particleCount = 0;
         while (particleCount < config.particleCount && tries < MAX_FAILURE_TOLERANCE) {
-            final Particle particle = Particle.randomParticle(particleCount, config.L, minRadius, config.maxRadius);
+            final Particle2D particle = Particle2D.randomParticle(particleCount, config.L, minRadius, config.maxRadius);
             if (!particle.collides(ret, config.L, config.periodicOutline)) {
                 ret.add(particle);
                 particleCount++;
