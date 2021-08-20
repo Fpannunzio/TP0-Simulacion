@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static ar.edu.itba.simulacion.tp1.ParticleNeighbours.*;
 
-public class Simulation {
+public class Benchmark {
     public static void main(String[] args) throws IOException {
         long start;
         long end;
@@ -24,9 +24,9 @@ public class Simulation {
         final ParticleNeighboursConfig config = new ParticleNeighboursConfig(Strategy.BRUTE_FORCE, 10, 100, 5, true, "particles/gen3.json", "output/cim.json");
 
         final ParticleGenerationConfig particleConfig = new ParticleGenerationConfig(505, 100, true, 1, 2.5, "particles/gen3.json");
-        
+
         ParticleGeneration.particleGenerator(particleConfig);
-        
+
         List<Particle2D> particles = Arrays
             .asList(mapper.readValue(new File(config.particlesFile), Particle2D[].class));
 
@@ -55,7 +55,7 @@ public class Simulation {
             }
             counter++;
         }
-        
+
         for (int i = 0; i < 10; i++) {
             config.strategy = Strategy.CIM;
             particleConfig.particleCount = (i + 1) * 100;
