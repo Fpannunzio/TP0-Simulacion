@@ -1,4 +1,4 @@
-package ar.edu.itba.simulacion.tp0;
+package ar.edu.itba.simulacion.particle;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -150,6 +150,14 @@ public class Particle2D {
 
     public double getY() {
         return this.y;
+    }
+
+    public double getVelocityMod() {
+        return velocityMod;
+    }
+
+    public double getVelocityDir() {
+        return velocityDir;
     }
 
     public double getRadius() {

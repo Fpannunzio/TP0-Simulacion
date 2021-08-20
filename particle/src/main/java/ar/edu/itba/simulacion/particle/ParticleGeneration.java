@@ -1,4 +1,4 @@
-package ar.edu.itba.simulacion.tp0;
+package ar.edu.itba.simulacion.particle;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

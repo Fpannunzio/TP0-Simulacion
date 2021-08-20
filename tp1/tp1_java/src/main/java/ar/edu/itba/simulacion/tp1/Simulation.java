@@ -1,19 +1,18 @@
-package ar.edu.itba.simulacion.tp0;
+package ar.edu.itba.simulacion.tp1;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import ar.edu.itba.simulacion.particle.Particle2D;
+import ar.edu.itba.simulacion.particle.ParticleGeneration;
+import ar.edu.itba.simulacion.particle.ParticleGeneration.ParticleGenerationConfig;
+import ar.edu.itba.simulacion.tp1.ParticleNeighbours.ParticleNeighboursConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import ar.edu.itba.simulacion.tp0.ParticleGeneration.ParticleGenerationConfig;
-import ar.edu.itba.simulacion.tp0.ParticleNeighbours.ParticleNeighboursConfig;
-import ar.edu.itba.simulacion.tp0.ParticleNeighbours.Strategy;
+import static ar.edu.itba.simulacion.tp1.ParticleNeighbours.*;
 
 public class Simulation {
     public static void main(String[] args) throws IOException {

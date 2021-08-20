@@ -1,5 +1,7 @@
-package ar.edu.itba.simulacion.tp0;
+package ar.edu.itba.simulacion.tp1;
 
+import ar.edu.itba.simulacion.particle.CellIndexMethod;
+import ar.edu.itba.simulacion.particle.Particle2D;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
@@ -57,7 +59,7 @@ public final class ParticleNeighbours {
             TimeUnit.NANOSECONDS.toSeconds(executionNanos),
             TimeUnit.NANOSECONDS.toMillis(executionNanos) - TimeUnit.MINUTES.toMillis(TimeUnit.NANOSECONDS.toSeconds(executionNanos))
         );
-        
+
         mapper.writeValue(new File(config.outputFile), ret);
     }
 
