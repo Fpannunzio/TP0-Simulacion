@@ -1,9 +1,12 @@
 package ar.edu.itba.simulacion.particle;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Builder;
+import lombok.Data;
+import lombok.extern.jackson.Jacksonized;
 
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,27 +20,28 @@ public final class ParticleGeneration {
     private static final int MAX_FAILURE_TOLERANCE = 10_000;
 
     public static void main(final String[] args) throws IOException {
-        if (args.length < 1) {
+        if(args.length < 1) {
             throw new IllegalArgumentException("First argument must be config path");
         }
         final ObjectMapper mapper = new ObjectMapper();
-        final ParticleGenerationConfig config = mapper.readValue(Path.of(args[0]).toFile(),
-                ParticleGenerationConfig.class);
-        mapper.writeValue(Path.of(config.outputFile).toFile(), particleGenerator(config));
 
+        final ParticleGenerationConfig config = mapper.readValue(new File(args[0]), ParticleGenerationConfig.class);
+
+        mapper.writeValue(new File(config.outputFile), particleGenerator(config));
     }
 
-    public static List<Particle2D> particleGenerator(ParticleGenerationConfig config) {
+    public static List<Particle2D> particleGenerator(final ParticleGenerationConfig config) {
 
         final double minRadius = Math.max(MIN_RADIUS, config.minRadius);
 
         final List<Particle2D> ret = new ArrayList<>(config.particleCount);
 
+        // TODO(tobi): Cambiar brute force por CellIndexMethod
         int tries = 0;
         int particleCount = 0;
-        while (particleCount < config.particleCount && tries < MAX_FAILURE_TOLERANCE) {
-            final Particle2D particle = Particle2D.randomParticle(particleCount, config.L, config.velocity, minRadius, config.maxRadius);
-            if (!particle.collides(ret, config.L, config.periodicOutline)) {
+        while(particleCount < config.particleCount && tries < MAX_FAILURE_TOLERANCE) {
+            final Particle2D particle = Particle2D.randomParticle(particleCount, config.spaceWidth, config.minVelocity, config.maxVelocity, minRadius, config.maxRadius);
+            if(particle.getRadius() == 0 || !particle.collides(ret, config.spaceWidth, config.periodicBorder)) {
                 ret.add(particle);
                 particleCount++;
             }
@@ -47,29 +51,17 @@ public final class ParticleGeneration {
         return ret;
     }
 
+    @Data
+    @Jacksonized
+    @Builder(setterPrefix = "with")
     public static class ParticleGenerationConfig {
-        public int particleCount;
-        public double L;
-        public double velocity;
-        public boolean periodicOutline;
-        public double minRadius;
-        public double maxRadius;
-        public String outputFile;
-
-
-        public ParticleGenerationConfig() {
-            //deserialization
-        }
-
-        public ParticleGenerationConfig(int particleCount, double L, double velocity, boolean periodicOutline, double minRadius,
-                double maxRadius, String outputFile) {
-            this.particleCount = particleCount;
-            this.L = L;
-            this.velocity = velocity;
-            this.periodicOutline = periodicOutline;
-            this.minRadius = minRadius;
-            this.maxRadius = maxRadius;
-            this.outputFile = outputFile;
-        }
+        public int     particleCount;
+        public double  spaceWidth;
+        public boolean periodicBorder;
+        public double  minVelocity;
+        public double  maxVelocity;
+        public double  minRadius;
+        public double  maxRadius;
+        public String  outputFile;
     }
 }

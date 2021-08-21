@@ -3,6 +3,9 @@ package ar.edu.itba.simulacion.tp1;
 import ar.edu.itba.simulacion.particle.CellIndexMethod;
 import ar.edu.itba.simulacion.particle.Particle2D;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Builder;
+import lombok.Data;
+import lombok.extern.jackson.Jacksonized;
 
 import java.io.File;
 import java.io.IOException;
@@ -112,6 +115,9 @@ public final class ParticleNeighbours {
         }
     }
 
+    @Data
+    @Jacksonized
+    @Builder(setterPrefix = "with")
     public static class ParticleNeighboursConfig {
         public Strategy     strategy;
         public int          M;
@@ -120,20 +126,6 @@ public final class ParticleNeighbours {
         public boolean      periodicOutline;
         public String       particlesFile;
         public String       outputFile;
-
-        private ParticleNeighboursConfig() {
-            //Deserialization
-        }
-
-        public ParticleNeighboursConfig(Strategy strategy, int M, double L, double actionRadius, boolean periodicOutline, String particlesFile, String outputFile) {
-            this.strategy = strategy;
-            this.M = M;
-            this.L = L;
-            this.actionRadius = actionRadius;
-            this.periodicOutline = periodicOutline;
-            this.particlesFile = particlesFile;
-            this.outputFile = outputFile;
-        }      
 
         public CellIndexMethod toCim() {
             return new CellIndexMethod(M, L, actionRadius, periodicOutline);

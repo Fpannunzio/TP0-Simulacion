@@ -28,18 +28,23 @@
       <artifactId>jackson-databind</artifactId>
     </dependency>
 
+    <!-- Annotation Based POJOs -->
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+    </dependency>
+
     <!-- Module Dependencies-->
     <dependency>
       <groupId>ar.edu.itba.simulacion</groupId>
       <artifactId>particle</artifactId>
-      <version>1.0.0</version>
+      <version>${project.parent.version}</version>
     </dependency>
 
     <!-- Testing -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
-      <scope>test</scope>
     </dependency>
   </dependencies>
 

@@ -1,6 +1,6 @@
 package ar.edu.itba.simulacion.particle;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import ar.edu.itba.simulacion.particle.Particle2D;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -18,11 +18,10 @@ public class CellIndexMethod {
     private final double    actionRadius;
     private final boolean   periodicOutline;
 
-    @JsonIgnore
     private final double    cellLength;
 
     public CellIndexMethod(final int M, final double L, final double actionRadius, final boolean periodicOutline) {
-        int maxMValue = (int) (L / actionRadius);
+        final int maxMValue = (int) (L / actionRadius);
         if(maxMValue < M) {
             throw new IllegalArgumentException("L to M ratio is too small. Max possible value for M is " + maxMValue);
         }
