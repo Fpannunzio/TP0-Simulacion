@@ -24,6 +24,7 @@
     <modules>
         <module>particle</module>
         <module>tp1/tp1_java</module>
+        <module>tp2/tp2_java</module>
     </modules>
 
     <dependencyManagement>
