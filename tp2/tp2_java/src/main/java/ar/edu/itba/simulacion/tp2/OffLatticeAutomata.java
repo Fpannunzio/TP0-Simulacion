@@ -13,13 +13,13 @@ import java.util.function.DoubleUnaryOperator;
 
 import static ar.edu.itba.simulacion.particle.neighbours.CellIndexMethod.*;
 
-public class OffLattice {
+public class OffLatticeAutomata {
 
     private final double            spaceWidth;
     private final boolean           periodicBorder;
     private final CellIndexMethod   cim;
 
-    public OffLattice(final double spaceWidth, final double actionRadius, final boolean periodicBorder, final double maxRadius) {
+    public OffLatticeAutomata(final double spaceWidth, final double actionRadius, final boolean periodicBorder, final double maxRadius) {
         this.spaceWidth     = spaceWidth;
         this.periodicBorder = periodicBorder;
         this.cim            = new CellIndexMethod(

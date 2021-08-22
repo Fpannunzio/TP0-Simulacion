@@ -10,12 +10,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
 
-public final class TP2 {
+public final class OffLatticeSimulation {
 
     // Temporal, para probar graficar
     private static final int STEPS = 100;
 
-    private TP2() {
+    private OffLatticeSimulation() {
         // static class
     }
 
@@ -34,7 +34,7 @@ public final class TP2 {
 
         final double maxRadius = particles.stream().mapToDouble(Particle2D::getRadius).max().orElseThrow();
 
-        final OffLattice automata = new OffLattice(config.spaceWidth, config.actionRadius, config.periodicBorder, maxRadius);
+        final OffLatticeAutomata automata = new OffLatticeAutomata(config.spaceWidth, config.actionRadius, config.periodicBorder, maxRadius);
 
         final List<List<Particle2D>> automataStates = automata.doNSteps(particles, STEPS);
 
