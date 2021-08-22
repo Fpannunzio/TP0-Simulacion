@@ -20,6 +20,10 @@ public class CellIndexMethod {
 
     private final double    cellLength;
 
+    public static int optimalM(final double L, final double actionRadius, final double maxRadius) {
+        return (int) (L / (actionRadius + 2 * maxRadius));
+    }
+
     public CellIndexMethod(final int M, final double L, final double actionRadius, final boolean periodicOutline) {
         final int maxMValue = (int) (L / actionRadius);
         if(maxMValue < M) {
@@ -45,7 +49,7 @@ public class CellIndexMethod {
             .orElseThrow(() -> new IllegalArgumentException("No particles were supplied"))
             ;
 
-        int maxMValue = (int) (L / (actionRadius + 2*maxRadius));
+        int maxMValue = optimalM(L, actionRadius, maxRadius);
 
         if(maxMValue < M) {
             throw new IllegalArgumentException("L to M ratio is too small. Max possible value for M is " + maxMValue);

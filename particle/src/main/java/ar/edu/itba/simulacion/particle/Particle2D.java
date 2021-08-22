@@ -61,11 +61,38 @@ public class Particle2D {
         return particles.stream().anyMatch(p -> collides(p, spaceWidth, periodicBorder));
     }
 
-    public double getXShift(int time) {
-        return Math.cos(velocityDir) * velocityMod * time;
+    private static double normalizeAxis(final double axis, final double spaceWidth, final boolean periodicBorder) {
+        double ret = axis;
+
+        if(periodicBorder) {
+            if(axis >= spaceWidth) {
+                ret = axis - spaceWidth;
+            } else if(axis < 0) {
+                ret = axis + spaceWidth;
+            }
+        }
+        return ret;
     }
 
-    public double getYShift(int time) {
-        return Math.sin(velocityDir) * velocityMod * time;
+    public double getNextX(final double spaceWidth, final boolean periodicBorder) {
+        return normalizeAxis(x + Math.cos(velocityDir) * velocityMod, spaceWidth, periodicBorder);
+    }
+
+    public double getNextY(final double spaceWidth, final boolean periodicBorder) {
+        return normalizeAxis(y + Math.sin(velocityDir) * velocityMod, spaceWidth, periodicBorder);
+    }
+
+    public Particle2D doStep(
+        final double newVelocityMod, final double newVelocityDir, final double spaceWidth, final boolean periodicBorder
+    ) {
+        return Particle2D.builder()
+            .withId(id)
+            .withX(getNextX(spaceWidth, periodicBorder))
+            .withY(getNextY(spaceWidth, periodicBorder))
+            .withVelocityMod(newVelocityMod)
+            .withVelocityDir(newVelocityDir)
+            .withRadius(radius)
+            .build()
+            ;
     }
 }

@@ -1,82 +1,85 @@
 package ar.edu.itba.simulacion.tp2;
 
+import ar.edu.itba.simulacion.particle.Particle2D;
+import ar.edu.itba.simulacion.particle.neighbours.CellIndexMethod;
+
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.DoubleUnaryOperator;
+
+import static ar.edu.itba.simulacion.particle.neighbours.CellIndexMethod.*;
 
 public class OffLattice {
 
-    private List<IterationState> iterations;
-    private final CellIndexMethod cim;
+    private final double            spaceWidth;
+    private final boolean           periodicBorder;
+    private final CellIndexMethod   cim;
 
-    private final int       M;
-    private final double    L;
-    private final double    actionRadius;
-
-
-    public OffLattice(List<IterationState> iterations, int M, double L, double actionRadius) {
-        this.iterations = new LinkedList<>();
-        this.M = M;
-        this.L = L;
-        this.actionRadius = actionRadius;
-        this.cim = new CellIndexMethod(M, L, actionRadius, true);
+    public OffLattice(final double spaceWidth, final double actionRadius, final boolean periodicBorder, final double maxRadius) {
+        this.spaceWidth     = spaceWidth;
+        this.periodicBorder = periodicBorder;
+        this.cim            = new CellIndexMethod(
+            optimalM(spaceWidth, actionRadius, maxRadius), spaceWidth, actionRadius, periodicBorder
+        );
     }
 
-    public List<IterationState> runIterations(final List<Particle2D> particles, final int time) {
-        Map<Integer, Set<Particle2D>> neighbours;
-        
-        iterations.add(new IterationState(particles));
+    public List<Particle2D> step(final List<Particle2D> state) {
+        final List<Particle2D> newState = new LinkedList<>();
 
-        for (int i=0; i < time; i++) {
+        final Map<Integer, Set<Particle2D>> neighboursMap = cim.calculateNeighbours(state);
 
-            IterationState newIteration = new IterationState();
-            neighbours = cim.calculateNeighbours(iterations.get(i).getParticles());
+        for(final Particle2D particle : state) {
+            final Set<Particle2D> neighbours = neighboursMap.get(particle.getId());
 
-            for(Particle2D particle : iterations.get(i).getParticles()) {
-                newIteration.appendParticle(particleNextState(particle, neighbours.get(particle.getId())));
-            }
-            iterations.add(newIteration);   
+            // Consideramos que la particula tambien es su neighbour
+            neighbours.add(particle);
+
+            // Calculamos la nueva posicion de la particula y la agregamos al estado del automata
+            newState.add(particleNextState(particle, neighbours));
         }
 
-        return iterations;
+        return newState;
     }
 
-    private Particle2D particleNextState(Particle2D particle, Set<Particle2D> neighbourParticles) {
-        
-        double avgSin = neighbourParticles.stream().map(p -> Math.sin(p.getVelocityDir())).mapToDouble(Double::doubleValue).average().orElse(particle.getVelocityDir());
-        double avgCos = neighbourParticles.stream().map(p -> Math.cos(p.getVelocityDir())).mapToDouble(Double::doubleValue).average().orElse(particle.getVelocityDir());
+    // Tobi: Dejo este metodo para testear, pero para mi no queremos correrlo una cantidad fija de veces,
+    // sino usando alguna heuristica para determinar el corte
+    public List<List<Particle2D>> doNSteps(final List<Particle2D> state, final int steps) {
+        final List<List<Particle2D>> states = new ArrayList<>(steps);
+        List<Particle2D> last = state;
 
-        return Particle2D.builder()
-            .withId(particle.getId())
-            .withX(particle.getX() + particle.getXShift(1))
-            .withY(particle.getY() + particle.getYShift(1))
-            .withVelocityMod(particle.getVelocityMod())
-            .withVelocityDir(Math.atan2(avgCos, avgSin))
-            .withRadius(particle.getRadius())
-            .build();
+        states.add(last);
+        for(int i = 0; i < steps; i++) {
+            last = step(last);
+            states.add(last);
+        }
+
+        return states;
     }
-    
-    private static class IterationState {
 
-        List<Particle2D> particles;
-    
-        private IterationState() {
-            this.particles = new LinkedList<>();
-        }
+    private static double velocityDirAverage(final Collection<Particle2D> particles, final DoubleUnaryOperator projection) {
+        return particles.stream()
+            .mapToDouble(Particle2D::getVelocityDir)
+            .map(projection)
+            .sorted()       // El average da mejor si ordenamos los valores
+            .average()
+            .orElseThrow()  // Nunca deberia estar vacio, pues siempre esta la particle
+            ;
+    }
 
-        private IterationState(List<Particle2D> particles) {
-            this.particles = particles;
-        }
-        
-        private List<Particle2D> getParticles() {
-            return particles;
-        }
-        
-        private void appendParticle(Particle2D particle) {
-            particles.add(particle);
-        }
-    
+    // Se asume que la particula esta dentro de los vecinos (uno es su propio vecino)
+    private Particle2D particleNextState(final Particle2D particle, final Set<Particle2D> neighbours) {
+        return particle.doStep(
+            particle.getVelocityMod(),
+            Math.atan2(
+                velocityDirAverage(neighbours, Math::cos),
+                velocityDirAverage(neighbours, Math::sin)
+            ),
+            spaceWidth,
+            periodicBorder
+        );
     }
 }
