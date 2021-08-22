@@ -1,0 +1,7 @@
+{
+  "spaceWidth": 100,
+  "actionRadius": 5,
+  "periodicBorder": true,
+  "particlesFile": "particles/off_lattice_gen.json",
+  "outputFile": "output/off_lattice_out.json"
+}

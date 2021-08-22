@@ -1,0 +1,8 @@
+{
+  "particleCount": 500,
+  "spaceWidth": 100,
+  "periodicBorder": true,
+  "minRadius": 1,
+  "maxRadius": 2.5,
+  "outputFile": "particles/gen5.json"
+}

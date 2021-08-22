@@ -1,0 +1,10 @@
+{
+  "particleCount": 500,
+  "spaceWidth": 100,
+  "periodicBorder": true,
+  "minVelocity": 10,
+  "maxVelocity": 10,
+  "minRadius": 1,
+  "maxRadius": 2.5,
+  "outputFile": "particles/off_lattice_gen.json"
+}
