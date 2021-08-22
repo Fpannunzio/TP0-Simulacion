@@ -3,13 +3,18 @@ from dataclasses import dataclass
 
 from typing import List
 
-def class_from_dict(cls, dict):
-    cls_properties = inspect.signature(cls).parameters
-    return cls(**{
-        k: v for k, v in dict.items() if k in cls_properties
-    })
+def from_dict(cls):
+    def class_from_dict(dict):
+        cls_properties = inspect.signature(cls).parameters
+        return cls(**{
+            k: v for k, v in dict.items() if k in cls_properties
+        })
+
+    setattr(cls, 'from_dict', class_from_dict)
+    return cls
 
 @dataclass
+@from_dict
 class Config:
     strategy: str
     m: int
@@ -19,28 +24,17 @@ class Config:
     particlesFile: str
     outputFile: str
 
-    @classmethod
-    def from_dict(cls, dict):
-        return class_from_dict(cls, dict)
-
-
 @dataclass
+@from_dict
 class Particle:
     id: int
     x: float
     y: float
     radius: float
 
-    @classmethod
-    def from_dict(cls, dict):
-        return class_from_dict(cls, dict)
-
 @dataclass
+@from_dict
 class Benchmark:
     config: Config
     particles: int
     timeList: List[int]
-
-    @classmethod
-    def from_dict(cls, dict):
-        return class_from_dict(cls, dict)
