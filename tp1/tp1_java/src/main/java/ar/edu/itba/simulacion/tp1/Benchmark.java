@@ -65,7 +65,7 @@ public class Benchmark {
 
         config.strategy = Strategy.CIM;
         for (int i = 0; i < 10; i++) {
-            config.M = i + 1;
+            config.m = i + 1;
             benchmarks.add(new BenchmarkTimes(config, 501));
             for (int j = 0; j < 500; j++) {
                 start = System.nanoTime();

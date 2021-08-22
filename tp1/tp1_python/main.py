@@ -13,7 +13,7 @@ def exercise(config_path: str):
         particles: List[Particle] = json.load(particles_fd, object_hook=lambda d: Particle.from_dict(d))
         neighbours: Dict[str, List[int]] = json.load(neighbours_fd)
 
-    Plotter(config.strategy, particles, config.actionRadius, neighbours, config.M, config.L, config.periodicOutline).plot()
+    Plotter(config.strategy, particles, config.actionRadius, neighbours, config.m, config.l, config.periodicOutline).plot()
     
 
 if __name__ == '__main__':

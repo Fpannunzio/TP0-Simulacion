@@ -7,13 +7,13 @@ from models import Particle
 
 class Plotter:
 
-    def __init__(self, strategy: str, particles: List[Particle], action_radius: float, neighbours_dict: Dict[str, List[int]], M: int, L: float, periodic_outline: bool, initial_particle: int = 0) -> None:
+    def __init__(self, strategy: str, particles: List[Particle], action_radius: float, neighbours_dict: Dict[str, List[int]], m: int, l: float, periodic_outline: bool, initial_particle: int = 0) -> None:
         self.strategy_name: str = strategy.replace('_', ' ').capitalize()
         self.particles: List[Particle] = particles
         self.action_radius: float = action_radius
         self.neighbours_dict: Dict[str, List[int]] = neighbours_dict
-        self.M: int = M
-        self.L: float = L
+        self.M: int = m
+        self.L: float = l
         self.periodic_outline: bool = periodic_outline
         self.selected_particle: int = initial_particle
 

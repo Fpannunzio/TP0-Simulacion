@@ -28,8 +28,8 @@ class PlotBenchmark:
                     bruteForceMTuple[0][1] = np.std(np.asarray(benchmark.timeList)[25:]/1e6)
 
                 else:
-                    valuePerM[benchmark.config.M - 1][0] = np.mean(np.asarray(benchmark.timeList)[25:]/1e6)
-                    valuePerM[benchmark.config.M - 1][1] = np.std(np.asarray(benchmark.timeList)[25:]/1e6)
+                    valuePerM[benchmark.config.m - 1][0] = np.mean(np.asarray(benchmark.timeList)[25:] / 1e6)
+                    valuePerM[benchmark.config.m - 1][1] = np.std(np.asarray(benchmark.timeList)[25:] / 1e6)
         
             else:
                 if (benchmark.config.strategy == "BRUTE_FORCE"):

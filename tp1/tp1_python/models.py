@@ -12,8 +12,8 @@ def class_from_dict(cls, dict):
 @dataclass
 class Config:
     strategy: str
-    M: int
-    L: float
+    m: int
+    l: float
     actionRadius: float
     periodicOutline: bool
     particlesFile: str

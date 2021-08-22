@@ -1,7 +1,7 @@
 {
   "strategy": "CIM",
-  "M": 5,
-  "L": 100,
+  "m": 5,
+  "l": 100,
   "actionRadius": 5,
   "periodicOutline": true,
   "particlesFile": "particles/gen5.json",

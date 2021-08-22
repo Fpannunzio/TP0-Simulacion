@@ -64,7 +64,7 @@ public final class ParticleNeighbours {
 
     public enum Strategy {
         CIM         ((particles, config) -> config.toCim().calculateNeighbours(particles)),
-        BRUTE_FORCE ((particles, config) -> BruteForceMethod.calculateNeighbours(particles, config.L, config.actionRadius, config.periodicOutline)),
+        BRUTE_FORCE ((particles, config) -> BruteForceMethod.calculateNeighbours(particles, config.l, config.actionRadius, config.periodicOutline)),
         ;
 
         private final BiFunction<List<Particle2D>,ParticleNeighboursConfig, Map<Integer, ? extends Collection<Particle2D>>> strategy;
@@ -83,19 +83,19 @@ public final class ParticleNeighbours {
     @Builder(setterPrefix = "with")
     public static class ParticleNeighboursConfig {
         public Strategy     strategy;
-        public int          M;
-        public double       L;
+        public int          m;
+        public double       l;
         public double       actionRadius;
         public boolean      periodicOutline;
         public String       particlesFile;
         public String       outputFile;
 
         public CellIndexMethod toCim() {
-            return new CellIndexMethod(M, L, actionRadius, periodicOutline);
+            return new CellIndexMethod(m, l, actionRadius, periodicOutline);
         }
 
         public ParticleNeighboursConfig copy() {
-            return new ParticleNeighboursConfig(strategy, M, L, actionRadius, periodicOutline, particlesFile, outputFile);
+            return new ParticleNeighboursConfig(strategy, m, l, actionRadius, periodicOutline, particlesFile, outputFile);
         }
     }
 }
