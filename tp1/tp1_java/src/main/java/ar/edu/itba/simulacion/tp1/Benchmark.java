@@ -57,7 +57,7 @@ public class Benchmark {
         benchmarks.add(new BenchmarkTimes(config, 501));
         for (int i = 0; i < 500; i++) {
             start = System.nanoTime();
-            ParticleNeighbours.bruteForce(config, particles);
+            Strategy.BRUTE_FORCE.apply(particles, config);
             end = System.nanoTime();
             benchmarks.get(counter).timeList.add(end - start);
         }
@@ -69,7 +69,7 @@ public class Benchmark {
             benchmarks.add(new BenchmarkTimes(config, 501));
             for (int j = 0; j < 500; j++) {
                 start = System.nanoTime();
-                ParticleNeighbours.CIM(config, particles);
+                Strategy.CIM.apply(particles, config);
                 end = System.nanoTime();
                 benchmarks.get(counter).timeList.add(end - start);
             }
@@ -84,7 +84,7 @@ public class Benchmark {
             benchmarks.add(new BenchmarkTimes(config, (i + 1) * 100));
             for (int j = 0; j < 500; j++) {
                 start = System.nanoTime();
-                ParticleNeighbours.CIM(config, particles);
+                Strategy.CIM.apply(particles, config);
                 end = System.nanoTime();
                 benchmarks.get(counter).timeList.add(end - start);
             }
@@ -93,7 +93,7 @@ public class Benchmark {
             benchmarks.add(new BenchmarkTimes(config, (i + 1) * 100));
             for (int j = 0; j < 500; j++) {
                 start = System.nanoTime();
-                ParticleNeighbours.bruteForce(config, particles);
+                Strategy.BRUTE_FORCE.apply(particles, config);
                 end = System.nanoTime();
                 benchmarks.get(counter).timeList.add(end - start);
             }

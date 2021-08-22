@@ -1,4 +1,4 @@
-package ar.edu.itba.simulacion.particle;
+package ar.edu.itba.simulacion.particle.neighbours;
 
 import ar.edu.itba.simulacion.particle.Particle2D;
 
