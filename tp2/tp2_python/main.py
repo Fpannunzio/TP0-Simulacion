@@ -13,7 +13,7 @@ def main(config_path):
     with open(config.outputFile, 'r') as particles_fd:
         off_lattice_automata_states: List[List[Particle]] = json.load(particles_fd, object_hook=lambda d: Particle.from_dict(d))
 
-    Plotter(config.spaceWidth, config.actionRadius, config.periodicBorder, off_lattice_automata_states).plot()
+    ani = Plotter(config.spaceWidth, config.actionRadius, config.periodicBorder, off_lattice_automata_states).plot()
 
 
 if __name__ == '__main__':
