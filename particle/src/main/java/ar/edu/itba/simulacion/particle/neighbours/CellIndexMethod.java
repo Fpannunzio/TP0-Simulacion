@@ -25,6 +25,9 @@ public class CellIndexMethod {
     }
 
     public CellIndexMethod(final int M, final double L, final double actionRadius, final boolean periodicOutline) {
+        if(actionRadius <= 0) {
+            throw new IllegalArgumentException("Action radius must be positive");
+        }
         final int maxMValue = (int) (L / actionRadius);
         if(maxMValue < M) {
             throw new IllegalArgumentException("L to M ratio is too small. Max possible value for M is " + maxMValue);
