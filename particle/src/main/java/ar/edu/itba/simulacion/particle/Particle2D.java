@@ -16,7 +16,7 @@ public class Particle2D {
     double  x;
     double  y;
     double  velocityMod;
-    double  velocityDir;
+    double  velocityDir;  // Radianes entre [0, 2*PI)
     double  radius;
 
     public static Particle2D randomParticle(
@@ -90,7 +90,7 @@ public class Particle2D {
             .withX(getNextX(spaceWidth, periodicBorder))
             .withY(getNextY(spaceWidth, periodicBorder))
             .withVelocityMod(newVelocityMod)
-            .withVelocityDir(newVelocityDir)
+            .withVelocityDir(newVelocityDir < 0 ? newVelocityDir + Math.PI : newVelocityDir)
             .withRadius(radius)
             .build()
             ;

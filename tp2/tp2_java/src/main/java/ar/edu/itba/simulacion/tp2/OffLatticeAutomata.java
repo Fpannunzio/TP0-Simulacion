@@ -75,8 +75,8 @@ public class OffLatticeAutomata {
         return particle.doStep(
             particle.getVelocityMod(),
             Math.atan2(
-                velocityDirAverage(neighbours, Math::cos),
-                velocityDirAverage(neighbours, Math::sin)
+                velocityDirAverage(neighbours, Math::sin),
+                velocityDirAverage(neighbours, Math::cos)
             ),
             spaceWidth,
             periodicBorder
