@@ -16,7 +16,7 @@ public final class ParticleGeneration {
         // Static class
     }
 
-    private static final double MIN_RADIUS = 0.1;
+    private static final double MIN_RADIUS = 0;
     private static final int MAX_FAILURE_TOLERANCE = 10_000;
 
     public static void main(final String[] args) throws IOException {
