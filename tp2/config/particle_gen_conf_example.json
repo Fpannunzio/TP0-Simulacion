@@ -2,9 +2,9 @@
   "particleCount": 500,
   "spaceWidth": 100,
   "periodicBorder": true,
-  "minVelocity": 10,
-  "maxVelocity": 10,
-  "minRadius": 1,
-  "maxRadius": 2.5,
+  "minVelocity": 0.3,
+  "maxVelocity": 0.3,
+  "minRadius": 0,
+  "maxRadius": 0,
   "outputFile": "particles/off_lattice_gen.json"
 }

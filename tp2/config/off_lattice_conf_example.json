@@ -2,6 +2,10 @@
   "spaceWidth": 100,
   "actionRadius": 5,
   "periodicBorder": true,
+  "endCondition": {
+    "type": "step",
+    "endStep": 100
+  },
   "particlesFile": "particles/off_lattice_gen.json",
   "outputFile": "output/off_lattice_out.json"
 }

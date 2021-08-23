@@ -25,7 +25,6 @@ class Plotter:
         self.ax1.set_xlim([0, self.space_width])
         self.ax1.set_ylim([0, self.space_width])
 
-
     def plot_gen(self, gen):
         # Graficamos el estado inicial como test
         first_state: List[Particle] = self.states[gen]
@@ -48,10 +47,9 @@ class Plotter:
         self.ax1.set_xlim([0, self.space_width])
         self.ax1.set_ylim([0, self.space_width])
 
-
     def plot(self):
         
-        ani = animation.FuncAnimation(self.fig, self.plot_gen, interval=1000, frames=100, repeat=False) 
+        ani = animation.FuncAnimation(self.fig, self.plot_gen, interval=100, frames=100, repeat=False)
         plt.show()
         return ani
         
