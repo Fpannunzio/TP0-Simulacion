@@ -2,8 +2,8 @@ package ar.edu.itba.simulacion.tp2;
 
 import ar.edu.itba.simulacion.particle.Particle2D;
 import ar.edu.itba.simulacion.particle.neighbours.CellIndexMethod;
+import ar.edu.itba.simulacion.tp2.endCondition.OffLatticeEndCondition;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -45,16 +45,17 @@ public class OffLatticeAutomata {
         return newState;
     }
 
-    // Tobi: Dejo este metodo para testear, pero para mi no queremos correrlo una cantidad fija de veces,
-    // sino usando alguna heuristica para determinar el corte
-    public List<List<Particle2D>> doNSteps(final List<Particle2D> state, final int steps) {
-        final List<List<Particle2D>> states = new ArrayList<>(steps);
-        List<Particle2D> last = state;
+    public List<List<Particle2D>> run(final List<Particle2D> initialState, final OffLatticeEndCondition endCondition) {
+        final List<List<Particle2D>> states = new LinkedList<>();
 
+        List<Particle2D> last = initialState;
         states.add(last);
-        for(int i = 0; i < steps; i++) {
+
+        long step = 0;
+        while(!endCondition.hasEnded(last, step)) {
             last = step(last);
             states.add(last);
+            step++;
         }
 
         return states;

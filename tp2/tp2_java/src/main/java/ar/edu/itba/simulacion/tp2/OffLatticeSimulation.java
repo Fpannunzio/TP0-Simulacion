@@ -5,15 +5,13 @@ import java.io.IOException;
 import java.util.List;
 
 import ar.edu.itba.simulacion.particle.Particle2D;
+import ar.edu.itba.simulacion.tp2.endCondition.OffLatticeEndCondition;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
 
 public final class OffLatticeSimulation {
-
-    // Temporal, para probar graficar
-    private static final int STEPS = 100;
 
     private OffLatticeSimulation() {
         // static class
@@ -36,7 +34,7 @@ public final class OffLatticeSimulation {
 
         final OffLatticeAutomata automata = new OffLatticeAutomata(config.spaceWidth, config.actionRadius, config.periodicBorder, maxRadius);
 
-        final List<List<Particle2D>> automataStates = automata.doNSteps(particles, STEPS);
+        final List<List<Particle2D>> automataStates = automata.run(particles, config.endCondition);
 
         mapper.writeValue(new File(config.outputFile), automataStates);
     }
@@ -45,10 +43,11 @@ public final class OffLatticeSimulation {
     @Jacksonized
     @Builder(setterPrefix = "with")
     public static class OffLatticeConfig {
-        public double       spaceWidth;
-        public double       actionRadius;
-        public boolean      periodicBorder;
-        public String       particlesFile;
-        public String       outputFile;
+        public double                   spaceWidth;
+        public double                   actionRadius;
+        public boolean                  periodicBorder;
+        public OffLatticeEndCondition   endCondition;
+        public String                   particlesFile;
+        public String                   outputFile;
     }
 }
