@@ -1,6 +1,7 @@
 {
   "spaceWidth": 100,
   "actionRadius": 5,
+  "eta": 0.5,
   "periodicBorder": true,
   "endCondition": {
     "type": "step",

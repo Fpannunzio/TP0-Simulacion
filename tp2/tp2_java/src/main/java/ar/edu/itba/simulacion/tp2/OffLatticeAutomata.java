@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.DoubleUnaryOperator;
 
 import static ar.edu.itba.simulacion.particle.neighbours.CellIndexMethod.*;
@@ -16,12 +17,14 @@ import static ar.edu.itba.simulacion.particle.neighbours.CellIndexMethod.*;
 public class OffLatticeAutomata {
 
     private final double            spaceWidth;
+    private final double            eta;
     private final boolean           periodicBorder;
     private final CellIndexMethod   cim;
 
-    public OffLatticeAutomata(final double spaceWidth, final double actionRadius, final boolean periodicBorder, final double maxRadius) {
+    public OffLatticeAutomata(final double spaceWidth, final double actionRadius, final double eta, final boolean periodicBorder, final double maxRadius) {
         this.spaceWidth     = spaceWidth;
         this.periodicBorder = periodicBorder;
+        this.eta            = eta;
         this.cim            = new CellIndexMethod(
             optimalM(spaceWidth, actionRadius, maxRadius), spaceWidth, actionRadius, periodicBorder
         );
@@ -73,12 +76,13 @@ public class OffLatticeAutomata {
 
     // Se asume que la particula esta dentro de los vecinos (uno es su propio vecino)
     private Particle2D particleNextState(final Particle2D particle, final Set<Particle2D> neighbours) {
+        final ThreadLocalRandom rand = ThreadLocalRandom.current();
         return particle.doStep(
             particle.getVelocityMod(),
             Math.atan2(
                 velocityDirAverage(neighbours, Math::sin),
                 velocityDirAverage(neighbours, Math::cos)
-            ),
+            ) + rand.nextDouble(-eta/2, eta/2),
             spaceWidth,
             periodicBorder
         );

@@ -32,7 +32,7 @@ public final class OffLatticeSimulation {
 
         final double maxRadius = particles.stream().mapToDouble(Particle2D::getRadius).max().orElseThrow();
 
-        final OffLatticeAutomata automata = new OffLatticeAutomata(config.spaceWidth, config.actionRadius, config.periodicBorder, maxRadius);
+        final OffLatticeAutomata automata = new OffLatticeAutomata(config.spaceWidth, config.actionRadius, config.eta, config.periodicBorder, maxRadius);
 
         final List<List<Particle2D>> automataStates = automata.run(particles, config.endCondition);
 
@@ -45,6 +45,7 @@ public final class OffLatticeSimulation {
     public static class OffLatticeConfig {
         public double                   spaceWidth;
         public double                   actionRadius;
+        public double                   eta;
         public boolean                  periodicBorder;
         public OffLatticeEndCondition   endCondition;
         public String                   particlesFile;
