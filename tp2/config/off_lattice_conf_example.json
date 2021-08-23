@@ -4,8 +4,9 @@
   "eta": 0.5,
   "periodicBorder": true,
   "endCondition": {
-    "type": "step",
-    "endStep": 100
+    "type": "stableVa",
+    "targetSTD": 0.3,
+    "window": 70
   },
   "particlesFile": "particles/off_lattice_gen.json",
   "outputFile": "output/off_lattice_out.json"
