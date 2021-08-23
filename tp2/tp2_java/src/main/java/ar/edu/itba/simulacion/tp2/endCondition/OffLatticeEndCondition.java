@@ -9,10 +9,13 @@ import java.util.List;
 @JsonTypeInfo(property = OffLatticeEndCondition.FIELD_TYPE, use = JsonTypeInfo.Id.NAME)
 @JsonSubTypes({
     @JsonSubTypes.Type(name = StepEndCondition.TYPE, value = StepEndCondition .class),
+    @JsonSubTypes.Type(name = StableVAEndCondition.TYPE, value = StableVAEndCondition.class),
 })
 public interface OffLatticeEndCondition {
     String FIELD_TYPE = "type";
 
-    boolean hasEnded(final List<Particle2D> state, final long step);
+    boolean hasEnded();
+
+    void processNewState(final List<Particle2D> state);
 
 }

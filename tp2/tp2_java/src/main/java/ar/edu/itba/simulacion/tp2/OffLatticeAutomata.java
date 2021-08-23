@@ -53,12 +53,12 @@ public class OffLatticeAutomata {
 
         List<Particle2D> last = initialState;
         states.add(last);
+        endCondition.processNewState(last);
 
-        long step = 0;
-        while(!endCondition.hasEnded(last, step)) {
+        while(!endCondition.hasEnded()) {
             last = step(last);
             states.add(last);
-            step++;
+            endCondition.processNewState(last);
         }
 
         return states;
