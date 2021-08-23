@@ -1,5 +1,6 @@
 package ar.edu.itba.simulacion.particle;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
@@ -74,12 +75,22 @@ public class Particle2D {
         return ret;
     }
 
+    @JsonIgnore
+    public double getVelocityX() {
+        return Math.cos(velocityDir) * velocityMod;
+    }
+
+    @JsonIgnore
+    public double getVelocityY() {
+        return Math.sin(velocityDir) * velocityMod;
+    }
+
     public double getNextX(final double spaceWidth, final boolean periodicBorder) {
-        return normalizeAxis(x + Math.cos(velocityDir) * velocityMod, spaceWidth, periodicBorder);
+        return normalizeAxis(x + getVelocityX(), spaceWidth, periodicBorder);
     }
 
     public double getNextY(final double spaceWidth, final boolean periodicBorder) {
-        return normalizeAxis(y + Math.sin(velocityDir) * velocityMod, spaceWidth, periodicBorder);
+        return normalizeAxis(y + getVelocityY(), spaceWidth, periodicBorder);
     }
 
     public Particle2D doStep(
