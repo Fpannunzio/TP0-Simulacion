@@ -34,6 +34,12 @@
       <artifactId>lombok</artifactId>
     </dependency>
 
+    <!-- Math Library -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-math3</artifactId>
+    </dependency>
+
     <!-- Module Dependencies-->
     <dependency>
       <groupId>ar.edu.itba.simulacion</groupId>
