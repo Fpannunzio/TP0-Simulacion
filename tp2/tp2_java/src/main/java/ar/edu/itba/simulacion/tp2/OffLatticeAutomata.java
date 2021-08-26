@@ -56,6 +56,9 @@ public class OffLatticeAutomata {
         endCondition.processNewState(last);
 
         while(!endCondition.hasEnded()) {
+            if(states.size() % 1000 == 0) {
+                System.out.println("Otros 1000!" + states.size());
+            }
             last = step(last);
             states.add(last);
             endCondition.processNewState(last);

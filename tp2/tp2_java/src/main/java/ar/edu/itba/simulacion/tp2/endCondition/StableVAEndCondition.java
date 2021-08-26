@@ -12,12 +12,15 @@ import java.util.Queue;
 public class StableVAEndCondition implements OffLatticeEndCondition {
     public static final String TYPE = "stableVa";
 
+    private static final int MAX_ITERATIONS = 10_000;
+
     @Getter private final double  targetSTD;
     @Getter private final int     window;
 
     // Mutable state
     private final Queue<Double> calculatedVAs;
     private       double        mean;
+    private       int           iterationCount;
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
     public StableVAEndCondition(
@@ -31,18 +34,22 @@ public class StableVAEndCondition implements OffLatticeEndCondition {
         this.window                 = window;
         this.calculatedVAs          = new LinkedList<>();
         this.mean                   = 0;
+        this.iterationCount         = 0;
     }
 
     @Override
     public boolean hasEnded() {
+        if(iterationCount >= MAX_ITERATIONS) {
+            return true;
+        }
+        
         if(calculatedVAs.size() < window) {
             return false;
         }
 
         final double intermediateStd = calculatedVAs.stream().mapToDouble(va -> Math.pow(va - mean, 2)).sum();
         final double std = Math.sqrt(intermediateStd / window);
-
-        return std <= targetSTD;
+        return std <= targetSTD / Math.exp(1 - iterationCount / 1000.0);
     }
 
     @Override
@@ -55,6 +62,8 @@ public class StableVAEndCondition implements OffLatticeEndCondition {
         // Agregamos nuevo valor
         final double newValue = calculateStableNormalizedVelocity(state);
         calculatedVAs.add(newValue);
+        
+        iterationCount++;
         mean += newValue / window;
     }
 
