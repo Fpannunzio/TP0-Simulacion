@@ -17,7 +17,7 @@ public class Particle2D {
     double  x;
     double  y;
     double  velocityMod;
-    double  velocityDir;  // Radianes entre [0, 2*PI)
+    double  velocityDir;  // Radianes entre [-PI, PI)
     double  radius;
 
     public static Particle2D randomParticle(
@@ -30,7 +30,7 @@ public class Particle2D {
             .withX(rand.nextDouble(minRadius, spaceWidth))
             .withY(rand.nextDouble(minRadius, spaceWidth))
             .withVelocityMod(minVelocity < maxVelocity ? rand.nextDouble(minVelocity, maxVelocity) : minVelocity)
-            .withVelocityDir(rand.nextDouble(0, 2 * Math.PI))
+            .withVelocityDir(rand.nextDouble(-Math.PI, Math.PI))
             .withRadius(minRadius < maxRadius ? rand.nextDouble(minRadius, maxRadius) : minRadius)
             .build()
             ;
