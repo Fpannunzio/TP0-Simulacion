@@ -56,4 +56,8 @@ class Plotter:
         
         ani = animation.FuncAnimation(self.fig, self.plot_gen, interval=50, frames=len(self.states), repeat=False)
         plt.show()
+        # Writer = animation.writers['ffmpeg']
+        # writer = Writer(fps=15, metadata=dict(artist='Me'), bitrate=1800)
+        # ani.save('pepe.mp4', writer=writer)
+
         return ani
