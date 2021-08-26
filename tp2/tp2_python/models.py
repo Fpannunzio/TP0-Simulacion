@@ -33,8 +33,29 @@ class Config:
 
 @dataclass
 @from_dict
+class VaVsNoiseBenchmarkConfig:
+    spaceWidth:     float
+    actionRadius:   float
+    noiseStep:      float
+    periodicBorder: bool
+    velocity:       float
+    particleCounts: List[int]
+    outputFile:     str
+
+@dataclass
+@from_dict
 class VaVsNoiseBenchmarkResult:
-    noiseStep:  float
-    vaMean:     List[float]
-    vaStd:      List[float]
+    spaceWidth:     float
+    particleCount:  int
+    vaMean:         List[float]
+    vaStd:          List[float]
+
+@dataclass
+@from_dict
+class VaVsNoiseBenchmarkSummary:
+    noiseStep:                  float
+    variableDensityBenchmarks:  List[VaVsNoiseBenchmarkResult]
+    constantDensityBenchmarks:  List[VaVsNoiseBenchmarkResult]
+
+
 

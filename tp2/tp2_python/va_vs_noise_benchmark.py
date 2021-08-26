@@ -2,31 +2,40 @@ import json
 import math
 import sys
 from formater import multiple_formatter
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 
 import numpy as np
 from matplotlib import pyplot as plt
 
-from models import Config, VaVsNoiseBenchmarkResult
+from models import VaVsNoiseBenchmarkResult, VaVsNoiseBenchmarkSummary, VaVsNoiseBenchmarkConfig
 
 
-def parse_config(data: Dict[str, Any]) -> Optional[Config]:
+def parse_config(data: Dict[str, Any]) -> Optional[VaVsNoiseBenchmarkConfig]:
     if 'outputFile' in data:
-        return Config.from_dict(data)
+        return VaVsNoiseBenchmarkConfig.from_dict(data)
     else:
         return None
 
+def parse_benchmark_summary(data: Dict[str, Any]) -> Union[VaVsNoiseBenchmarkResult, VaVsNoiseBenchmarkSummary]:
+    if 'spaceWidth' in data:
+        return VaVsNoiseBenchmarkResult.from_dict(data)
+    else:
+        return VaVsNoiseBenchmarkSummary.from_dict(data)
+
 def main(config_path):
     with open(config_path, 'r') as config_fd:
-        config: Config = json.load(config_fd, object_hook=parse_config)
+        config: VaVsNoiseBenchmarkConfig = json.load(config_fd, object_hook=parse_config)
 
     with open(config.outputFile, 'r') as particles_fd:
-        benchmark_result: VaVsNoiseBenchmarkResult = json.load(particles_fd, object_hook=lambda d: VaVsNoiseBenchmarkResult.from_dict(d))
+        benchmark_summary: VaVsNoiseBenchmarkSummary = json.load(particles_fd, object_hook=parse_benchmark_summary)
 
-    fig = plt.figure(figsize=(16,8))
+    # Graficamos el primero para testear
+    first_benchmark_result: VaVsNoiseBenchmarkResult = benchmark_summary.variableDensityBenchmarks[0]
+
+    fig = plt.figure(figsize=(16, 8))
     ax = fig.add_subplot(1, 1, 1)
 
-    ax.errorbar(np.arange(0, 2 * math.pi, benchmark_result.noiseStep), benchmark_result.vaMean, yerr=benchmark_result.vaStd, color='red', capsize=2)
+    ax.errorbar(np.arange(0, 2 * math.pi, benchmark_summary.noiseStep), first_benchmark_result.vaMean, yerr=first_benchmark_result.vaStd, color='red', capsize=2)
 
     ax.set_xlabel(r'$\eta$')
     ax.set_ylabel(r'$v_a$')
