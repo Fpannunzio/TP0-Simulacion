@@ -31,24 +31,43 @@ public final class ParticleGeneration {
     }
 
     public static List<Particle2D> particleGenerator(final ParticleGenerationConfig config) {
+        return generateParticles(
+            config.particleCount, config.spaceWidth, config.periodicBorder, config.minVelocity, config.maxVelocity,
+            config.minRadius, config.maxRadius
+        );
+    }
 
-        final double minRadius = Math.max(MIN_RADIUS, config.minRadius);
+    public static List<Particle2D> generateParticles(
+        final int particleCount, final double spaceWidth, final boolean periodicBorder, final double minVelocity,
+        final double maxVelocity, final double minRadius, final double maxRadius
+    ) {
+        final List<Particle2D> ret = new ArrayList<>(particleCount);
 
-        final List<Particle2D> ret = new ArrayList<>(config.particleCount);
+        generateAdditionalParticles(
+            ret, particleCount, spaceWidth, periodicBorder, minVelocity, maxVelocity, minRadius, maxRadius
+        );
+
+        return ret;
+    }
+
+    public static void generateAdditionalParticles(
+        final List<Particle2D> existingParticles, final int targetParticleCount, final double spaceWidth,
+        final boolean periodicBorder, final double minVelocity, final double maxVelocity, final double minRadius,
+        final double maxRadius
+    ) {
+        final double realMinRadius = Math.max(MIN_RADIUS, minRadius);
 
         // TODO(tobi): Cambiar brute force por CellIndexMethod
         int tries = 0;
-        int particleCount = 0;
-        while(particleCount < config.particleCount && tries < MAX_FAILURE_TOLERANCE) {
-            final Particle2D particle = Particle2D.randomParticle(particleCount, config.spaceWidth, config.minVelocity, config.maxVelocity, minRadius, config.maxRadius);
-            if(particle.getRadius() == 0 || !particle.collides(ret, config.spaceWidth, config.periodicBorder)) {
-                ret.add(particle);
+        int particleCount = existingParticles.size();
+        while(particleCount < targetParticleCount && tries < MAX_FAILURE_TOLERANCE) {
+            final Particle2D particle = Particle2D.randomParticle(targetParticleCount, spaceWidth, minVelocity, maxVelocity, realMinRadius, maxRadius);
+            if(particle.getRadius() == 0 || !particle.collides(existingParticles, spaceWidth, periodicBorder)) {
+                existingParticles.add(particle);
                 particleCount++;
             }
             tries++;
         }
-
-        return ret;
     }
 
     @Data

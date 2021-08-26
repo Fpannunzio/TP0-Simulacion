@@ -1,6 +1,9 @@
 package ar.edu.itba.simulacion.tp2;
 
 import ar.edu.itba.simulacion.particle.Particle2D;
+import ar.edu.itba.simulacion.particle.ParticleGeneration;
+import ar.edu.itba.simulacion.tp2.VaVsNoiseBenchmark.VaVsNoiseBenchmarkSummary.VaVsNoiseBenchmarkSummaryBuilder;
+import ar.edu.itba.simulacion.tp2.endCondition.OffLatticeEndCondition;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Builder;
 import lombok.Data;
@@ -9,6 +12,8 @@ import org.apache.commons.math3.stat.StatUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public final class VaVsNoiseBenchmark {
@@ -27,57 +32,124 @@ public final class VaVsNoiseBenchmark {
         }
         final ObjectMapper mapper = new ObjectMapper();
 
-        final OffLatticeSimulation.OffLatticeConfig config = mapper.readValue(new File(args[0]), OffLatticeSimulation.OffLatticeConfig.class);
+        final VaVsNoiseBenchmarkConfig config = mapper.readValue(new File(args[0]), VaVsNoiseBenchmarkConfig.class);
 
-        final List<Particle2D> initialState = List.of(mapper.readValue(new File(config.particlesFile), Particle2D[].class));
-        if(initialState.isEmpty()) {
-            throw new IllegalArgumentException("No particles found");
+        if(config.particleCounts.length <= 0) {
+            throw new IllegalArgumentException("particleCounts cannot be empty");
         }
 
-        final double maxRadius = initialState.stream().mapToDouble(Particle2D::getRadius).max().orElseThrow();
+        final double noiseStep = config.noiseStep > 0 ? config.noiseStep : NOISE_STEP_DEFAULT;
+        final double density = config.particleCounts[0] / config.spaceWidth;
+        // Ordenamos el array por las dudas
+        Arrays.sort(config.particleCounts);
 
-        // Usamos noise de config como step
-        final double noiseStep      = config.noise > 0 ? config.noise : NOISE_STEP_DEFAULT;
+        final List<VaVsNoiseBenchmarkResult> variableDensityBenchmarks = new ArrayList<>(config.particleCounts.length);
+        final List<VaVsNoiseBenchmarkResult> constantDensityBenchmarks = new ArrayList<>(config.particleCounts.length);
+
+        final VaVsNoiseBenchmarkSummaryBuilder summary = VaVsNoiseBenchmarkSummary.builder()
+            .withNoiseStep                (noiseStep)
+            .withVariableDensityBenchmarks(variableDensityBenchmarks)
+            .withConstantDensityBenchmarks(constantDensityBenchmarks)
+            ;
+
+        // Variamos la cantidad de particulas
+        final List<Particle2D> particles = new ArrayList<>(config.particleCounts[config.particleCounts.length - 1]);
+        for(final int particleCount : config.particleCounts) {
+            ParticleGeneration.generateAdditionalParticles(
+                particles, particleCount, config.spaceWidth, config.periodicBorder,
+                config.velocity, config.velocity, 0, 0
+            );
+
+            variableDensityBenchmarks.add(calculateBenchmark(
+                particles, config.spaceWidth, noiseStep, config.actionRadius, config.periodicBorder, config.endCondition
+            ));
+
+            config.endCondition.reset();
+
+            // Calculamos el tamanio del espacio segun la cantidad de puntos y la densidad deseada
+            constantDensityBenchmarks.add(calculateBenchmark(
+                particles, particleCount / density, noiseStep, config.actionRadius, config.periodicBorder, config.endCondition
+            ));
+
+            config.endCondition.reset();
+
+            System.out.println("Calculated benchmarks for " + particleCount + " particles");
+        }
+
+        mapper.writeValue(new File(config.outputFile), summary.build());
+    }
+
+    private static VaVsNoiseBenchmarkResult calculateBenchmark(
+        final List<Particle2D> initialState, final double spaceWidth, final double noiseStep, final double actionRadius,
+        final boolean periodicBorder, final OffLatticeEndCondition endCondition
+    ) {
         final int totalNoiseSteps   = ((int) (NOISE_LIMIT / noiseStep)) + 1;
 
         final double[] vaMean   = new double[totalNoiseSteps];
         final double[] vaStd    = new double[totalNoiseSteps];
 
+        final double maxRadius = initialState.stream().mapToDouble(Particle2D::getRadius).max().orElseThrow();
+
         double noise = INITIAL_NOISE;
         for(int i = 0; i < totalNoiseSteps; i++, noise += noiseStep) {
             final List<List<Particle2D>> automataStates = new OffLatticeAutomata(
-                config.spaceWidth, config.actionRadius, noise, config.periodicBorder, maxRadius
-            ).run(initialState, config.endCondition, null);
+                spaceWidth, actionRadius, noise, periodicBorder, maxRadius
+            ).run(initialState, endCondition, null);
 
             final double[] vaList = automataStates
-                    .subList(config.endCondition.validRangeStart(), automataStates.size())
-                    .stream()
-                    .mapToDouble(OffLatticeAutomata::calculateStableNormalizedVelocity)
-                    .toArray()
-                    ;
+                .subList(endCondition.validRangeStart(), automataStates.size())
+                .stream()
+                .mapToDouble(OffLatticeAutomata::calculateStableNormalizedVelocity)
+                .toArray()
+                ;
 
             vaMean[i]   = StatUtils.geometricMean(vaList);
-            vaStd[i]    = StatUtils.populationVariance(vaList, vaMean[i]);
+            vaStd[i]    = StatUtils.variance(vaList, vaMean[i]);
 
-            config.endCondition.reset();
+            endCondition.reset();
 
             System.out.println(i + " of " + totalNoiseSteps + " - Mean: " + vaMean[i] + " Std: " + vaStd[i]);
         }
 
-        mapper.writeValue(new File(config.outputFile), VaVsNoiseBenchmarkResult.builder()
-            .withNoiseStep(noiseStep)
+        return VaVsNoiseBenchmarkResult.builder()
+            .withSpaceWidth(spaceWidth)
+            .withParticleCount(initialState.size())
             .withVaMean(vaMean)
             .withVaStd(vaStd)
             .build()
-        );
+            ;
+    }
+
+    @Data
+    @Jacksonized
+    @Builder(setterPrefix = "with")
+    public static class VaVsNoiseBenchmarkSummary {
+        public double                           noiseStep;
+        public List<VaVsNoiseBenchmarkResult>   variableDensityBenchmarks;
+        public List<VaVsNoiseBenchmarkResult>   constantDensityBenchmarks;
     }
 
     @Data
     @Jacksonized
     @Builder(setterPrefix = "with")
     public static class VaVsNoiseBenchmarkResult {
-        public double       noiseStep;
+        public double       spaceWidth;
+        public double       particleCount;
         public double[]     vaMean;
         public double[]     vaStd;
+    }
+
+    @Data
+    @Jacksonized
+    @Builder(setterPrefix = "with")
+    public static class VaVsNoiseBenchmarkConfig {
+        public double                   spaceWidth;
+        public double                   actionRadius;
+        public double                   noiseStep;
+        public boolean                  periodicBorder;
+        public double                   velocity;
+        public OffLatticeEndCondition   endCondition;
+        public int[]                    particleCounts;
+        public String                   outputFile;
     }
 }

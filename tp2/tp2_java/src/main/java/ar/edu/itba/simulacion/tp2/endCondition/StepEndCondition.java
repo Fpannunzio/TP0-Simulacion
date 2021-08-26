@@ -7,10 +7,11 @@ import lombok.Getter;
 
 import java.util.List;
 
+@Getter
 public class StepEndCondition implements OffLatticeEndCondition {
     public static final String TYPE = "step";
 
-    @Getter private final long endStep;
+    private final long endStep;
 
     // Mutable state
     private long currentState;
