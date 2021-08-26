@@ -101,7 +101,7 @@ public class Particle2D {
             .withX(getNextX(spaceWidth, periodicBorder))
             .withY(getNextY(spaceWidth, periodicBorder))
             .withVelocityMod(newVelocityMod)
-            .withVelocityDir(newVelocityDir < 0 ? newVelocityDir + Math.PI : newVelocityDir)
+            .withVelocityDir(newVelocityDir)
             .withRadius(radius)
             .build()
             ;
