@@ -63,4 +63,17 @@ public class StableVAEndCondition implements OffLatticeEndCondition {
         iterationCount++;
         mean += newValue / window;
     }
+
+    @Override
+    public int validRangeStart() throws IllegalStateException {
+        OffLatticeEndCondition.super.validRangeStart();
+        return iterationCount - window;
+    }
+
+    @Override
+    public void reset() {
+        this.calculatedVAs.clear();
+        this.mean           = 0;
+        this.iterationCount = 0;
+    }
 }

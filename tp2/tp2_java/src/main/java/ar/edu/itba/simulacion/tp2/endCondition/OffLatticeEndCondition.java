@@ -18,4 +18,19 @@ public interface OffLatticeEndCondition {
 
     void processNewState(final List<Particle2D> state);
 
+    /**
+     * Retorna el inicio del rango de valores validos de la simulacion
+     * Esto permite descartar valores iniciales de la simulacion que consideramos invalidos
+     * Solo es valido llamar a este metodo una vez que {@link #hasEnded()} retorna true
+     * @throws IllegalStateException si {@link #hasEnded()} retorna false
+     */
+    default int validRangeStart() throws IllegalStateException {
+        if(!hasEnded()) {
+            throw new IllegalStateException("La simulacion todavia no termino. No es posible determinar el rango valido.");
+        }
+        return 0;
+    }
+
+    void reset();
+
 }

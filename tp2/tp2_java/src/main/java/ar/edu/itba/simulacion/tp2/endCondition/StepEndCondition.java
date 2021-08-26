@@ -30,4 +30,9 @@ public class StepEndCondition implements OffLatticeEndCondition {
     public void processNewState(final List<Particle2D> state) {
         currentState++;
     }
+
+    @Override
+    public void reset() {
+        currentState = 0;
+    }
 }
