@@ -1,12 +1,12 @@
 {
-  "spaceWidth": 100,
-  "actionRadius": 5,
-  "eta": 0.5,
+  "spaceWidth": 3.1,
+  "actionRadius": 1,
+  "eta": 4.0,
   "periodicBorder": true,
   "endCondition": {
     "type": "stableVa",
-    "targetSTD": 0.3,
-    "window": 70
+    "targetSTD": 0.01,
+    "window": 150
   },
   "particlesFile": "particles/off_lattice_gen.json",
   "outputFile": "output/off_lattice_out.json"
