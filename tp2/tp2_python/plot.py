@@ -21,12 +21,11 @@ class Plotter:
 
         # Plot init
 
-        self.fig = plt.figure(figsize=(10,10))
-        self.ax1 = self.fig.add_subplot(1,1,1)
+        self.fig = plt.figure(figsize=(10, 10))
+        self.ax1 = self.fig.add_subplot(1, 1, 1)
         self.ax1.set_aspect(1)
         self.ax1.set_xlim([0, self.space_width])
         self.ax1.set_ylim([0, self.space_width])
-        
 
     def plot_gen(self, gen):
         # Graficamos el estado inicial como test
@@ -55,6 +54,6 @@ class Plotter:
 
     def plot(self):
         
-        ani = animation.FuncAnimation(self.fig, self.plot_gen, interval=100, frames=len(self.states), repeat=True)
+        ani = animation.FuncAnimation(self.fig, self.plot_gen, interval=50, frames=len(self.states), repeat=False)
         plt.show()
         return ani

@@ -1,5 +1,6 @@
 import inspect
 from dataclasses import dataclass
+from typing import List
 
 def from_dict(cls):
     def class_from_dict(dict):
@@ -26,5 +27,14 @@ class Particle:
 class Config:
     spaceWidth:     float
     actionRadius:   float
+    noise:          float
     periodicBorder: bool
     outputFile:     str
+
+@dataclass
+@from_dict
+class VaVsNoiseBenchmarkResult:
+    noiseStep:  float
+    vaMean:     List[float]
+    vaStd:      List[float]
+

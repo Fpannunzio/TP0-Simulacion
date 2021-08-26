@@ -17,14 +17,17 @@ import static ar.edu.itba.simulacion.particle.neighbours.CellIndexMethod.*;
 public class OffLatticeAutomata {
 
     private final double            spaceWidth;
-    private final double            eta;
     private final boolean           periodicBorder;
+    private final double            noise;
     private final CellIndexMethod   cim;
 
-    public OffLatticeAutomata(final double spaceWidth, final double actionRadius, final double eta, final boolean periodicBorder, final double maxRadius) {
+    public OffLatticeAutomata(final double spaceWidth, final double actionRadius, final double noise, final boolean periodicBorder, final double maxRadius) {
+        if(noise < 0 || noise > 2 * Math.PI) {
+            throw new IllegalArgumentException("noise must be in range [0, 2*PI]");
+        }
         this.spaceWidth     = spaceWidth;
         this.periodicBorder = periodicBorder;
-        this.eta            = eta;
+        this.noise          = noise;
         this.cim            = new CellIndexMethod(
             optimalM(spaceWidth, actionRadius, maxRadius), spaceWidth, actionRadius, periodicBorder
         );
@@ -85,7 +88,7 @@ public class OffLatticeAutomata {
             Math.atan2(
                 velocityDirAverage(neighbours, Math::sin),
                 velocityDirAverage(neighbours, Math::cos)
-            ) + rand.nextDouble(-eta/2, eta/2),
+            ) + (noise == 0 ? 0 : rand.nextDouble(-noise/2, noise/2)),
             spaceWidth,
             periodicBorder
         );
