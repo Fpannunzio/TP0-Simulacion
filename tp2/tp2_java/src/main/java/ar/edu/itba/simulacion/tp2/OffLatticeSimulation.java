@@ -34,9 +34,22 @@ public final class OffLatticeSimulation {
 
         final OffLatticeAutomata automata = new OffLatticeAutomata(config.spaceWidth, config.actionRadius, config.noise, config.periodicBorder, maxRadius);
 
-        final List<List<Particle2D>> automataStates = automata.run(particles, config.endCondition);
+        final List<List<Particle2D>> automataStates = automata.run(particles, config.endCondition, step -> {
+            if(step % 1000 == 0) {
+                // Informamos que la simulacion avanza
+                System.out.println("Total states processed so far: " + step);
+            }
+        });
 
         mapper.writeValue(new File(config.outputFile), automataStates);
+
+        if(automataStates.size() == OffLatticeAutomata.MAX_ITERATIONS) {
+            throw new RuntimeException(
+                "El automata corto por haber arribado a la cantidad maxima de iteraciones ("
+                + OffLatticeAutomata.MAX_ITERATIONS +
+                "). Revisar end condition."
+            );
+        }
     }
 
     @Data

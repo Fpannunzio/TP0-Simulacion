@@ -9,13 +9,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+import static ar.edu.itba.simulacion.tp2.OffLatticeAutomata.calculateStableNormalizedVelocity;
+
+@Getter
 public class StableVAEndCondition implements OffLatticeEndCondition {
     public static final String TYPE = "stableVa";
 
-    private static final int MAX_ITERATIONS = 10_000;
-
-    @Getter private final double  targetSTD;
-    @Getter private final int     window;
+    private final double  targetSTD;
+    private final int     window;
 
     // Mutable state
     private final Queue<Double> calculatedVAs;
@@ -28,7 +29,7 @@ public class StableVAEndCondition implements OffLatticeEndCondition {
         @JsonProperty("window") final int window
     ) {
         if(targetSTD <= 0 || window <= 0) {
-            throw new IllegalArgumentException("targetSTD and window cannot be negative");
+            throw new IllegalArgumentException("targetSTD and window must be positive");
         }
         this.targetSTD              = targetSTD;
         this.window                 = window;
@@ -39,10 +40,6 @@ public class StableVAEndCondition implements OffLatticeEndCondition {
 
     @Override
     public boolean hasEnded() {
-        if(iterationCount >= MAX_ITERATIONS) {
-            return true;
-        }
-        
         if(calculatedVAs.size() < window) {
             return false;
         }
@@ -65,13 +62,5 @@ public class StableVAEndCondition implements OffLatticeEndCondition {
         
         iterationCount++;
         mean += newValue / window;
-    }
-
-    private static double calculateStableNormalizedVelocity(final List<Particle2D> state) {
-        final double aggregateVelocityX = state.stream().mapToDouble(Particle2D::getVelocityX).sum();
-        final double aggregateVelocityY = state.stream().mapToDouble(Particle2D::getVelocityY).sum();
-        final double totalVelocityMod = state.stream().mapToDouble(Particle2D::getVelocityMod).sum();
-
-        return Math.hypot(aggregateVelocityX, aggregateVelocityY) / totalVelocityMod;
     }
 }
