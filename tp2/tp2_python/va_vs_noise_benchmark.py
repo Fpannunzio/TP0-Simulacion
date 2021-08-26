@@ -1,6 +1,7 @@
 import json
 import math
 import sys
+from formater import multiple_formatter
 from typing import Any, Dict, Optional
 
 import numpy as np
@@ -22,13 +23,19 @@ def main(config_path):
     with open(config.outputFile, 'r') as particles_fd:
         benchmark_result: VaVsNoiseBenchmarkResult = json.load(particles_fd, object_hook=lambda d: VaVsNoiseBenchmarkResult.from_dict(d))
 
-    plt.errorbar(np.arange(0, 2 * math.pi, benchmark_result.noiseStep), benchmark_result.vaMean, yerr=benchmark_result.vaStd, color='red', capthick=2)
+    fig = plt.figure(figsize=(16,8))
+    ax = fig.add_subplot(1, 1, 1)
 
-    plt.title('CIM(M) vs Bruteforce - 500 particles', fontsize=20)
-    plt.xlabel('M')
-    plt.ylabel('Execution time [ms]')
+    ax.errorbar(np.arange(0, 2 * math.pi, benchmark_result.noiseStep), benchmark_result.vaMean, yerr=benchmark_result.vaStd, color='red', capsize=2)
 
-    plt.grid()
+    ax.set_xlabel(r'$\eta$')
+    ax.set_ylabel(r'$v_a$')
+
+    ax.grid()
+    ax.xaxis.set_major_locator(plt.MultipleLocator(np.pi / 4))
+    ax.xaxis.set_minor_locator(plt.MultipleLocator(np.pi / 12))
+    ax.xaxis.set_major_formatter(plt.FuncFormatter(multiple_formatter(denominator=4)))
+
     plt.show()
 
 
