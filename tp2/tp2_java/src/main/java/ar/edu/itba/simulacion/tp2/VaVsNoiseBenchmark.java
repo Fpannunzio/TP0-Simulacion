@@ -58,11 +58,13 @@ public final class VaVsNoiseBenchmark {
             .withConstantDensityBenchmarks(constantDensityBenchmarks)
             ;
 
-        // Variamos la cantidad de particulas
-        final List<Particle2D> particles = new ArrayList<>(config.particleCounts[config.particleCounts.length - 1]);
         for(final int particleCount : config.particleCounts) {
+            final double spaceWidth = particleCount / density;
+
+            // Variamos la cantidad de particulas
+            final List<Particle2D> particles = new ArrayList<>(particleCount);
             ParticleGeneration.generateAdditionalParticles(
-                particles, particleCount, config.spaceWidth, config.periodicBorder,
+                particles, particleCount, spaceWidth, config.periodicBorder,
                 config.velocity, config.velocity, 0, 0
             );
 
@@ -75,7 +77,7 @@ public final class VaVsNoiseBenchmark {
 
             // Calculamos el tamanio del espacio segun la cantidad de puntos y la densidad deseada
             constantDensityBenchmarks.add(calculateBenchmark(
-                particles, particleCount / density, noiseStep, config.actionRadius, config.periodicBorder, config.endCondition, randomGen
+                particles, spaceWidth, noiseStep, config.actionRadius, config.periodicBorder, config.endCondition, randomGen
             ));
 
             config.endCondition.reset();
