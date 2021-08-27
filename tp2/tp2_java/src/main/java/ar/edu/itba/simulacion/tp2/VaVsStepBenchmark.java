@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 public class VaVsStepBenchmark {
@@ -24,8 +25,14 @@ public class VaVsStepBenchmark {
         }
 
         final double maxRadius = particles.stream().mapToDouble(Particle2D::getRadius).max().orElseThrow();
+        final Random randomGen = new Random();
+        if(config.seed != null) {
+            randomGen.setSeed(config.seed);
+        }
 
-        final OffLatticeAutomata automata = new OffLatticeAutomata(config.spaceWidth, config.actionRadius, config.noise, config.periodicBorder, maxRadius);
+        final OffLatticeAutomata automata = new OffLatticeAutomata(
+            config.spaceWidth, config.actionRadius, config.noise, config.periodicBorder, maxRadius, randomGen
+        );
 
         final List<List<Particle2D>> automataStates = automata.run(particles, config.endCondition, step -> {
             if(step % 1000 == 0) {

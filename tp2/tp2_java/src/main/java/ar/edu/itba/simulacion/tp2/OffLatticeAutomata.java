@@ -8,12 +8,13 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.IntConsumer;
 
 import static ar.edu.itba.simulacion.particle.neighbours.CellIndexMethod.*;
+import static java.util.Objects.*;
 
 public class OffLatticeAutomata {
 
@@ -27,20 +28,29 @@ public class OffLatticeAutomata {
         return Math.hypot(aggregateVelocityX, aggregateVelocityY) / totalVelocityMod;
     }
 
-
+    private double noise() {
+        final double max =  noise/2;
+        final double min = -max;
+        return min + (max - min) * random.nextDouble();
+    }
 
     private final double            spaceWidth;
     private final boolean           periodicBorder;
     private final double            noise;
+    private final Random            random;
     private final CellIndexMethod   cim;
 
-    public OffLatticeAutomata(final double spaceWidth, final double actionRadius, final double noise, final boolean periodicBorder, final double maxRadius) {
+    public OffLatticeAutomata(
+        final double spaceWidth, final double actionRadius, final double noise, final boolean periodicBorder,
+        final double maxRadius, final Random random
+    ) {
         if(noise < 0 || noise > 2 * Math.PI) {
             throw new IllegalArgumentException("noise must be in range [0, 2*PI]");
         }
         this.spaceWidth     = spaceWidth;
         this.periodicBorder = periodicBorder;
         this.noise          = noise;
+        this.random         = requireNonNull(random);
         this.cim            = new CellIndexMethod(
             optimalM(spaceWidth, actionRadius, maxRadius), spaceWidth, actionRadius, periodicBorder
         );
@@ -98,13 +108,12 @@ public class OffLatticeAutomata {
 
     // Se asume que la particula esta dentro de los vecinos (uno es su propio vecino)
     private Particle2D particleNextState(final Particle2D particle, final Set<Particle2D> neighbours) {
-        final ThreadLocalRandom rand = ThreadLocalRandom.current();
         return particle.doStep(
             particle.getVelocityMod(),
             Math.atan2(
                 velocityDirAverage(neighbours, Math::sin),
                 velocityDirAverage(neighbours, Math::cos)
-            ) + (noise == 0 ? 0 : rand.nextDouble(-noise/2, noise/2)),
+            ) + noise(),
             spaceWidth,
             periodicBorder
         );

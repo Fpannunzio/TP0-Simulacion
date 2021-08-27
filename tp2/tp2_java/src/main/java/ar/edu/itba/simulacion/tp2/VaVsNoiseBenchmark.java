@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 public final class VaVsNoiseBenchmark {
 
@@ -40,6 +41,11 @@ public final class VaVsNoiseBenchmark {
 
         final double noiseStep = config.noiseStep > 0 ? config.noiseStep : NOISE_STEP_DEFAULT;
         final double density = config.particleCounts[0] / config.spaceWidth;
+        final Random randomGen = new Random();
+        if(config.seed != null) {
+            randomGen.setSeed(config.seed);
+        }
+
         // Ordenamos el array por las dudas
         Arrays.sort(config.particleCounts);
 
@@ -61,14 +67,14 @@ public final class VaVsNoiseBenchmark {
             );
 
             variableDensityBenchmarks.add(calculateBenchmark(
-                particles, config.spaceWidth, noiseStep, config.actionRadius, config.periodicBorder, config.endCondition
+                particles, config.spaceWidth, noiseStep, config.actionRadius, config.periodicBorder, config.endCondition, randomGen
             ));
 
             config.endCondition.reset();
 
             // Calculamos el tamanio del espacio segun la cantidad de puntos y la densidad deseada
             constantDensityBenchmarks.add(calculateBenchmark(
-                particles, particleCount / density, noiseStep, config.actionRadius, config.periodicBorder, config.endCondition
+                particles, particleCount / density, noiseStep, config.actionRadius, config.periodicBorder, config.endCondition, randomGen
             ));
 
             config.endCondition.reset();
@@ -81,7 +87,7 @@ public final class VaVsNoiseBenchmark {
 
     private static VaVsNoiseBenchmarkResult calculateBenchmark(
         final List<Particle2D> initialState, final double spaceWidth, final double noiseStep, final double actionRadius,
-        final boolean periodicBorder, final OffLatticeEndCondition endCondition
+        final boolean periodicBorder, final OffLatticeEndCondition endCondition, final Random randomGen
     ) {
         final int totalNoiseSteps   = ((int) (NOISE_LIMIT / noiseStep)) + 1;
 
@@ -93,7 +99,7 @@ public final class VaVsNoiseBenchmark {
         double noise = INITIAL_NOISE;
         for(int i = 0; i < totalNoiseSteps; i++, noise += noiseStep) {
             final List<List<Particle2D>> automataStates = new OffLatticeAutomata(
-                spaceWidth, actionRadius, noise, periodicBorder, maxRadius
+                spaceWidth, actionRadius, noise, periodicBorder, maxRadius, randomGen
             ).run(initialState, endCondition, null);
 
             final double[] vaList = automataStates
@@ -148,6 +154,7 @@ public final class VaVsNoiseBenchmark {
         public double                   noiseStep;
         public boolean                  periodicBorder;
         public double                   velocity;
+        public Long                     seed;
         public OffLatticeEndCondition   endCondition;
         public int[]                    particleCounts;
         public String                   outputFile;

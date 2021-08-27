@@ -3,6 +3,7 @@ package ar.edu.itba.simulacion.tp2;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Random;
 
 import ar.edu.itba.simulacion.particle.Particle2D;
 import ar.edu.itba.simulacion.tp2.endCondition.OffLatticeEndCondition;
@@ -31,8 +32,14 @@ public final class OffLatticeSimulation {
         }
 
         final double maxRadius = particles.stream().mapToDouble(Particle2D::getRadius).max().orElseThrow();
+        final Random randomGen = new Random();
+        if(config.seed != null) {
+            randomGen.setSeed(config.seed);
+        }
 
-        final OffLatticeAutomata automata = new OffLatticeAutomata(config.spaceWidth, config.actionRadius, config.noise, config.periodicBorder, maxRadius);
+        final OffLatticeAutomata automata = new OffLatticeAutomata(
+            config.spaceWidth, config.actionRadius, config.noise, config.periodicBorder, maxRadius, randomGen
+        );
 
         final List<List<Particle2D>> automataStates = automata.run(particles, config.endCondition, step -> {
             if(step % 1000 == 0) {
@@ -59,6 +66,7 @@ public final class OffLatticeSimulation {
         public double                   spaceWidth;
         public double                   actionRadius;
         public double                   noise;
+        public Long                     seed;
         public boolean                  periodicBorder;
         public OffLatticeEndCondition   endCondition;
         public String                   particlesFile;
