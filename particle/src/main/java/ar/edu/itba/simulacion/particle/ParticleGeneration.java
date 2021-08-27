@@ -61,7 +61,7 @@ public final class ParticleGeneration {
         int tries = 0;
         int particleCount = existingParticles.size();
         while(particleCount < targetParticleCount && tries < MAX_FAILURE_TOLERANCE) {
-            final Particle2D particle = Particle2D.randomParticle(targetParticleCount, spaceWidth, minVelocity, maxVelocity, realMinRadius, maxRadius);
+            final Particle2D particle = Particle2D.randomParticle(particleCount, spaceWidth, minVelocity, maxVelocity, realMinRadius, maxRadius);
             if(particle.getRadius() == 0 || !particle.collides(existingParticles, spaceWidth, periodicBorder)) {
                 existingParticles.add(particle);
                 particleCount++;
