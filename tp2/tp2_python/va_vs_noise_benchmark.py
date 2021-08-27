@@ -7,6 +7,8 @@ from typing import Any, Dict, Optional, Union
 import numpy as np
 from matplotlib import pyplot as plt
 
+from matplotlib import cm
+
 from models import VaVsNoiseBenchmarkResult, VaVsNoiseBenchmarkSummary, VaVsNoiseBenchmarkConfig
 
 
@@ -32,20 +34,40 @@ def main(config_path):
     # Graficamos el primero para testear
     first_benchmark_result: VaVsNoiseBenchmarkResult = benchmark_summary.variableDensityBenchmarks[0]
 
-    fig = plt.figure(figsize=(16, 8))
-    ax = fig.add_subplot(1, 1, 1)
+    fig1 = plt.figure(100, figsize=(16, 8))
+    ax1 = fig1.add_subplot(1, 1, 1)
 
-    ax.errorbar(np.arange(0, 2 * math.pi, benchmark_summary.noiseStep), first_benchmark_result.vaMean, yerr=first_benchmark_result.vaStd, color='red', capsize=2)
+    plot_results(benchmark_summary.variableDensityBenchmarks, benchmark_summary.noiseStep, ax1)
 
-    ax.set_xlabel(r'$\eta$')
-    ax.set_ylabel(r'$v_a$')
+    fig2 = plt.figure(200, figsize=(16, 8))
+    ax2 = fig2.add_subplot(1, 1, 1)
 
-    ax.grid()
-    ax.xaxis.set_major_locator(plt.MultipleLocator(np.pi / 4))
-    ax.xaxis.set_minor_locator(plt.MultipleLocator(np.pi / 12))
-    ax.xaxis.set_major_formatter(plt.FuncFormatter(multiple_formatter(denominator=4)))
-
+    plot_results(benchmark_summary.constantDensityBenchmarks, benchmark_summary.noiseStep, ax2)
     plt.show()
+    
+
+def plot_results(benchmarks, noiseStep,axis):
+    
+    for i in range(len(benchmarks)):
+        
+        benchmark_result = benchmarks[i]
+
+        axis.errorbar(
+            np.arange(0, 2 * math.pi, noiseStep)
+            , benchmark_result.vaMean
+            , yerr=benchmark_result.vaStd
+            , color=cm.get_cmap('tab10')(i)
+            , capsize=2
+            , label=f'N= {int(benchmark_result.particleCount)}')
+
+    axis.set_xlabel(r'$\eta$: Noise', size=20)
+    axis.set_ylabel(r'$v_a$: Average Normalized Velocity', size=20)
+
+    axis.grid()
+    axis.legend()
+    axis.xaxis.set_major_locator(plt.MultipleLocator(np.pi / 4))
+    axis.xaxis.set_major_formatter(plt.FuncFormatter(multiple_formatter(denominator=4)))
+
 
 
 if __name__ == '__main__':

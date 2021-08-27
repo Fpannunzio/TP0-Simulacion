@@ -35,6 +35,9 @@ def calculate_va(states):
         sum = np.sum(np.array(list(map(lambda p: [sin(p.velocityDir), cos(p.velocityDir)] , state))), axis=0)
         va.append(hypot(*sum) / particleCount)
 
+    plt.xlabel("Iteration number")
+    plt.ylabel("Average Normalizaed Velocity")
+
     plt.plot(list(range(len(states))), va)
     plt.show()
 
