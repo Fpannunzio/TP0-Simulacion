@@ -95,12 +95,10 @@ public final class VaVsNoiseBenchmark {
         final double[] vaMean   = new double[totalNoiseSteps];
         final double[] vaStd    = new double[totalNoiseSteps];
 
-        final double maxRadius = initialState.stream().mapToDouble(Particle2D::getRadius).max().orElseThrow();
-
         double noise = INITIAL_NOISE;
         for(int i = 0; i < totalNoiseSteps; i++, noise += noiseStep) {
             final List<List<Particle2D>> automataStates = new OffLatticeAutomata(
-                spaceWidth, actionRadius, noise, periodicBorder, maxRadius, randomGen
+                spaceWidth, actionRadius, noise, periodicBorder, 0, randomGen
             ).run(initialState, endCondition, null);
 
             final double[] vaList = automataStates
