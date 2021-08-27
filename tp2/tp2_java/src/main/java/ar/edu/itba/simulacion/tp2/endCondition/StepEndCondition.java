@@ -11,15 +11,20 @@ import java.util.List;
 public class StepEndCondition implements OffLatticeEndCondition {
     public static final String TYPE = "step";
 
-    private final long endStep;
+    private final int endStep;
+    private final int validRangeStart;
 
     // Mutable state
     private long currentState;
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-    public StepEndCondition(@JsonProperty("id") final long endStep) {
-        this.endStep = endStep;
-        currentState = 0;
+    public StepEndCondition(
+        @JsonProperty("id")                 final int endStep,
+        @JsonProperty("validRangeStart")    final int validRangeStart
+    ) {
+        this.endStep            = endStep;
+        this.validRangeStart    = validRangeStart;
+        this.currentState       = 0;
     }
 
     @Override
@@ -30,6 +35,12 @@ public class StepEndCondition implements OffLatticeEndCondition {
     @Override
     public void processNewState(final List<Particle2D> state) {
         currentState++;
+    }
+
+    @Override
+    public int validRangeStart() throws IllegalStateException {
+        OffLatticeEndCondition.super.validRangeStart();
+        return validRangeStart;
     }
 
     @Override
