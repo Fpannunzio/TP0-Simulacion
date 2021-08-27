@@ -37,6 +37,8 @@ def calculate_va(states):
 
     plt.xlabel("Iteration number")
     plt.ylabel("Average Normalizaed Velocity")
+    plt.ylim([0, 1])
+
 
     plt.plot(list(range(len(states))), va)
     plt.show()
