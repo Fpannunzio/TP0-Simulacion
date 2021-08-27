@@ -49,12 +49,12 @@ public final class VaVsNoiseBenchmark {
         // Ordenamos el array por las dudas
         Arrays.sort(config.particleCounts);
 
-        final List<VaVsNoiseBenchmarkResult> variableDensityBenchmarks = new ArrayList<>(config.particleCounts.length);
+//        final List<VaVsNoiseBenchmarkResult> variableDensityBenchmarks = new ArrayList<>(config.particleCounts.length);
         final List<VaVsNoiseBenchmarkResult> constantDensityBenchmarks = new ArrayList<>(config.particleCounts.length);
 
         final VaVsNoiseBenchmarkSummaryBuilder summary = VaVsNoiseBenchmarkSummary.builder()
             .withNoiseStep                (noiseStep)
-            .withVariableDensityBenchmarks(variableDensityBenchmarks)
+//            .withVariableDensityBenchmarks(variableDensityBenchmarks)
             .withConstantDensityBenchmarks(constantDensityBenchmarks)
             ;
 
@@ -66,9 +66,10 @@ public final class VaVsNoiseBenchmark {
                 config.velocity, config.velocity, 0, 0
             );
 
-            variableDensityBenchmarks.add(calculateBenchmark(
-                particles, config.spaceWidth, noiseStep, config.actionRadius, config.periodicBorder, config.endCondition, randomGen
-            ));
+            // Al parecer no hay que hacerlo :(
+//            variableDensityBenchmarks.add(calculateBenchmark(
+//                particles, config.spaceWidth, noiseStep, config.actionRadius, config.periodicBorder, config.endCondition, randomGen
+//            ));
 
             config.endCondition.reset();
 
@@ -131,7 +132,7 @@ public final class VaVsNoiseBenchmark {
     @Builder(setterPrefix = "with")
     public static class VaVsNoiseBenchmarkSummary {
         public double                           noiseStep;
-        public List<VaVsNoiseBenchmarkResult>   variableDensityBenchmarks;
+//        public List<VaVsNoiseBenchmarkResult>   variableDensityBenchmarks;
         public List<VaVsNoiseBenchmarkResult>   constantDensityBenchmarks;
     }
 

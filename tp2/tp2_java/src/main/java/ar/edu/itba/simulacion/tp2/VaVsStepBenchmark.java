@@ -9,7 +9,11 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
-public class VaVsStepBenchmark {
+public final class VaVsStepBenchmark {
+
+    private VaVsStepBenchmark() {
+        // static class
+    }
 
     public static void main(String[] args) throws IOException {
         if(args.length < 1) {
