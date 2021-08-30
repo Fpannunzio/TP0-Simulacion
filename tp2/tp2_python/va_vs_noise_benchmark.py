@@ -32,14 +32,7 @@ def main(config_path):
         benchmark_summary: VaVsNoiseBenchmarkSummary = json.load(particles_fd, object_hook=parse_benchmark_summary)
 
     # Graficamos el primero para testear
-    first_benchmark_result: VaVsNoiseBenchmarkResult = benchmark_summary.variableDensityBenchmarks[0]
-
-    fig1 = plt.figure(100, figsize=(16, 8))
-    ax1 = fig1.add_subplot(1, 1, 1)
-
-    plot_results(benchmark_summary.variableDensityBenchmarks, benchmark_summary.noiseStep, ax1)
-
-    fig2 = plt.figure(200, figsize=(16, 8))
+    fig2 = plt.figure(figsize=(16, 8))
     ax2 = fig2.add_subplot(1, 1, 1)
 
     plot_results(benchmark_summary.constantDensityBenchmarks, benchmark_summary.noiseStep, ax2)

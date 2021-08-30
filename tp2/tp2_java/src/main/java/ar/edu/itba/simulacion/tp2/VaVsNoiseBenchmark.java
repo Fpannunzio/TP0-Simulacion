@@ -26,6 +26,7 @@ public final class VaVsNoiseBenchmark {
     private static final double INITIAL_NOISE       = 0;
     private static final double NOISE_LIMIT         = 2 * Math.PI;
     private static final double NOISE_STEP_DEFAULT  = 0.1;
+    private static final int REP = 15;
 
     public static void main(final String[] args) throws IOException {
         if(args.length < 1) {
@@ -62,11 +63,6 @@ public final class VaVsNoiseBenchmark {
             final double spaceWidth = particleCount / density;
 
             // Variamos la cantidad de particulas
-            final List<Particle2D> particles = new ArrayList<>(particleCount);
-            ParticleGeneration.generateAdditionalParticles(
-                particles, particleCount, spaceWidth, config.periodicBorder,
-                config.velocity, config.velocity, 0, 0
-            );
 
             // Al parecer no hay que hacerlo :(
 //            variableDensityBenchmarks.add(calculateBenchmark(
@@ -77,7 +73,7 @@ public final class VaVsNoiseBenchmark {
 
             // Calculamos el tamanio del espacio segun la cantidad de puntos y la densidad deseada
             constantDensityBenchmarks.add(calculateBenchmark(
-                particles, spaceWidth, noiseStep, config.actionRadius, config.periodicBorder, config.endCondition, randomGen
+                spaceWidth, noiseStep, config.actionRadius, config.velocity, particleCount,  config.periodicBorder, config.endCondition, randomGen
             ));
 
             config.endCondition.reset();
@@ -89,7 +85,7 @@ public final class VaVsNoiseBenchmark {
     }
 
     private static VaVsNoiseBenchmarkResult calculateBenchmark(
-        final List<Particle2D> initialState, final double spaceWidth, final double noiseStep, final double actionRadius,
+        final double spaceWidth, final double noiseStep, final double actionRadius, final double velocity, final int particleCount,
         final boolean periodicBorder, final OffLatticeEndCondition endCondition, final Random randomGen
     ) {
         final int totalNoiseSteps   = ((int) (NOISE_LIMIT / noiseStep)) + 1;
@@ -99,28 +95,46 @@ public final class VaVsNoiseBenchmark {
 
         double noise = INITIAL_NOISE;
         for(int i = 0; i < totalNoiseSteps; i++, noise += noiseStep) {
-            final List<List<Particle2D>> automataStates = new OffLatticeAutomata(
-                spaceWidth, actionRadius, noise, periodicBorder, 0, randomGen
-            ).run(initialState, endCondition, null);
+            
 
-            final double[] vaList = automataStates
-                .subList(endCondition.validRangeStart(), automataStates.size())
-                .stream()
-                .mapToDouble(OffLatticeAutomata::calculateStableNormalizedVelocity)
-                .toArray()
-                ;
+            final double[] tmpMean   = new double[REP];
+            final double[] tmpStd    = new double[REP];
 
-            vaMean[i]   = StatUtils.geometricMean(vaList);
-            vaStd[i]    = StatUtils.variance(vaList, vaMean[i]);
+            for(int k = 0; k < REP; k++) {
 
-            endCondition.reset();
+                final List<Particle2D> particles = new ArrayList<>(particleCount);
+                ParticleGeneration.generateAdditionalParticles(
+                    particles, particleCount, spaceWidth, periodicBorder,
+                    velocity, velocity, 0, 0
+                );
+    
+                final List<List<Particle2D>> automataStates = new OffLatticeAutomata(
+                    spaceWidth, actionRadius, noise, periodicBorder, 0, randomGen
+                ).run(particles, endCondition, null);
+    
+                final double[] vaList = automataStates
+                    .subList(endCondition.validRangeStart(), automataStates.size())
+                    .stream()
+                    .mapToDouble(OffLatticeAutomata::calculateStableNormalizedVelocity)
+                    .toArray()
+                    ;
+
+                tmpMean[k]  = StatUtils.geometricMean(vaList);
+                tmpStd[k]   = StatUtils.variance(vaList, tmpMean[k]);
+                
+                endCondition.reset();
+            }
+
+            vaMean[i]   = StatUtils.geometricMean(tmpMean);
+            vaStd[i]    = StatUtils.geometricMean(tmpStd);
+
 
             System.out.println(i + " of " + totalNoiseSteps + " - Mean: " + vaMean[i] + " Std: " + vaStd[i]);
         }
 
         return VaVsNoiseBenchmarkResult.builder()
             .withSpaceWidth(spaceWidth)
-            .withParticleCount(initialState.size())
+            .withParticleCount(particleCount)
             .withVaMean(vaMean)
             .withVaStd(vaStd)
             .build()

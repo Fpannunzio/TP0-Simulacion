@@ -17,12 +17,21 @@ def parse_config(data: Dict[str, Any]) -> Optional[Config]:
 
 def main(config_path):
     with open(config_path, 'r') as config_fd:
-        config: Config = json.load(config_fd, object_hook=parse_config)
+        files: Config = json.load(config_fd)
 
-    with open(config.outputFile, 'r') as particles_fd:
-        off_lattice_automata_states: List[List[Particle]] = json.load(particles_fd, object_hook=lambda d: Particle.from_dict(d))
+    vas = []
 
-    calculate_va(off_lattice_automata_states)
+    for f in files:
+        with open(f, 'r') as f_fd:
+            vas.append(json.load(f_fd))
+    
+    for va in vas:
+        plt.plot(list(range(len(va))), va)
+    
+    plt.xlabel("Iteration number")
+    plt.ylabel("Average Normalizaed Velocity")
+    plt.ylim([0, 1])
+    plt.show()
 
 
 def calculate_va(states):
