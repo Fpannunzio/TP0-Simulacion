@@ -57,5 +57,25 @@ class VaVsNoiseBenchmarkSummary:
     # variableDensityBenchmarks:  List[VaVsNoiseBenchmarkResult]
     constantDensityBenchmarks:  List[VaVsNoiseBenchmarkResult]
 
+@dataclass
+@from_dict
+class VaVsDensityBenchmarkConfig:
+    spaceWidth: float
+    actionRadius: float
+    noise: float
+    periodicBorder: bool
+    velocity: float
+    initParticleCount: int
+    finalParticleCount: int
+    particleCountStep: int
+    outputFile: str
+
+@dataclass
+@from_dict
+class VaVsDensityBenchmarkResult:
+    density:    List[float]
+    vaMean:     List[float]
+    vaStd:      List[float]
+
 
 

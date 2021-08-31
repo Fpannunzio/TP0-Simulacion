@@ -35,6 +35,10 @@ public final class VaVsDensityBenchmark {
             randomGen.setSeed(config.seed);
         }
 
+        mapper.writeValue(new File(config.outputFile), doIteration(config, randomGen));
+    }
+
+    public static VaVsDensityBenchmarkResult doIteration(final VaVsDensityBenchmarkConfig config, final Random randomGen) {
         final int totalSteps   = (((config.finalParticleCount - config.initParticleCount) / config.particleCountStep)) + 1;
 
         final double[] density  = new double[totalSteps];
@@ -70,12 +74,12 @@ public final class VaVsDensityBenchmark {
             System.out.printf(Locale.ROOT, "%d of %d - Density: %f; Mean: %f; Std: %s%n", i, totalSteps, density[i], vaMean[i], vaStd[i]);
         }
 
-        mapper.writeValue(new File(config.outputFile), VaVsDensityBenchmarkResult.builder()
+        return VaVsDensityBenchmarkResult.builder()
             .withDensity(density)
             .withVaMean(vaMean)
             .withVaStd(vaStd)
             .build()
-        );
+            ;
     }
 
     @Data

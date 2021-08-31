@@ -18,7 +18,7 @@ import static java.util.Objects.*;
 
 public class OffLatticeAutomata {
 
-    public static final int MAX_ITERATIONS = 10_000;
+    public static final int MAX_ITERATIONS = 100_000;
 
     public static double calculateStableNormalizedVelocity(final List<Particle2D> state) {
         final double aggregateVelocityX = state.stream().mapToDouble(Particle2D::getVelocityX)  .sum();
