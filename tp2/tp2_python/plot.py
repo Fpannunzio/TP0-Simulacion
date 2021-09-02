@@ -41,8 +41,6 @@ class Plotter:
 
         colors = cm.hsv((np.array(first_state_velocity_dir) + np.pi) / (np.pi*2))
 
-        # plt.scatter(first_state_x, first_state_y, s=self.space_width / 100, color='blue', alpha=0.5)
-
         self.ax1.clear()
         self.ax1.quiver(first_state_x, first_state_y, first_state_u, first_state_v, color=colors)
         self.ax1.scatter(first_state_x, first_state_y, color=colors)
@@ -54,10 +52,10 @@ class Plotter:
 
     def plot(self):
         
-        ani = animation.FuncAnimation(self.fig, self.plot_gen, interval=50, frames=len(self.states), repeat=False)
-        plt.show()
-        # Writer = animation.writers['ffmpeg']
-        # writer = Writer(fps=15, metadata=dict(artist='Me'), bitrate=1800)
-        # ani.save('pepe.mp4', writer=writer)
+        ani = animation.FuncAnimation(self.fig, self.plot_gen, interval=100, frames=len(self.states), repeat=False)
+        # plt.show()
+        Writer = animation.writers['ffmpeg']
+        writer = Writer(fps=24, bitrate=1800)
+        ani.save('va-vs-noise-3.mp4', writer=writer)
 
         return ani

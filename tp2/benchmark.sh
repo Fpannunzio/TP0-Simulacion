@@ -9,13 +9,6 @@ CONF2=config/off_lattice_benchmark.json
 
 mvn -f ../ clean install -DskipTests -q || exit
 
-echo "Creando particulas 🕓️"
-
-# Creamos las particulas
-# mvn -f ../particle exec:java -Dexec.mainClass=ar.edu.itba.simulacion.particle.ParticleGeneration -Dexec.args="$CONF1" || exit
-
-echo "Particluas creadas ✅️"
-
 echo "Ejecutando simulacion 🕘️"
 
 # Calculamos vecinos

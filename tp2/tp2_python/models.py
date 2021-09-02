@@ -54,7 +54,6 @@ class VaVsNoiseBenchmarkResult:
 @from_dict
 class VaVsNoiseBenchmarkSummary:
     noiseStep:                  float
-    # variableDensityBenchmarks:  List[VaVsNoiseBenchmarkResult]
     constantDensityBenchmarks:  List[VaVsNoiseBenchmarkResult]
 
 @dataclass

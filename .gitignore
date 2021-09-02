@@ -37,9 +37,12 @@ config/
 output/
 particles/
 test/
+results/
+
 .vscode
 tp1/tp1_java/.factorypath
 particle/.factorypath
 .gitignore
 .gitignore
 tp2/tp2_java/.factorypath
+.DS_Store

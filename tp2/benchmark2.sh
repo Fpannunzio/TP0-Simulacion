@@ -13,7 +13,7 @@ mvn -f ../ clean install -DskipTests -q || exit
 echo "Creando particulas 🕓️"
 
 # Creamos las particulas
-# mvn -f ../particle exec:java -Dexec.mainClass=ar.edu.itba.simulacion.particle.ParticleGeneration -Dexec.args="$CONF1" || exit
+# mvn -f ../particle exec:java -Dexec.mainClass=ar.edu.itba.simulacion.particle.ParticleGeneration -Dexec.args="$CONF1" -q|| exit
 
 echo "Particulas creadas ✅️"
 
