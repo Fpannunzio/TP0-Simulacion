@@ -3,10 +3,10 @@
   "actionRadius": 1,
   "noise": 4.0,
   "periodicBorder": true,
+  "seed": 145236,
   "endCondition": {
-    "type": "stableVa",
-    "targetSTD": 0.01,
-    "window": 150
+    "type": "step",
+    "endStep": 25000
   },
   "particlesFile": "particles/off_lattice_gen.json",
   "outputFile": "output/off_lattice_out.json"

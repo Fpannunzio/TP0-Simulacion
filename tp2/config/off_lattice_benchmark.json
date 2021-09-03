@@ -1,0 +1,14 @@
+{
+    "spaceWidth": 4,
+    "actionRadius": 1,
+    "noiseStep": 0.1,
+    "particleCounts": [40, 100, 400],
+    "velocity": 0.03,
+    "periodicBorder": true,
+    "endCondition": {
+      "type": "step",
+      "endStep": 25000,
+      "validRangeStart": 5000
+    },
+    "outputFile": "output/va_vs_noise_benchmark.json"
+  }

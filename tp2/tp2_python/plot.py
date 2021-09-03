@@ -53,9 +53,9 @@ class Plotter:
     def plot(self):
         
         ani = animation.FuncAnimation(self.fig, self.plot_gen, interval=100, frames=len(self.states), repeat=False)
-        # plt.show()
-        Writer = animation.writers['ffmpeg']
-        writer = Writer(fps=24, bitrate=1800)
-        ani.save('va-vs-noise-3.mp4', writer=writer)
+        plt.show()
+        # Writer = animation.writers['ffmpeg']
+        # writer = Writer(fps=24, bitrate=1800)
+        # ani.save('va-density-260.mp4', writer=writer)
 
         return ani

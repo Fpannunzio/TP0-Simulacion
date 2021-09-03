@@ -6,8 +6,6 @@ export MAVEN_OPTS="--add-opens java.base/java.lang=ALL-UNNAMED"
 
 mvn -f tp0_java/ compile -q || exit
 
-
-
 echo "Benchmarking... 💪🏼"
 
 # Calculamos vecinos

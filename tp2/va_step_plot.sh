@@ -9,12 +9,12 @@ mvn -f ../ clean install -DskipTests -q || exit
 echo "Ejecutando simulacion 🕘️"
 
 # Calculamos vecinos
-mvn -f tp2_java exec:java -Dexec.mainClass=ar.edu.itba.simulacion.tp2.VaVsNoiseBenchmark -Dexec.args="$1" -q|| exit
+mvn -f tp2_java exec:java -Dexec.mainClass=ar.edu.itba.simulacion.tp2.VaVsStepBenchmark -Dexec.args="$1" -q|| exit
 
 echo "Simulacion finalizada ✅️"
 
 echo "Renderizando 🚀️"
 
 # Renderizamos grafico
-python3 tp2_python/va_vs_noise_benchmark.py "$1" || exit
+python3 tp2_python/va.py "$2" || exit
 
