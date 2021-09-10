@@ -81,6 +81,10 @@ public final class ParticleGeneration {
         public double  maxVelocity;
         public double  minRadius;
         public double  maxRadius;
+        public double  minMass;
+        public double  maxMass;
         public String  outputFile;
     }
+
+    
 }

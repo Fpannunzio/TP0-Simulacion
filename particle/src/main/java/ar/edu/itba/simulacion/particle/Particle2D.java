@@ -16,8 +16,11 @@ public class Particle2D {
     int     id;
     double  x;
     double  y;
+    double  mass;
     double  velocityMod;
     double  velocityDir;  // Radianes entre [-PI, PI)
+    double  velocityX;
+    double  velocityY;
     double  radius;
 
     public static Particle2D randomParticle(
@@ -31,6 +34,23 @@ public class Particle2D {
             .withY(rand.nextDouble(minRadius, spaceWidth))
             .withVelocityMod(minVelocity < maxVelocity ? rand.nextDouble(minVelocity, maxVelocity) : minVelocity)
             .withVelocityDir(rand.nextDouble(-Math.PI, Math.PI))
+            .withRadius(minRadius < maxRadius ? rand.nextDouble(minRadius, maxRadius) : minRadius)
+            .build()
+            ;
+    }
+
+    public static Particle2D brownianRandomParticle(
+        final int id, final double spaceWidth, final double minMass, final double maxMass, final double minVelocity,
+        final double maxVelocity, final double minRadius, final double maxRadius) {
+         
+        final ThreadLocalRandom rand = ThreadLocalRandom.current();
+        return Particle2D.builder()
+            .withId(id)
+            .withMass(minMass < maxMass ? rand.nextDouble(minMass, maxMass) : minMass)
+            .withX(rand.nextDouble(minRadius, spaceWidth))
+            .withY(rand.nextDouble(minRadius, spaceWidth))
+            .withVelocityX(minVelocity < maxVelocity ? rand.nextDouble(minVelocity, maxVelocity) : minVelocity)
+            .withVelocityY(minVelocity < maxVelocity ? rand.nextDouble(minVelocity, maxVelocity) : minVelocity)
             .withRadius(minRadius < maxRadius ? rand.nextDouble(minRadius, maxRadius) : minRadius)
             .build()
             ;
