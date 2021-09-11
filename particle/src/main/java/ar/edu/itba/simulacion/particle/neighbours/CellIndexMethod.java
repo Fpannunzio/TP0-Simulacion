@@ -44,10 +44,12 @@ public class CellIndexMethod {
         return (int) (particleAxis / cellLength);
     }
 
+    private static final Comparator<Particle2D> MAX_RADIUS_COMPARATOR = Comparator.comparing(Particle2D::getRadius);
+
     public Map<Integer, Set<Particle2D>> calculateNeighbours(final List<Particle2D> particles) {
         final double maxRadius = particles
             .stream()
-            .max(Comparator.comparing(Particle2D::getRadius))
+            .max(MAX_RADIUS_COMPARATOR)
             .map(Particle2D::getRadius)
             .orElseThrow(() -> new IllegalArgumentException("No particles were supplied"))
             ;

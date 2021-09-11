@@ -1,6 +1,5 @@
 package ar.edu.itba.simulacion.particle;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
@@ -16,42 +15,32 @@ public class Particle2D {
     int     id;
     double  x;
     double  y;
-    double  mass;
-    double  velocityMod;
-    double  velocityDir;  // Radianes entre [-PI, PI)
+    // Cartesian velocity
     double  velocityX;
     double  velocityY;
+    // Polar velocity
+    double  velocityMod;
+    double  velocityDir;  // Radianes entre [-PI, PI)
+    double  mass;
     double  radius;
 
     public static Particle2D randomParticle(
-        final int id, final double spaceWidth, final double minVelocity,
-        final double maxVelocity, final double minRadius, final double maxRadius) {
-
+        final int id,
+        final double minX,          final double maxX,
+        final double minY,          final double maxY,
+        final double minVelocity,   final double maxVelocity,
+        final double minMass,       final double maxMass,
+        final double minRadius,     final double maxRadius
+    ) {
         final ThreadLocalRandom rand = ThreadLocalRandom.current();
         return Particle2D.builder()
-            .withId(id)
-            .withX(rand.nextDouble(minRadius, spaceWidth))
-            .withY(rand.nextDouble(minRadius, spaceWidth))
+            .withId         (id)
+            .withX          (minX < maxX ? rand.nextDouble(minX, maxX) : minX)
+            .withY          (minY < maxY ? rand.nextDouble(minY, maxY) : minY)
             .withVelocityMod(minVelocity < maxVelocity ? rand.nextDouble(minVelocity, maxVelocity) : minVelocity)
             .withVelocityDir(rand.nextDouble(-Math.PI, Math.PI))
-            .withRadius(minRadius < maxRadius ? rand.nextDouble(minRadius, maxRadius) : minRadius)
-            .build()
-            ;
-    }
-
-    public static Particle2D brownianRandomParticle(
-        final int id, final double spaceWidth, final double minMass, final double maxMass, final double minVelocity,
-        final double maxVelocity, final double minRadius, final double maxRadius) {
-         
-        final ThreadLocalRandom rand = ThreadLocalRandom.current();
-        return Particle2D.builder()
-            .withId(id)
-            .withMass(minMass < maxMass ? rand.nextDouble(minMass, maxMass) : minMass)
-            .withX(rand.nextDouble(minRadius, spaceWidth))
-            .withY(rand.nextDouble(minRadius, spaceWidth))
-            .withVelocityX(minVelocity < maxVelocity ? rand.nextDouble(minVelocity, maxVelocity) : minVelocity)
-            .withVelocityY(minVelocity < maxVelocity ? rand.nextDouble(minVelocity, maxVelocity) : minVelocity)
-            .withRadius(minRadius < maxRadius ? rand.nextDouble(minRadius, maxRadius) : minRadius)
+            .withMass       (minMass < maxMass ? rand.nextDouble(minMass, maxMass) : minMass)
+            .withRadius     (minRadius < maxRadius ? rand.nextDouble(minRadius, maxRadius) : minRadius)
             .build()
             ;
     }
@@ -71,15 +60,27 @@ public class Particle2D {
         final double dx = axisDistance(x, other.x, spaceWidth, periodicBorder);
         final double dy = axisDistance(y, other.y, spaceWidth, periodicBorder);
 
-        return Math.sqrt(dx*dx + dy*dy) - radius - other.radius;
+        return Math.hypot(dx, dy) - radius - other.radius;
+    }
+
+    public double distanceTo(final Particle2D other) {
+        return Math.hypot(x - other.x, y - other.y) - radius - other.radius;
     }
 
     public boolean collides(final Particle2D particle, final double spaceWidth, final boolean periodicBorder) {
         return distanceTo(particle, spaceWidth, periodicBorder) <= 0;
     }
 
+    public boolean collides(final Particle2D particle) {
+        return distanceTo(particle) <= 0;
+    }
+
     public boolean collides(final Collection<Particle2D> particles, final double spaceWidth, final boolean periodicBorder) {
         return particles.stream().anyMatch(p -> collides(p, spaceWidth, periodicBorder));
+    }
+
+    public boolean collides(final Collection<Particle2D> particles) {
+        return particles.stream().anyMatch(this::collides);
     }
 
     private static double normalizeAxis(final double axis, final double spaceWidth, final boolean periodicBorder) {
@@ -95,35 +96,146 @@ public class Particle2D {
         return ret;
     }
 
-    @JsonIgnore
-    public double getVelocityX() {
-        return Math.cos(velocityDir) * velocityMod;
+    public double getNextX(final double time, final double spaceWidth, final boolean periodicBorder) {
+        return normalizeAxis(getNextX(time), spaceWidth, periodicBorder);
     }
 
-    @JsonIgnore
-    public double getVelocityY() {
-        return Math.sin(velocityDir) * velocityMod;
+    public double getNextY(final double time, final double spaceWidth, final boolean periodicBorder) {
+        return normalizeAxis(getNextY(time), spaceWidth, periodicBorder);
     }
 
-    public double getNextX(final double spaceWidth, final boolean periodicBorder) {
-        return normalizeAxis(x + getVelocityX(), spaceWidth, periodicBorder);
+    public double getNextX(final double time) {
+        return x + time * velocityX;
     }
 
-    public double getNextY(final double spaceWidth, final boolean periodicBorder) {
-        return normalizeAxis(y + getVelocityY(), spaceWidth, periodicBorder);
+    public double getNextY(final double time) {
+        return y + time * velocityY;
     }
 
-    public Particle2D doStep(
-        final double newVelocityMod, final double newVelocityDir, final double spaceWidth, final boolean periodicBorder
-    ) {
+    public Particle2D move(final double time, final double spaceWidth, final boolean periodicBorder) {
         return Particle2D.builder()
-            .withId(id)
-            .withX(getNextX(spaceWidth, periodicBorder))
-            .withY(getNextY(spaceWidth, periodicBorder))
-            .withVelocityMod(newVelocityMod)
-            .withVelocityDir(newVelocityDir)
-            .withRadius(radius)
+            .withId         (id)
+            .withX          (getNextX(time, spaceWidth, periodicBorder))
+            .withY          (getNextY(time, spaceWidth, periodicBorder))
+            .withVelocityMod(velocityMod)
+            .withVelocityDir(velocityDir)
+            .withMass       (mass)
+            .withRadius     (radius)
             .build()
             ;
+    }
+
+    public Particle2D move(final double time) {
+        return Particle2D.builder()
+            .withId         (id)
+            .withX          (getNextX(time))
+            .withY          (getNextY(time))
+            .withVelocityMod(velocityMod)
+            .withVelocityDir(velocityDir)
+            .withMass       (mass)
+            .withRadius     (radius)
+            .build()
+            ;
+    }
+
+    public Particle2D movePolar(
+        final double time, final double newVelocityMod, final double newVelocityDir, final double spaceWidth, final boolean periodicBorder
+    ) {
+        return Particle2D.builder()
+            .withId         (id)
+            .withX          (getNextX(time, spaceWidth, periodicBorder))
+            .withY          (getNextY(time, spaceWidth, periodicBorder))
+            .withVelocityMod(newVelocityMod)
+            .withVelocityDir(newVelocityDir)
+            .withMass       (mass)
+            .withRadius     (radius)
+            .build()
+            ;
+    }
+
+    public Particle2D movePolar(final double time, final double newVelocityMod, final double newVelocityDir) {
+        return Particle2D.builder()
+            .withId         (id)
+            .withX          (getNextX(time))
+            .withY          (getNextY(time))
+            .withVelocityMod(newVelocityMod)
+            .withVelocityDir(newVelocityDir)
+            .withMass       (mass)
+            .withRadius     (radius)
+            .build()
+            ;
+    }
+
+    public Particle2D moveCartesian(
+        final double time, final double velocityX, final double velocityY, final double spaceWidth, final boolean periodicBorder
+    ) {
+        return Particle2D.builder()
+            .withId         (id)
+            .withX          (getNextX(time, spaceWidth, periodicBorder))
+            .withY          (getNextY(time, spaceWidth, periodicBorder))
+            .withVelocityX  (velocityX)
+            .withVelocityY  (velocityY)
+            .withMass       (mass)
+            .withRadius     (radius)
+            .build()
+            ;
+    }
+
+    public Particle2D moveCartesian(final double time, final double velocityX, final double velocityY) {
+        return Particle2D.builder()
+            .withId         (id)
+            .withX          (getNextX(time))
+            .withY          (getNextY(time))
+            .withVelocityX  (velocityX)
+            .withVelocityY  (velocityY)
+            .withMass       (mass)
+            .withRadius     (radius)
+            .build()
+            ;
+    }
+
+    public static class Particle2DBuilder {
+        private Double  velocityX;
+        private Double  velocityY;
+        private Double  velocityMod;
+        private Double  velocityDir;  // Radianes entre [-PI, PI)
+
+        public Particle2DBuilder withVelocityX(final double velocityX) {
+            this.velocityX = velocityX;
+            calculatePolarVelocity();
+            return this;
+        }
+
+        public Particle2DBuilder withVelocityY(final double velocityY) {
+            this.velocityY = velocityY;
+            calculatePolarVelocity();
+            return this;
+        }
+
+        public Particle2DBuilder withVelocityMod(final double velocityMod) {
+            this.velocityMod = velocityMod;
+            calculateCartesianVelocity();
+            return this;
+        }
+
+        public Particle2DBuilder withVelocityDir(final double velocityDir) {
+            this.velocityDir = velocityDir;
+            calculateCartesianVelocity();
+            return this;
+        }
+
+        private void calculatePolarVelocity() {
+            if(velocityX != null && velocityY != null) {
+                velocityMod = Math.hypot(velocityX, velocityY);
+                velocityDir = Math.atan2(velocityY, velocityX);
+            }
+        }
+
+        private void calculateCartesianVelocity() {
+            if(velocityMod != null && velocityDir != null) {
+                velocityX = Math.cos(velocityDir) * velocityMod;
+                velocityY = Math.sin(velocityDir) * velocityMod;
+            }
+        }
     }
 }

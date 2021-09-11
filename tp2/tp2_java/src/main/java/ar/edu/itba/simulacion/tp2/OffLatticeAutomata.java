@@ -18,7 +18,8 @@ import static java.util.Objects.*;
 
 public class OffLatticeAutomata {
 
-    public static final int MAX_ITERATIONS = 100_000;
+    public static final int     MAX_ITERATIONS  = 100_000;
+    public static final double  TIME_STEP       = 1d;
 
     public static double calculateStableNormalizedVelocity(final List<Particle2D> state) {
         final double aggregateVelocityX = state.stream().mapToDouble(Particle2D::getVelocityX)  .sum();
@@ -108,7 +109,8 @@ public class OffLatticeAutomata {
 
     // Se asume que la particula esta dentro de los vecinos (uno es su propio vecino)
     private Particle2D particleNextState(final Particle2D particle, final Set<Particle2D> neighbours) {
-        return particle.doStep(
+        return particle.movePolar(
+            TIME_STEP,
             particle.getVelocityMod(),
             Math.atan2(
                 velocityDirAverage(neighbours, Math::sin),

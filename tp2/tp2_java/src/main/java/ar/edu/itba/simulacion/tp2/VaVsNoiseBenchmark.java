@@ -104,8 +104,13 @@ public final class VaVsNoiseBenchmark {
 
                 final List<Particle2D> particles = new ArrayList<>(particleCount);
                 ParticleGeneration.generateAdditionalParticles(
-                    particles, particleCount, spaceWidth, periodicBorder,
-                    velocity, velocity, 0, 0
+                    particles,  particleCount,
+                    spaceWidth, periodicBorder,
+                    0,     spaceWidth,
+                    0,     spaceWidth,
+                    velocity,   velocity,
+                    0,  0,
+                    0, 0
                 );
     
                 final List<List<Particle2D>> automataStates = new OffLatticeAutomata(

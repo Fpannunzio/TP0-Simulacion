@@ -50,8 +50,13 @@ public final class VaVsDensityBenchmark {
         int particleCount = config.initParticleCount;
         for(int i = 0; i < totalSteps; i++, particleCount += config.particleCountStep) {
             ParticleGeneration.generateAdditionalParticles(
-                particles, particleCount, config.spaceWidth, config.periodicBorder,
-                config.velocity, config.velocity, 0, 0
+                particles,          particleCount,
+                config.spaceWidth,  config.periodicBorder,
+                0,             config.spaceWidth,
+                0,             config.spaceWidth,
+                config.velocity,    config.velocity,
+                0,          0,
+                0,         0
             );
 
             final List<List<Particle2D>> automataStates = new OffLatticeAutomata(

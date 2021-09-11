@@ -47,9 +47,7 @@ public class Benchmark {
             .build()
             ;
 
-        ParticleGeneration.particleGenerator(particleConfig);
-
-        List<Particle2D> particles = Arrays.asList(mapper.readValue(new File(config.particlesFile), Particle2D[].class));
+        List<Particle2D> particles = ParticleGeneration.particleGenerator(particleConfig);
 
         final List<BenchmarkTimes> benchmarks = new LinkedList<>();
 
@@ -79,8 +77,7 @@ public class Benchmark {
         for (int i = 0; i < 10; i++) {
             config.strategy = Strategy.CIM;
             particleConfig.particleCount = (i + 1) * 100;
-            ParticleGeneration.particleGenerator(particleConfig);
-            particles = Arrays.asList(mapper.readValue(new File(config.particlesFile), Particle2D[].class));
+            particles = ParticleGeneration.particleGenerator(particleConfig);
             benchmarks.add(new BenchmarkTimes(config, (i + 1) * 100));
             for (int j = 0; j < 500; j++) {
                 start = System.nanoTime();
