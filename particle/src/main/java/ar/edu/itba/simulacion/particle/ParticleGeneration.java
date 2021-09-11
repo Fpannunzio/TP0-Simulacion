@@ -89,7 +89,6 @@ public final class ParticleGeneration {
         final double realMaxY       = Math.min(maxY,        spaceWidth - realMinRadius);
         final double realMinMass    = Math.max(MIN_MASS,    minMass);
 
-        // TODO(tobi): Cambiar brute force por CellIndexMethod
         int tries = 0;
         int particleCount = existingParticles.size();
         while(particleCount < targetParticleCount && tries < MAX_FAILURE_TOLERANCE) {
@@ -105,12 +104,12 @@ public final class ParticleGeneration {
             final double y = particle.getY();
             final double r = particle.getRadius();
 
-            final boolean inBounds =
+            final boolean inBounds = periodicBorder || (
                 x - r >= MIN_AXIS   &&
                 x + r < spaceWidth  &&
                 y - r >= MIN_AXIS   &&
                 y + r < spaceWidth
-                ;
+            );
             if(inBounds && (particle.getRadius() == 0 || !particle.collides(existingParticles, spaceWidth, periodicBorder))) {
                 existingParticles.add(particle);
                 particleCount++;
