@@ -1,0 +1,6 @@
+{
+  "spaceWidth": 6,
+  "iterations": 500,
+  "particlesFile": "particles/brownian_motion_gen.json",
+  "outputFile": "output/brownian_motion_out.json"
+}

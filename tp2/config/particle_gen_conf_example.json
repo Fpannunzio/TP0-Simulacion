@@ -1,6 +1,6 @@
 {
-  "spaceWidth": 3.1,
-  "particleCount": 40,
+  "spaceWidth": 20,
+  "particleCount": 100,
   "periodicBorder": true,
   "minVelocity": 0.03,
   "maxVelocity": 0.03,
