@@ -73,7 +73,7 @@ public final class ParticleGeneration {
     }
 
     public static void generateAdditionalParticles(
-        final List<Particle2D> existingParticles,   final int targetParticleCount,
+        final List<Particle2D> existingParticles,   final int additionalParticlesCount,
         final double spaceWidth,                    final boolean periodicBorder,
         final double minX,                          final double maxX,
         final double minY,                          final double maxY,
@@ -81,7 +81,6 @@ public final class ParticleGeneration {
         final double minMass,                       final double maxMass,
         final double minRadius,                     final double maxRadius
     ) {
-
         final double realMinRadius  = Math.max(MIN_RADIUS,  minRadius);
         final double realMinX       = Math.max(MIN_AXIS + realMinRadius,    minX);
         final double realMaxX       = Math.min(maxX,        spaceWidth - realMinRadius);
@@ -89,11 +88,13 @@ public final class ParticleGeneration {
         final double realMaxY       = Math.min(maxY,        spaceWidth - realMinRadius);
         final double realMinMass    = Math.max(MIN_MASS,    minMass);
 
+        int initParticlesCount = existingParticles.size();
+
         int tries = 0;
-        int particleCount = existingParticles.size();
-        while(particleCount < targetParticleCount && tries < MAX_FAILURE_TOLERANCE) {
+        int additionalParticles = 0;
+        while(additionalParticles < additionalParticlesCount && tries < MAX_FAILURE_TOLERANCE) {
             final Particle2D particle = Particle2D.randomParticle(
-                particleCount,
+                initParticlesCount + additionalParticles,
                 realMinX,       realMaxX,
                 realMinY,       realMaxY,
                 minVelocity,    maxVelocity,
@@ -112,7 +113,7 @@ public final class ParticleGeneration {
             );
             if(inBounds && (particle.getRadius() == 0 || !particle.collides(existingParticles, spaceWidth, periodicBorder))) {
                 existingParticles.add(particle);
-                particleCount++;
+                additionalParticles++;
             }
             tries++;
         }

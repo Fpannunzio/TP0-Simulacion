@@ -50,7 +50,7 @@ public final class VaVsDensityBenchmark {
         int particleCount = config.initParticleCount;
         for(int i = 0; i < totalSteps; i++, particleCount += config.particleCountStep) {
             ParticleGeneration.generateAdditionalParticles(
-                particles,          particleCount,
+                particles,          1,
                 config.spaceWidth,  config.periodicBorder,
                 0,             config.spaceWidth,
                 0,             config.spaceWidth,
