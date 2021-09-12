@@ -40,9 +40,6 @@ test/
 results/
 
 .vscode
-tp1/tp1_java/.factorypath
-particle/.factorypath
+.factorypath
 .gitignore
-.gitignore
-tp2/tp2_java/.factorypath
 .DS_Store
