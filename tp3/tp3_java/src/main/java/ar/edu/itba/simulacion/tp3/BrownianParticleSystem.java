@@ -141,6 +141,12 @@ public class BrownianParticleSystem {
         return ret;
     }
 
+    public void calculateNCollision(final int iterations) {
+        for (int i = 0; i < iterations; i++) {
+            calculateNextCollision();
+        }
+    }
+
     private Collision getWallCollision(final Particle2D particle) {
         final Collision collisionX = Collision.getXWallCollision(spaceWidth, particle);
         final Collision collisionY = Collision.getYWallCollision(spaceWidth, particle);
