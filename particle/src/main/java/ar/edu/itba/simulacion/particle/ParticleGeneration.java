@@ -117,6 +117,9 @@ public final class ParticleGeneration {
             }
             tries++;
         }
+        if(tries >= MAX_FAILURE_TOLERANCE) {
+            System.err.println("Couldn't allocate all the particles.");
+        }
     }
 
     @Data
