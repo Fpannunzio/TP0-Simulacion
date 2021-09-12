@@ -1,10 +1,13 @@
 package ar.edu.itba.simulacion.tp3;
 
 import ar.edu.itba.simulacion.particle.Particle2D;
+import ar.edu.itba.simulacion.particle.marshalling.XYZWritable;
 import lombok.Getter;
 import lombok.Value;
 import lombok.experimental.NonFinal;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -410,32 +413,7 @@ public class BrownianParticleSystem {
             final List<Particle2D> ret;
 
             if(wall != null) {
-                final double vx = wall.updateVelocityX(p1.getVelocityX());
-                final double vy = wall.updateVelocityY(p1.getVelocityY());
-
-                double massagedDTime = dTime;
-                Particle2D newP1 = p1.moveCartesian(massagedDTime, vx, vy);
-                double x = newP1.getX();
-                double y = newP1.getY();
-                double r = newP1.getRadius();
-
-                // Nos aseguramos que no traspase la pared
-//                while(
-//                    x - r <  Double.MIN_VALUE   ||
-//                    x + r >= spaceWidth         ||
-//                    y - r <  Double.MIN_VALUE   ||
-//                    y + r >= spaceWidth
-//                ) {
-//                    massagedDTime -= EPSILON;
-//                    newP1 = p1.moveCartesian(massagedDTime, vx, vy);
-//                    x = newP1.getX();
-//                    y = newP1.getY();
-//                    r = newP1.getRadius();
-//                }
-
-                dTime = massagedDTime;
-
-                ret = List.of(newP1);
+                ret = List.of(p1.moveCartesian(dTime, wall.updateVelocityX(p1.getVelocityX()), wall.updateVelocityY(p1.getVelocityY())));
             } else if(particle2 != null) {
                 // Particle collision
                 final Particle2D p2 = lastState.get(particle2);
@@ -464,10 +442,10 @@ public class BrownianParticleSystem {
                 final double vfx2 = vx2 + Jx / m2;
                 final double vfy2 = vy2 + Jy / m2;
 
-                Particle2D newP1 = p1.moveCartesian(dTime, vfx1, vfy1);
-                Particle2D newP2 = p2.moveCartesian(dTime, vfx2, vfy2);
-
-                ret = List.of(newP1, newP2);
+                ret = List.of(
+                    p1.moveCartesian(dTime, vfx1, vfy1),
+                    p2.moveCartesian(dTime, vfx2, vfy2)
+                );
             } else {
                 throw new IllegalStateException();
             }
@@ -507,9 +485,20 @@ public class BrownianParticleSystem {
     }
 
     @Value
-    public static class SimulationState {
+    public static class SimulationState implements XYZWritable {
         double              time;
         List<Particle2D>    particles;
         Collision           collision;
+
+        @Override
+        public void xyzWrite(Writer writer) throws IOException {
+            writer.write(String.valueOf(particles.size()));
+            XYZWritable.newLine(writer);
+            XYZWritable.newLine(writer);
+
+            for(final Particle2D particle : particles) {
+                particle.xyzWrite(writer);
+            }
+        }
     }
 }

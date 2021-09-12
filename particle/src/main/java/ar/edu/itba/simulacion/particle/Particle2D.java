@@ -1,16 +1,19 @@
 package ar.edu.itba.simulacion.particle;
 
+import ar.edu.itba.simulacion.particle.marshalling.XYZWritable;
 import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Collection;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Value
 @Jacksonized
 @Builder(setterPrefix = "with")
-public class Particle2D {
+public class Particle2D implements XYZWritable {
 
     int     id;
     double  x;
@@ -192,6 +195,19 @@ public class Particle2D {
             .withRadius     (radius)
             .build()
             ;
+    }
+
+    @Override
+    public void xyzWrite(Writer writer) throws IOException {
+        writer.write(
+            getX()          + FIELD_SEPARATOR +
+                getY()          + FIELD_SEPARATOR +
+                getVelocityX()  + FIELD_SEPARATOR +
+                getVelocityY()  + FIELD_SEPARATOR +
+                getMass()       + FIELD_SEPARATOR +
+                getRadius()     + FIELD_SEPARATOR
+        );
+        XYZWritable.newLine(writer);
     }
 
     public static class Particle2DBuilder {
