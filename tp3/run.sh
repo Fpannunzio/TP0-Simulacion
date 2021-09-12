@@ -13,12 +13,6 @@ echo "Particluas creadas ✅️"
 echo "Ejecutando simulacion 🕘️"
 
 # Ejecutamos simulacion
-mvn -f tp3_java exec:java -Dexec.mainClass=ar.edu.itba.simulacion.tp3.BrownianMotionSimulation -Dexec.args="$2" || exit
+mvn -f tp3_java exec:java -Dexec.mainClass=ar.edu.itba.simulacion.tp3.BrownianMotionSimulation -Dexec.args="$2" -q || exit
 
 echo "Simulacion finalizada ✅️"
-
-echo "Renderizando 🚀️"
-
-# Renderizamos grafico
-python3 tp3_python/main.py "$2" || exit
-
