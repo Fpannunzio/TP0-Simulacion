@@ -1,14 +1,18 @@
 package ar.edu.itba.simulacion.tp3;
 
-import ar.edu.itba.simulacion.particle.Particle2D;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.List;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import ar.edu.itba.simulacion.particle.Particle2D;
+import ar.edu.itba.simulacion.tp3.BrownianParticleSystem.SimulationState;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
 
 public class BrownianMotionSimulation {
     public static void main( String[] args ) throws IOException {
@@ -31,15 +35,40 @@ public class BrownianMotionSimulation {
             final BrownianParticleSystem.Collision collision = state.getCollision();
             final List<Particle2D> particles = state.getParticles();
 
-            System.out.println(state.getCollision());
-            System.out.println(particles.get(collision.getParticle1()));
-            if(collision.isParticleCollision()) {
-                System.out.println(particles.get(collision.getParticle2()));
+            if(i % 1000 == 0) {
+                // Informamos que la simulacion avanza
+                System.out.println("Total states processed so far: " + i);
             }
-            System.out.println();
         }
 
         mapper.writeValue(new File(config.outputFile), brownianSystem.getStates());
+
+        exportToXYZ(config.outputFile.replace(".json", ".exyz"), brownianSystem.getStates());
+
+    }
+
+    private static void exportToXYZ(final String path, final List<SimulationState> states) throws IOException {
+        
+        try(final BufferedWriter writer = new BufferedWriter(new FileWriter(path))) {
+            
+            for(final SimulationState state : states) {
+                writer.write("" + state.getParticles().size());
+                writer.newLine();
+                writer.newLine();
+
+                for(Particle2D particle : state.getParticles()) {
+                    writer.write(
+                        particle.getX() + " " +
+                        particle.getY() + " " +
+                        particle.getVelocityX() + " " +
+                        particle.getVelocityY() + " " +
+                        particle.getMass() + " " +
+                        particle.getRadius() + " "
+                    );
+                    writer.newLine();
+                }
+            }
+        }   
     }
 
     @Data
