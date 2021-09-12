@@ -6,10 +6,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
+import ar.edu.itba.simulacion.particle.marshalling.XYZWritable;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ar.edu.itba.simulacion.particle.Particle2D;
-import ar.edu.itba.simulacion.tp3.BrownianParticleSystem.SimulationState;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
@@ -41,34 +41,7 @@ public class BrownianMotionSimulation {
             }
         }
 
-        mapper.writeValue(new File(config.outputFile), brownianSystem.getStates());
-
-        exportToXYZ(config.outputFile.replace(".json", ".exyz"), brownianSystem.getStates());
-
-    }
-
-    private static void exportToXYZ(final String path, final List<SimulationState> states) throws IOException {
-        
-        try(final BufferedWriter writer = new BufferedWriter(new FileWriter(path))) {
-            
-            for(final SimulationState state : states) {
-                writer.write("" + state.getParticles().size());
-                writer.newLine();
-                writer.newLine();
-
-                for(Particle2D particle : state.getParticles()) {
-                    writer.write(
-                        particle.getX() + " " +
-                        particle.getY() + " " +
-                        particle.getVelocityX() + " " +
-                        particle.getVelocityY() + " " +
-                        particle.getMass() + " " +
-                        particle.getRadius() + " "
-                    );
-                    writer.newLine();
-                }
-            }
-        }   
+        XYZWritable.exportToFile(config.outputFile, brownianSystem.getStates());
     }
 
     @Data
