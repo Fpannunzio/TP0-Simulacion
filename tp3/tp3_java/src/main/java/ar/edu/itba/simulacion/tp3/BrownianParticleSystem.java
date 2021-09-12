@@ -13,9 +13,6 @@ import java.util.RandomAccess;
 
 public class BrownianParticleSystem {
 
-    // Para evitar que las colisiones se traspasen
-    private static final double EPSILON = 1e-15;
-
     @Getter private       double                currentTime;
     @Getter private final double                spaceWidth;
     @Getter private final List<SimulationState> states;
@@ -82,7 +79,17 @@ public class BrownianParticleSystem {
 
                 // Actualizamos los tiempos en columna, es decir, lo que estan atras del current
                 for(int collisionId = 0; collisionId < currentParticleId; collisionId++) {
-                    final double newDTime = decrementParticlesCollisionTime(collisionId, currentParticleId, dTime);
+                    final double newDTime;
+
+                    final Particle2D collisioningParticle = collisionParticle(collisionId, collisionParticle1, collisionParticle2);
+                    if(collisioningParticle == null) {
+                        // collisionId es una particula que colisione -> calculamos de nuevo su tiempo
+                        newDTime = decrementParticlesCollisionTime(collisionId, currentParticleId, dTime);
+                    } else {
+                        newDTime = calculateParticleCollisionTime(collisioningParticle, newState.get(currentParticleId));
+                        setParticlesCollisionTime(collisionId, currentParticleId, newDTime);
+                    }
+
                     if(newDTime < minTime) {
                         minTime = newDTime;
                         minCollision = new Collision(minTime, collisionId, currentParticleId);
@@ -435,8 +442,8 @@ public class BrownianParticleSystem {
                 final double m2     = p2.getMass();
 
                 final double sigma  = p1.getRadius() + p2.getRadius();
-                final double dx     = p1.getX() - p2.getX();
-                final double dy     = p1.getY() - p2.getY();
+                final double dx     = p1.getNextX(dTime) - p2.getNextX(dTime);
+                final double dy     = p1.getNextY(dTime) - p2.getNextY(dTime);
                 final double dvx    = vx1 - vx2;
                 final double dvy    = vy1 - vy2;
 
@@ -453,21 +460,6 @@ public class BrownianParticleSystem {
 
                 Particle2D newP1 = p1.moveCartesian(dTime, vfx1, vfy1);
                 Particle2D newP2 = p2.moveCartesian(dTime, vfx2, vfy2);
-
-                if(newP1.collides(p2)) {
-                    newP1 = p1.moveCartesian(0, vfx1, vfy1);
-                    newP2 = p2.moveCartesian(0, vfx2, vfy2);
-                }
-
-//                // Queremos garantizar que no se solapen
-//                final double distance = newP1.distanceTo(newP2);
-//                if(distance < 0) {
-//                    final double correction = 2 * distance / p1.getVelocityMod() + EPSILON;
-//                    newP1 = p1.moveCartesian(dTime - correction, vfx1, vfy1);
-//                    if(newP1.collides(newP2)) {
-////                        throw new IllegalStateException();
-//                    }
-//                }
 
                 ret = List.of(newP1, newP2);
             } else {
