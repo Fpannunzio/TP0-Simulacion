@@ -446,20 +446,20 @@ public class BrownianParticleSystem {
                 final double Jx = J * dx / sigma;
                 final double Jy = J * dy / sigma;
 
-                final double vfx1 = vx1 + Jx / m1;
-                final double vfx2 = vx2 - Jx / m2;
-                final double vfy1 = vy1 + Jy / m1;
-                final double vfy2 = vy2 - Jy / m2;
+                final double vfx1 = vx1 - Jx / m1;
+                final double vfx2 = vx2 + Jx / m2;
+                final double vfy1 = vy1 - Jy / m1;
+                final double vfy2 = vy2 + Jy / m2;
 
                 double massagedDTime = dTime;
-                Particle2D newP1 = p1.moveCartesian(massagedDTime, vfx1, vfx2);
-                Particle2D newP2 = p2.moveCartesian(massagedDTime, vfy1, vfy2);
+                Particle2D newP1 = p1.moveCartesian(massagedDTime, vfx1, vfy1);
+                Particle2D newP2 = p2.moveCartesian(massagedDTime, vfx2, vfy2);
 
                 // Queremos garantizar que no se solapen
                 while(newP1.collides(newP2)) {
                     massagedDTime -= EPSILON;
-                    newP1 = p1.moveCartesian(massagedDTime, vfx1, vfx2);
-                    newP2 = p2.moveCartesian(massagedDTime, vfy1, vfy2);
+                    newP1 = p1.moveCartesian(massagedDTime, vfx1, vfy1);
+                    newP2 = p2.moveCartesian(massagedDTime, vfx2, vfy2);
                 }
 
                 dTime = massagedDTime;
