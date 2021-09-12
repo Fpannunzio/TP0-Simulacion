@@ -28,7 +28,15 @@ public class BrownianMotionSimulation {
 
         for(int i = 0; i < config.iterations; i++) {
             final BrownianParticleSystem.SimulationState state = brownianSystem.calculateNextCollision();
+            final BrownianParticleSystem.Collision collision = state.getCollision();
+            final List<Particle2D> particles = state.getParticles();
+
             System.out.println(state.getCollision());
+            System.out.println(particles.get(collision.getParticle1()));
+            if(collision.isParticleCollision()) {
+                System.out.println(particles.get(collision.getParticle2()));
+            }
+            System.out.println();
         }
 
         mapper.writeValue(new File(config.outputFile), brownianSystem.getStates());

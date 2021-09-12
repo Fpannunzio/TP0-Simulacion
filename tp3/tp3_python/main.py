@@ -1,12 +1,16 @@
 import json
 import sys
-from typing import Dict, Any, Optional, List, Union
+from typing import Dict, Any, List, Union
 
-from models import Config, SimulationState, Particle, Collision
+from models import Config, SimulationState, Particle, Collision, Wall
+from plot import Plotter
 
 
 def parse_state(data: Dict[str, Any]) -> Union[Collision, SimulationState, Particle]:
     if 'dTime' in data:
+        if 'wall' in data and data['wall'] is not None:
+            # Casteamos string a enum
+            data['wall'] = Wall[data['wall']]
         return Collision.from_dict(data)
     elif 'time' in data:
         return SimulationState.from_dict(data)
@@ -20,7 +24,7 @@ def main(config_path):
     with open(config.outputFile, 'r') as particles_fd:
         states: List[SimulationState] = json.load(particles_fd, object_hook=parse_state)
 
-    print(states)
+    plotter: Plotter = Plotter(config.spaceWidth, config.iterations, states).plot()
 
 
 if __name__ == '__main__':

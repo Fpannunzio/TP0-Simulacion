@@ -27,7 +27,7 @@ class Particle:
     mass:           float
     radius:         float
 
-class Wall(Enum, str):
+class Wall(str, Enum):
     UP = 'UP'
     DOWN = 'DOWN'
     LEFT = 'LEFT'

@@ -16,7 +16,7 @@ public class BrownianParticleSystem {
     // Para evitar que las colisiones se traspasen
     private static final double EPSILON = 1e-15;
 
-    @Getter private       long                  currentTime;
+    @Getter private       double                currentTime;
     @Getter private final double                spaceWidth;
     @Getter private final List<SimulationState> states;
     /**
@@ -277,7 +277,7 @@ public class BrownianParticleSystem {
             oldValue = particleCollisions[upperMatrixListIdxMapping(particle1, particle2)];
             particleCollisions[upperMatrixListIdxMapping(particle1, particle2)] -= timeToDecrement;
         } else if(particle2 < particle1) {
-            oldValue = particleCollisions[upperMatrixListIdxMapping(particle1, particle2)];
+            oldValue = particleCollisions[upperMatrixListIdxMapping(particle2, particle1)];
             particleCollisions[upperMatrixListIdxMapping(particle2, particle1)] -= timeToDecrement;
         } else {
             throw new ArrayIndexOutOfBoundsException("A particle doesn't have a collision time with itself");
@@ -407,18 +407,18 @@ public class BrownianParticleSystem {
                 double r = newP1.getRadius();
 
                 // Nos aseguramos que no traspase la pared
-                while(
-                    x - r <  Double.MIN_VALUE   ||
-                    x + r >= spaceWidth         ||
-                    y - r <  Double.MIN_VALUE   ||
-                    y + r >= spaceWidth
-                ) {
-                    massagedDTime -= EPSILON;
-                    newP1 = p1.moveCartesian(massagedDTime, vx, vy);
-                    x = newP1.getX();
-                    y = newP1.getY();
-                    r = newP1.getRadius();
-                }
+//                while(
+//                    x - r <  Double.MIN_VALUE   ||
+//                    x + r >= spaceWidth         ||
+//                    y - r <  Double.MIN_VALUE   ||
+//                    y + r >= spaceWidth
+//                ) {
+//                    massagedDTime -= EPSILON;
+//                    newP1 = p1.moveCartesian(massagedDTime, vx, vy);
+//                    x = newP1.getX();
+//                    y = newP1.getY();
+//                    r = newP1.getRadius();
+//                }
 
                 dTime = massagedDTime;
 
@@ -442,27 +442,32 @@ public class BrownianParticleSystem {
 
                 final double dvr = dvx*dx + dvy*dy;
 
-                final double J  = 2 * m1 * m2 * dvr / (sigma * (m1 + m2));
-                final double Jx = J * dx / sigma;
-                final double Jy = J * dy / sigma;
+                final double J  = (2 * m1 * m2 * dvr) / (sigma * (m1 + m2));
+                final double Jx = (J * dx) / sigma;
+                final double Jy = (J * dy) / sigma;
 
                 final double vfx1 = vx1 - Jx / m1;
-                final double vfx2 = vx2 + Jx / m2;
                 final double vfy1 = vy1 - Jy / m1;
+                final double vfx2 = vx2 + Jx / m2;
                 final double vfy2 = vy2 + Jy / m2;
 
-                double massagedDTime = dTime;
-                Particle2D newP1 = p1.moveCartesian(massagedDTime, vfx1, vfy1);
-                Particle2D newP2 = p2.moveCartesian(massagedDTime, vfx2, vfy2);
+                Particle2D newP1 = p1.moveCartesian(dTime, vfx1, vfy1);
+                Particle2D newP2 = p2.moveCartesian(dTime, vfx2, vfy2);
 
-                // Queremos garantizar que no se solapen
-                while(newP1.collides(newP2)) {
-                    massagedDTime -= EPSILON;
-                    newP1 = p1.moveCartesian(massagedDTime, vfx1, vfy1);
-                    newP2 = p2.moveCartesian(massagedDTime, vfx2, vfy2);
+                if(newP1.collides(p2)) {
+                    newP1 = p1.moveCartesian(0, vfx1, vfy1);
+                    newP2 = p2.moveCartesian(0, vfx2, vfy2);
                 }
 
-                dTime = massagedDTime;
+//                // Queremos garantizar que no se solapen
+//                final double distance = newP1.distanceTo(newP2);
+//                if(distance < 0) {
+//                    final double correction = 2 * distance / p1.getVelocityMod() + EPSILON;
+//                    newP1 = p1.moveCartesian(dTime - correction, vfx1, vfy1);
+//                    if(newP1.collides(newP2)) {
+////                        throw new IllegalStateException();
+//                    }
+//                }
 
                 ret = List.of(newP1, newP2);
             } else {
