@@ -24,6 +24,7 @@ hs_err_pid*
 
 # Python
 __pycache__/
+venv/
 
 .idea
 *.iml
@@ -38,8 +39,8 @@ output/
 particles/
 test/
 results/
+anim/
 
 .vscode
 .factorypath
-.gitignore
 .DS_Store
