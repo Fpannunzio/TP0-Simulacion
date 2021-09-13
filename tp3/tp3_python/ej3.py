@@ -27,20 +27,20 @@ def main(data_path):
     positions = list(map(lambda r: np.array(r.states), rounds))
     temps = list(map(lambda state: state.temp, rounds))
 
-    iterations = 10_000
+    maxIterations = 100_000
 
     fig = plt.figure(figsize=(10, 10))
     ax = fig.add_subplot(1, 1, 1)
     ax.set_xlim([0, 6])
     ax.set_ylim([0, 6])
-    ax.set_title(f'Iterations: {iterations}')
+    ax.set_title(f'Iterations: {maxIterations}')
     ax.set_yticks([])
     ax.set_xticks([])
     
     for i in range(len(temps)):
-        ax.plot(*positions[i][:iterations].T, label=f"v=[{temps[i]}, {temps[i] + 1}]", color=cm.get_cmap('jet')(temps[i] / np.max(temps)))
+        ax.plot(*positions[i][:-1].T, label=f"v=[{temps[i]}, {temps[i] + 1}]. Iter={positions[i].shape[0]}", color=cm.get_cmap('jet')(temps[i] / np.max(temps)))
         start = ax.add_artist(plt.Circle((positions[i].T[0, 0],positions[i].T[1, 0]),       0.1, color='green', alpha=0.3))
-        end = ax.add_artist(plt.Circle((positions[i].T[0, iterations],positions[i].T[1, iterations]),       0.1, color='red', alpha=0.3))
+        end = ax.add_artist(plt.Circle((positions[i].T[0, -1],positions[i].T[1, -1]),       0.1, color='red', alpha=0.3))
 
     plt.legend()
     plt.show()

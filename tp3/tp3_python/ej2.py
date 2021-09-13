@@ -38,6 +38,8 @@ def main(data_path):
     rounds = np.size(lastThirdValues[0], 0)
     iterations = np.size(lastThirdValues[0], 1)
     
+    binSize = 0.1
+
     for i in range(len(particleCounts)):
         allInitials: np.ndarray = initialVelocities[i].flatten() 
         allThird: np.ndarray = lastThirdValues[i].flatten() 
@@ -45,8 +47,8 @@ def main(data_path):
         fig = plt.figure(i, figsize=(10, 10))
         ax = fig.add_subplot(1, 1, 1)
 
-        thirdHist, thirdBin         = np.histogram(allThird, bins=np.arange(0, np.max(allThird), 0.1))
-        initialsHist, initialsBin   = np.histogram(allInitials, bins=np.arange(0, np.max(allInitials), 0.1))
+        thirdHist, thirdBin         = np.histogram(allThird, bins=np.arange(0, np.max(allThird), binSize))
+        initialsHist, initialsBin   = np.histogram(allInitials, bins=np.arange(0, np.max(allInitials), binSize))
 
         ax.plot(thirdBin[:-1], thirdHist / allThird.size, label=f'Ultimo tercio', marker='o')
         ax.plot(initialsBin[:-1], initialsHist / allInitials.size, label=f'Inicial', marker='o')
