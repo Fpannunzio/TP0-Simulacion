@@ -36,6 +36,8 @@ def main(data_path):
         ax.set_xlim([0, 6])
         ax.set_ylim([0, 6])
         ax.plot(*positions[i].T)
+        start = ax.add_artist(plt.Circle((positions[i].T[0, 0],positions[i].T[1, 0]),       0.1, color='green', alpha=0.3))
+        end = ax.add_artist(plt.Circle((positions[i].T[0, -1],positions[i].T[1, -1]),       0.1, color='red', alpha=0.3))
         ax.set_title(f'Temp={temps[i]}. Iterations: {iterations}')
         ax.set_yticks([])
         ax.set_xticks([])
