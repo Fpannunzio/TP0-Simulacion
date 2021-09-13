@@ -1,0 +1,37 @@
+{
+  "spaceWidth": 6,
+  "temperatures": [0, 1, 2, 3, 4, 5],
+  "iterations": 50000,
+  "outputFile": "output/ej3_out.json",
+  "particleGen": [
+      {
+        "spaceWidth": 6,
+        "particleCount": 1,
+        "periodicBorder": false,
+        "minX": 3,
+        "maxX": 3,
+        "minY": 3,
+        "maxY": 3,
+        "minVelocity": 0,
+        "maxVelocity": 0,
+        "minMass": 2,
+        "maxMass": 2,
+        "minRadius": 0.7,
+        "maxRadius": 0.7,
+        "outputFile": "particles/brownian_motion_gen.json"
+      },
+      {
+        "spaceWidth": 6,
+        "particleCount": 100,
+        "periodicBorder": false,
+        "minVelocity": 0,
+        "maxVelocity": 0,
+        "minMass": 0.9,
+        "maxMass": 0.9,
+        "minRadius": 0.2,
+        "maxRadius": 0.2
+      }
+    ]
+}
+
+  
