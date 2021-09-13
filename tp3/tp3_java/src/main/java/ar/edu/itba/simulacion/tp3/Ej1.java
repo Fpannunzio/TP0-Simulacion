@@ -30,7 +30,7 @@ public class Ej1 {
         
         final List<RoundSummary> summary = new ArrayList<>(config.getParticleCounts().length);
         
-        for(Integer particleCount : config.getParticleCounts()) {
+        for(final int particleCount : config.getParticleCounts()) {
             
             System.out.printf("Working with %d particles.\n", particleCount);
 
