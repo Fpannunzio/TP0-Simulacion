@@ -47,7 +47,7 @@ def main(data_path):
     ax.set_yscale('log')
     ax.set_title(f'BinSize: {binSize}. Rounds: {rounds}. Iterations: {iterations}.')
     ax.set_xlabel(r'$t_c$: Tiempo entre colision (s)', size=20)
-    ax.set_ylabel(r'Probabilidad por intervalo', size=20)
+    ax.set_ylabel(r'Probabilidad del intervalo', size=20)
 
     for i in range(len(particleCounts)):
         hist, bins = np.histogram(values[i].flatten(), bins=np.arange(0, np.max(values[i]), binSize))

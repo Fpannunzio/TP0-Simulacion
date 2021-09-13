@@ -48,12 +48,12 @@ def main(data_path):
         thirdHist, thirdBin         = np.histogram(allThird, bins=np.arange(0, np.max(allThird), 0.1))
         initialsHist, initialsBin   = np.histogram(allInitials, bins=np.arange(0, np.max(allInitials), 0.1))
 
-        ax.plot(thirdBin[:-1], thirdHist / allThird.size, label=f'Last third', marker='o')
-        ax.plot(initialsBin[:-1], initialsHist / allInitials.size, label=f'Initial', marker='o')
+        ax.plot(thirdBin[:-1], thirdHist / allThird.size, label=f'Ultimo tercio', marker='o')
+        ax.plot(initialsBin[:-1], initialsHist / allInitials.size, label=f'Inicial', marker='o')
 
         ax.set_title(f'N={particleCounts[i]}. Rounds: {rounds}')
-        ax.set_xlabel(r'$V_c$: Modulo de la velocidad', size=20)
-        ax.set_ylabel(r'Densidad del intervalo', size=20)
+        ax.set_xlabel(r'$v$: Modulo de la velocidad (m/s)', size=20)
+        ax.set_ylabel(r'Probabilidad del intervalo', size=20)
         ax.legend()
     
     plt.show()
