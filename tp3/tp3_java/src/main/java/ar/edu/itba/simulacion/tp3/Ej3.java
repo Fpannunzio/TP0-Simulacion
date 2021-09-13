@@ -38,7 +38,7 @@ public class Ej3 {
             final List<Particle2D> initialState =  ParticleGeneration.particleGenerator(config.getParticleGen());
             final BrownianParticleSystem brownianSystem = new BrownianParticleSystem(config.spaceWidth, initialState);
             
-            brownianSystem.calculateUntilBigParticleCollision(config.getIterations(), null);
+            brownianSystem.calculateUntilBigParticleCollision(config.maxIterations, null);
 
             final List<Double[]> bigParticleStates = brownianSystem.getStates()
                 .stream()
@@ -59,7 +59,7 @@ public class Ej3 {
     public static class Ej3Config {
         public List<ParticleGeneration.ParticleGenerationConfig>    particleGen;
         public int[]                                                temperatures;
-        public int                                                  iterations;
+        public int                                                  maxIterations;
         public double                                               spaceWidth;
         public String                                               outputFile;
     }
