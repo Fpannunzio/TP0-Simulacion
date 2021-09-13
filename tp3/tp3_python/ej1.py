@@ -46,7 +46,7 @@ def main(data_path):
         ax.hist(values[i].flatten(), bins=100)
         ax.set_yscale('log')
         ax.set_title(f'N={particleCounts[i]}. Rounds: {rounds}. Iterations: {iterations}')
-        ax.set_xlabel(r'$t_c$: Tiempo entre colision', size=20)
+        ax.set_xlabel(r'$t_c$: Tiempo entre colision (s)', size=20)
         ax.set_ylabel(r'Cantidad por intervalo', size=20)
 
     plt.show()
