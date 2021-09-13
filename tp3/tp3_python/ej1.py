@@ -5,6 +5,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from models import from_dict
 from typing import Any, Dict, List, Union
+from matplotlib import cm
 
 from models import Collision, Config, Particle, SimulationState, Wall
 from plot import Plotter
@@ -34,21 +35,29 @@ def main(data_path):
     mean = np.mean(frequency, axis = 1)
     std = np.std(frequency, axis = 1)
 
+    binCount = 100
+
     print(f'Rounds: {rounds}. Iterations: {iterations}')
     for i in range(len(mean)):
         print(f'Mean for N={particleCounts[i]} is: {mean[i]} and std is: {std[i]}')
     # plotter: Plotter = Plotter(config.spaceWidth, config.iterations, states).plot()
 
+    fig = plt.figure(figsize=(10, 10))
+    ax = fig.add_subplot(1, 1, 1)
+    ax.set_yscale('log')
+    ax.set_title(f'BinCount: {binCount}. Rounds: {rounds}. Iterations: {iterations}.')
+    ax.set_xlabel(r'$t_c$: Tiempo entre colision (s)', size=20)
+    ax.set_ylabel(r'Probabilidad por intervalo', size=20)
+
     for i in range(len(particleCounts)):
-
-        fig = plt.figure(i, figsize=(10, 10))
-        ax = fig.add_subplot(1, 1, 1)
-        ax.hist(values[i].flatten(), bins=100)
-        ax.set_yscale('log')
-        ax.set_title(f'N={particleCounts[i]}. Rounds: {rounds}. Iterations: {iterations}')
-        ax.set_xlabel(r'$t_c$: Tiempo entre colision (s)', size=20)
-        ax.set_ylabel(r'Cantidad por intervalo', size=20)
-
+        hist, bins = np.histogram(values[i].flatten(), bins=binCount)
+        ax.scatter(
+            bins[:-1], 
+            hist / values[i].size, 
+            color=cm.get_cmap('tab10')(i),
+            label=f'N= {int(particleCounts[i])}'
+        )
+    plt.legend()
     plt.show()
 
 
