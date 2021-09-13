@@ -1,8 +1,6 @@
 package ar.edu.itba.simulacion.tp3;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
@@ -30,16 +28,12 @@ public class BrownianMotionSimulation {
 
         final BrownianParticleSystem brownianSystem = new BrownianParticleSystem(config.spaceWidth, initialState);
 
-        for(int i = 0; i < config.iterations; i++) {
-            final BrownianParticleSystem.SimulationState state = brownianSystem.calculateNextCollision();
-            final BrownianParticleSystem.Collision collision = state.getCollision();
-            final List<Particle2D> particles = state.getParticles();
-
+        brownianSystem.calculateUntilBigParticleCollision(config.maxIterations, (state, i) -> {
             if(i % 1000 == 0) {
                 // Informamos que la simulacion avanza
                 System.out.println("Total states processed so far: " + i);
             }
-        }
+        });
 
         XYZWritable.exportToFile(config.outputFile, brownianSystem.getStates());
     }
@@ -49,7 +43,7 @@ public class BrownianMotionSimulation {
     @Builder(setterPrefix = "with")
     public static class BrownianMotionSimulationConfig {
         public double                   spaceWidth;
-        public int                      iterations;
+        public int                      maxIterations;
         public String                   particlesFile;
         public String                   outputFile;
     }

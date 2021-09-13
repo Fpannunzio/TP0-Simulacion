@@ -43,7 +43,7 @@ public class Ej1 {
                 final List<Particle2D> initialState =  ParticleGeneration.particleGenerator(config.getParticleGen());
                 final BrownianParticleSystem brownianSystem = new BrownianParticleSystem(config.spaceWidth, initialState);
                 
-                brownianSystem.calculateNCollision(config.getIterations());
+                brownianSystem.calculateUntilBigParticleCollision(config.maxIterations, null);
 
                 round.collisionTimes.add(
                     brownianSystem.getStates()
@@ -68,7 +68,7 @@ public class Ej1 {
         public List<ParticleGeneration.ParticleGenerationConfig>    particleGen;
         public int[]                                                particleCounts;
         public int                                                  rounds;
-        public int                                                  iterations;
+        public int                                                  maxIterations;
         public double                                               spaceWidth;
         public String                                               outputFile;
     }

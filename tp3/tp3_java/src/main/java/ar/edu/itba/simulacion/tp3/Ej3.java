@@ -38,7 +38,7 @@ public class Ej3 {
             final List<Particle2D> initialState =  ParticleGeneration.particleGenerator(config.getParticleGen());
             final BrownianParticleSystem brownianSystem = new BrownianParticleSystem(config.spaceWidth, initialState);
             
-            brownianSystem.calculateNCollision(config.getIterations());
+            brownianSystem.calculateUntilBigParticleCollision(config.getIterations(), null);
 
             final List<Double[]> bigParticleStates = brownianSystem.getStates()
                 .stream()

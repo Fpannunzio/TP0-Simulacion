@@ -1,8 +1,8 @@
 {
   "spaceWidth": 6,
-  "particleCounts": [100, 105, 110, 115, 120, 125],
+  "particleCounts": [100, 105, 110, 115, 120, 125, 130, 135],
   "rounds": 50,
-  "iterations": 5000,
+  "maxIterations": 50000,
   "outputFile": "output/ej1_out.json",
   "particleGen": [
       {

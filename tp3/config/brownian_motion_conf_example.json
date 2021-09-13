@@ -1,6 +1,6 @@
 {
   "spaceWidth": 6,
-  "iterations": 500,
+  "maxIterations": 50000,
   "particlesFile": "particles/brownian_motion_gen.json",
   "outputFile": "output/brownian_motion_out.exyz"
 }

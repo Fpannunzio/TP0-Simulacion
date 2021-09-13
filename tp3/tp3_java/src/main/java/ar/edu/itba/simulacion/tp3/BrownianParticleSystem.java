@@ -13,6 +13,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.RandomAccess;
+import java.util.function.ObjIntConsumer;
 
 public class BrownianParticleSystem {
 
@@ -144,10 +145,21 @@ public class BrownianParticleSystem {
         return ret;
     }
 
-    public void calculateNCollision(final int iterations) {
-        for (int i = 0; i < iterations; i++) {
-            calculateNextCollision();
-        }
+    public void calculateUntilBigParticleCollision(final int maxIterations, final ObjIntConsumer<SimulationState> callback) {
+        int i = 0;
+        boolean hasBigParticleHitWall;
+        do {
+            final SimulationState state = calculateNextCollision();
+
+            if(callback != null) {
+                callback.accept(state, i);
+            }
+
+            final Collision collision = state.getCollision();
+            hasBigParticleHitWall = collision.isWallCollision() && collision.getParticle1() == 0;
+
+            i++;
+        } while(i < maxIterations && !hasBigParticleHitWall);
     }
 
     private Collision getWallCollision(final Particle2D particle) {

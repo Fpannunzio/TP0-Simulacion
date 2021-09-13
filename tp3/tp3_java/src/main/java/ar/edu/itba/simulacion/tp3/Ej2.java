@@ -45,9 +45,9 @@ public class Ej2 {
                 }
 
                 final BrownianParticleSystem brownianSystem = new BrownianParticleSystem(config.spaceWidth, initialState);
-                brownianSystem.calculateNCollision(config.iterations);
+                brownianSystem.calculateUntilBigParticleCollision(config.maxIterations, null);
 
-                rounds.add(calculateRound(brownianSystem.getStates(), particleCount, config.iterations));
+                rounds.add(calculateRound(brownianSystem.getStates(), particleCount, brownianSystem.getStates().size()));
             }
             summary.getRoundsList().add(rounds);
         }
@@ -59,16 +59,24 @@ public class Ej2 {
     private static Ej2Round calculateRound(List<SimulationState> states, int particleCount, int iterations) {
         return Ej2Round.builder()
         .withParticleCount(particleCount)
-        .withInitialVelocities(states.get(0).getParticles().stream().filter(Objects::nonNull).filter(p -> p.getId() != 0).map(Particle2D::getVelocityMod).collect(Collectors.toList()))
-        .withLastThirdVelocities(getLastThirdVelocities(states, iterations, particleCount)).build();
-
+        .withInitialVelocities(states.get(0).getParticles()
+            .stream()
+            .filter(Objects::nonNull)
+            .filter(p -> p.getId() != 0)
+            .map(Particle2D::getVelocityMod)
+            .collect(Collectors.toList())
+        )
+        .withLastThirdVelocities(getLastThirdVelocities(states, iterations, particleCount))
+        .build()
+        ;
     }
 
     private static List<Double> getLastThirdVelocities(List<SimulationState> states, int iterations, int particleCount) {
-        List<Double> lastThirdVelocities = new ArrayList<>(Math.round(iterations/3) * particleCount);
+        final int iterationsThird = iterations/3;
+        List<Double> lastThirdVelocities = new ArrayList<>(iterationsThird * particleCount);
         int currentIteration = 0;
-        for (SimulationState state : states) {
-            if (currentIteration > (2 * Math.round(iterations/3))){
+        for(SimulationState state : states) {
+            if(currentIteration > (2 * iterationsThird)) {
                 lastThirdVelocities.addAll(state.getParticles().stream().filter(Objects::nonNull).filter(p -> p.getId() != 0).map(Particle2D::getVelocityMod).collect(Collectors.toList()));
             }
             currentIteration++;
@@ -84,7 +92,7 @@ public class Ej2 {
         public int[]                            particleCounts;
         public int                              rounds;
         public double                           spaceWidth;
-        public int                              iterations;
+        public int                              maxIterations;
         public String                           particlesFile;
         public String                           outputFile;
     }
