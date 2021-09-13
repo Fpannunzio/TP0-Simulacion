@@ -1,7 +1,7 @@
 #!/bin/bash
 echo "Preparando simulacion 🕐️"
 
-mvn -f ../ clean install -DskipTests -q || exit
+mvn -f ../ install -DskipTests -q || exit
 
 CONF="config/ej1_example.json"
 DATA="output/ej1_out.json"

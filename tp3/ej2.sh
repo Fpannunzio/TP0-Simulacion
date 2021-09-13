@@ -1,9 +1,9 @@
 #!/bin/bash
 echo "Preparando simulacion 🕐️"
 
-mvn -f ../ clean install -DskipTests -q || exit
+mvn -f ../ install -DskipTests -q || exit
 
-CONF="config/ej2_config.json"
+CONF="config/ej2_example.json"
 DATA="output/ej2_out.json"
 
 echo "Ejecutando simulacion 🕘️"

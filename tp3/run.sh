@@ -1,7 +1,7 @@
 #!/bin/bash
 echo "Preparando simulacion 🕐️"
 
-mvn -f ../ clean install -DskipTests -q || exit
+mvn -f ../ install -DskipTests -q || exit
 
 echo "Creando particulas 🕓️"
 
