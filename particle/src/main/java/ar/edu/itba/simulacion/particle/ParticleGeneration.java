@@ -22,7 +22,7 @@ public final class ParticleGeneration {
     private static final double MIN_AXIS                = Double.MIN_VALUE;
     private static final double MIN_RADIUS              = 0;
     private static final double MIN_MASS                = 0;
-    private static final int    MAX_FAILURE_TOLERANCE   = 10_000;
+    private static final int    MAX_FAILURE_TOLERANCE   = 1_000_000;
 
     public static void main(final String[] args) throws IOException {
         if(args.length < 1) {
@@ -118,7 +118,7 @@ public final class ParticleGeneration {
             tries++;
         }
         if(tries >= MAX_FAILURE_TOLERANCE) {
-            System.err.println("Couldn't allocate all the particles.");
+            System.err.println("Couldn't allocate all the particles. Only " + existingParticles.size());
         }
     }
 
