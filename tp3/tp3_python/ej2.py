@@ -28,8 +28,8 @@ def parse_state(data: Dict[str, Any]) -> Union[Collision, SimulationState, Parti
         return Round.from_dict(data)
 
 
-def main():
-    with open("output/ej2-out.json", 'r') as particles_fd:
+def main(data_path):
+    with open(data_path, 'r') as particles_fd:
         states: RoundSummary = json.load(particles_fd, object_hook=parse_state)
 
     lastThirdValues = list(map(lambda state: np.array(list(map(lambda r: r.lastThirdVelocities, state))), states.roundsList))
@@ -44,18 +44,27 @@ def main():
 
         fig = plt.figure(i, figsize=(10, 10))
         ax = fig.add_subplot(1, 1, 1)
-        ax.hist(allThird , bins=20, range=(0, 2), density=True)
-        ax.hist(allInitials, bins=20, alpha=0.3, range=(0, 2), density=True)
+
+        thirdHist, thirdBin         = np.histogram(allThird, bins=np.arange(0, np.max(allThird), 0.1))
+        initialsHist, initialsBin   = np.histogram(allInitials, bins=np.arange(0, np.max(allInitials), 0.1))
+
+        ax.plot(thirdBin[:-1], thirdHist / allThird.size, label=f'Last third', marker='o')
+        ax.plot(initialsBin[:-1], initialsHist / allInitials.size, label=f'Initial', marker='o')
+
         ax.set_title(f'N={particleCounts[i]}. Rounds: {rounds}')
         ax.set_xlabel(r'$V_c$: Modulo de la velocidad', size=20)
         ax.set_ylabel(r'Densidad del intervalo', size=20)
+        ax.legend()
     
     plt.show()
 
 
 if __name__ == '__main__':
-    # if len(sys.argv) < 2:
-    #     raise ValueError('Config path must be given by argument')
-        # main(sys.argv[1])
-    main()
+    if len(sys.argv) < 2:
+        raise ValueError('Config path must be given by argument')
+    try:
+        main(sys.argv[1])
+    except KeyboardInterrupt:
+        pass
+
     

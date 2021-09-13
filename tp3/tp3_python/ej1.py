@@ -35,7 +35,7 @@ def main(data_path):
     mean = np.mean(frequency, axis = 1)
     std = np.std(frequency, axis = 1)
 
-    binCount = 100
+    binSize = 0.0005
 
     print(f'Rounds: {rounds}. Iterations: {iterations}')
     for i in range(len(mean)):
@@ -45,12 +45,12 @@ def main(data_path):
     fig = plt.figure(figsize=(10, 10))
     ax = fig.add_subplot(1, 1, 1)
     ax.set_yscale('log')
-    ax.set_title(f'BinCount: {binCount}. Rounds: {rounds}. Iterations: {iterations}.')
+    ax.set_title(f'BinSize: {binSize}. Rounds: {rounds}. Iterations: {iterations}.')
     ax.set_xlabel(r'$t_c$: Tiempo entre colision (s)', size=20)
     ax.set_ylabel(r'Probabilidad por intervalo', size=20)
 
     for i in range(len(particleCounts)):
-        hist, bins = np.histogram(values[i].flatten(), bins=binCount)
+        hist, bins = np.histogram(values[i].flatten(), bins=np.arange(0, np.max(values[i]), binSize))
         ax.scatter(
             bins[:-1], 
             hist / values[i].size, 
