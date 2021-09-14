@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Union
 from matplotlib import pyplot as plt
 from models import Collision, Config, Particle, SimulationState, Wall
 from plot import Plotter
+from matplotlib import cm
 
 @dataclass
 @from_dict
@@ -36,28 +37,30 @@ def main(data_path):
     initialVelocities = list(map(lambda state: np.array(list(map(lambda r: r.initialVelocities, state))), states.roundsList))
     particleCounts = list(map(lambda state: state[0].particleCount, states.roundsList))
     rounds = np.size(lastThirdValues[0], 0)
-    iterations = np.size(lastThirdValues[0], 1)
+    # iterations = np.size(lastThirdValues[0], 1)
     
     binSize = 0.1
 
+    fig = plt.figure(figsize=(10, 10))
+    ax = fig.add_subplot(1, 1, 1)
+    ax.set_title(f'Ultimo tercio vs Valores Iniciales')
+    ax.set_xlabel(r'$v$: Modulo de la velocidad (m/s)', size=20)
+    ax.set_ylabel(r'Probabilidad del intervalo', size=20)
+    
     for i in range(len(particleCounts)):
         allInitials: np.ndarray = initialVelocities[i].flatten() 
         allThird: np.ndarray = lastThirdValues[i].flatten() 
 
-        fig = plt.figure(i, figsize=(10, 10))
-        ax = fig.add_subplot(1, 1, 1)
+        thirdHist, thirdBin         = np.histogram(allThird.flatten(), bins=np.arange(0, np.max(allThird.flatten()), binSize))
+        initialsHist, initialsBin   = np.histogram(allInitials, bins=np.arange(0, np.max(allInitials), binSize*3))
 
-        thirdHist, thirdBin         = np.histogram(allThird, bins=np.arange(0, np.max(allThird), binSize))
-        initialsHist, initialsBin   = np.histogram(allInitials, bins=np.arange(0, np.max(allInitials), binSize))
+        ax.plot(thirdBin[:-1], thirdHist / allThird.size, marker='o', color=cm.get_cmap('tab10')(i),
+            label=f'N={int(particleCounts[i])}. BinSize: {binSize}, Ultimo tercio, Total Velocidades analizadas={len(lastThirdValues[i][0])}')
+        ax.plot(initialsBin[:-1], initialsHist / allInitials.size, marker='o', color=cm.get_cmap('Set1')(i + 6),
+            label=f'N={int(particleCounts[i])}. BinSize: {3 * binSize} Valores Iniciales')
 
-        ax.plot(thirdBin[:-1], thirdHist / allThird.size, label=f'Ultimo tercio', marker='o')
-        ax.plot(initialsBin[:-1], initialsHist / allInitials.size, label=f'Inicial', marker='o')
-
-        ax.set_title(f'N={particleCounts[i]}. Rounds: {rounds}')
-        ax.set_xlabel(r'$v$: Modulo de la velocidad (m/s)', size=20)
-        ax.set_ylabel(r'Probabilidad del intervalo', size=20)
-        ax.legend()
-    
+        
+    ax.legend()
     plt.show()
 
 
