@@ -41,7 +41,7 @@ def main(data_path):
     
     binSize = 0.1
 
-    fig = plt.figure(figsize=(10, 10))
+    fig = plt.figure(figsize=(16, 10))
     ax = fig.add_subplot(1, 1, 1)
     ax.set_title(f'Ultimo tercio vs Valores Iniciales')
     ax.set_xlabel(r'$v$: Modulo de la velocidad (m/s)', size=20)
@@ -59,7 +59,7 @@ def main(data_path):
         ax.plot(initialsBin[:-1], initialsHist / allInitials.size, marker='o', color=cm.get_cmap('Set1')(i + 6),
             label=f'N={int(particleCounts[i])}. BinSize: {3 * binSize} Valores Iniciales')
 
-        
+    ax.tick_params(labelsize=16)
     ax.legend()
     plt.show()
 

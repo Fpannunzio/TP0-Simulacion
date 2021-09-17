@@ -1,14 +1,16 @@
 from dataclasses import dataclass
 import json
 import sys
+from formater import MathTextSciFormatter
 import numpy as np
 from matplotlib import pyplot as plt
 from models import from_dict
 from typing import Any, Dict, List, Union
 from matplotlib import cm
-
+import matplotlib.ticker as mtick
 from models import Collision, Config, Particle, SimulationState, Wall
 from plot import Plotter
+import matplotlib.ticker as mticker
 
 @dataclass
 @from_dict
@@ -40,12 +42,14 @@ def main(data_path):
     for i in range(len(frequency)):
         print(f'Freq for N={particleCounts[i]} is: {frequency[i]}. Iterations: {iterations[i]}.')
 
-    fig = plt.figure(figsize=(10, 10))
+    fig = plt.figure(figsize=(16, 10))
     ax = fig.add_subplot(1, 1, 1)
     ax.set_yscale('log')
     ax.set_title(f'BinSize: {binSize}. Rounds: {roundCount}.')
     ax.set_xlabel(r'$t_c$: Tiempo entre colision (s)', size=20)
     ax.set_ylabel(r'Probabilidad del intervalo', size=20)
+    ax.tick_params(labelsize=16)
+    ax.xaxis.set_major_formatter(MathTextSciFormatter("%1.2e"))
 
     for i in range(len(particleCounts)):
         hist, bins = np.histogram(rounds[i].flatten(), bins=np.arange(0, np.max(rounds[i]), binSize))
