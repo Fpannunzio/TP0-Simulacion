@@ -3,6 +3,7 @@
   "maxIterations": 100000,
   "temperatures": [0, 3, 5],
   "outputFile": "output/ej3_out.json",
+  "outputDir": "output/",
   "particleGen": [
       {
         "spaceWidth": 6,

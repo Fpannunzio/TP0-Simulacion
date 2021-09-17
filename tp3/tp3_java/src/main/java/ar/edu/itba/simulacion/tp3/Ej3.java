@@ -1,6 +1,8 @@
 package ar.edu.itba.simulacion.tp3;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +42,16 @@ public class Ej3 {
             final List<Particle2D> initialState =  ParticleGeneration.particleGenerator(config.getParticleGen());
             final BrownianParticleSystem brownianSystem = new BrownianParticleSystem(config.spaceWidth, initialState);
             
-            brownianSystem.calculateUntilBigParticleCollision(config.maxIterations, null);
+            try(final BufferedWriter writer = new BufferedWriter(new FileWriter(config.outputDir + "/temp" + temp + ".exyz"))) {
+
+                brownianSystem.calculateUntilBigParticleCollision(config.maxIterations, (state, i) -> {
+                    try {
+                        state.xyzWrite(writer);
+                    } catch(final IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+            }
 
             final List<Double[]> bigParticleStates = brownianSystem.getStates()
                 .stream()
@@ -74,6 +85,7 @@ public class Ej3 {
         public int                                                  maxIterations;
         public double                                               spaceWidth;
         public String                                               outputFile;
+        public String                                               outputDir;
     }
 
     @Data
