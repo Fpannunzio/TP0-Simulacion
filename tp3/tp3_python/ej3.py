@@ -38,7 +38,7 @@ def main(data_path):
     ax.set_xticks([])
     
     for i in range(len(temps)):
-        ax.plot(*positions[i][:-1].T, label=f"v=[{temps[i]}, {temps[i] + 1}]. Iter={positions[i].shape[0]}", color=cm.get_cmap('jet')(temps[i] / np.max(temps)))
+        ax.plot(*positions[i][:-1].T, label=f"v=[{temps[i]}, {temps[i] + 1}].", color=cm.get_cmap('jet')(temps[i] / np.max(temps)))
         start = ax.add_artist(plt.Circle((positions[i].T[0, 0],positions[i].T[1, 0]),       0.1, color='green', alpha=0.3))
         end = ax.add_artist(plt.Circle((positions[i].T[0, -1],positions[i].T[1, -1]),       0.1, color='red', alpha=0.3))
 

@@ -40,7 +40,7 @@ def main(data_path):
 
     print(f'Rounds: {roundCount}.')
     for i in range(len(frequency)):
-        print(f'Freq for N={particleCounts[i]} is: {frequency[i]}. Iterations: {iterations[i]}.')
+        print(f'Freq for N={particleCounts[i]} is: {frequency[i]}. Average Time: {1/frequency[i]}.')
 
     fig = plt.figure(figsize=(16, 10))
     ax = fig.add_subplot(1, 1, 1)
@@ -57,7 +57,7 @@ def main(data_path):
             bins[:-1], 
             hist / rounds[i].size, 
             color=cm.get_cmap('tab10')(i),
-            label=f'N={int(particleCounts[i])}. Iter={iterations[i]}'
+            label=f'N={int(particleCounts[i])}.'
         )
     plt.legend()
     plt.show()
