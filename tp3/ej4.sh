@@ -16,4 +16,4 @@ echo "Simulacion finalizada ✅️"
 # echo "Renderizando 🚀️"
 
 # # Renderizamos grafico
-# python3 tp3_python/ej3.py $DATA || exit
+ python3 tp3_python/ej4.py $DATA || exit

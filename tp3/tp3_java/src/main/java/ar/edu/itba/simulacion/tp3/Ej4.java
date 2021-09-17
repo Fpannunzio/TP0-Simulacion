@@ -2,10 +2,12 @@ package ar.edu.itba.simulacion.tp3;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ar.edu.itba.simulacion.particle.Particle2D;
@@ -26,37 +28,52 @@ public class Ej4 {
 
         final Ej4Config config = mapper.readValue(new File(args[0]), Ej4Config.class);
 
-        final Ej4Summary summary = new Ej4Summary(new LinkedList<>(), new LinkedList<>());
+        final Ej4Summary summary = new Ej4Summary(new ArrayList<>(config.getRounds()), new ArrayList<>(config.getRounds()));
 
         config.particleGenerationConfig.get(1).particleCount = config.particleCount;
 
-        final List<Particle2D> initialState = ParticleGeneration
-                .particleGenerator(config.getParticleGenerationConfig());
-        
-        final Map<Integer, List<Particle2D>> particles = new HashMap<>(initialState.size());
-      
+        for (int r = 0; r < config.getRounds(); r++) {
 
-        if (initialState.isEmpty()) {
-            throw new IllegalArgumentException("No small particles for initial state found");
-        }
+            final List<Particle2D> initialState = ParticleGeneration.particleGenerator(config.getParticleGenerationConfig());
+    
+            final Map<Integer, List<Double[]>> remainingParticles = new HashMap<>(initialState.size());
 
-        for (Particle2D particle: initialState) {
-            List<Particle2D> states = new LinkedList<>();
-            particles.put(particle.getId(), states);
-            summary.getParticleEvents().add(states);
-        }
-
-        final BrownianParticleSystem brownianSystem = new BrownianParticleSystem(config.spaceWidth, initialState);
-
-        brownianSystem.calculateUntilBigParticleCollision(config.maxIterations, (state, i) -> {
-            summary.getTimes().add(state.getTime());
-
-            state.getParticles().stream().filter(particle -> particles.containsKey(particle.getId())).forEach(particle -> particles.get(particle.getId()).add(particle));
-
-            if (state.getCollision().isWallCollision()) {
-                particles.remove(state.getCollision().getParticle1());
+            if (initialState.isEmpty()) {
+                throw new IllegalArgumentException("No small particles for initial state found");
             }
-        });
+
+            final List<List<Double[]>> roundParticles = new ArrayList<>(initialState.size());
+            summary.getPositions().add(roundParticles);
+            
+            final List<Double> roundTimes = new LinkedList<>();
+            summary.getTimes().add(roundTimes);
+
+            for (Particle2D particle: initialState) {
+                List<Double[]> states = new LinkedList<>();
+                remainingParticles.put(particle.getId(), states);
+                roundParticles.add(states);
+            }
+            
+            roundTimes.add(0.0);
+
+            final BrownianParticleSystem brownianSystem = new BrownianParticleSystem(config.spaceWidth, initialState);
+
+            brownianSystem.calculateUntilBigParticleCollision(config.maxIterations, (state, i) -> {
+                roundTimes.add(state.getTime());
+
+                state.getParticles()
+                    .stream()
+                    .filter(particle -> remainingParticles.containsKey(particle.getId()))
+                    .filter(particle -> particle.getId() == 0)
+                    .forEach(particle -> remainingParticles.get(particle.getId()).add(new Double[]{particle.getX(), particle.getY()}))
+                    ;
+
+                if (state.getCollision().isWallCollision()) {
+                    remainingParticles.remove(state.getCollision().getParticle1());
+                }
+            });
+        }
+        
 
         mapper.writeValue(new File(config.outputFile), summary);
 
@@ -66,19 +83,19 @@ public class Ej4 {
     @Jacksonized
     @Builder(setterPrefix = "with")
     public static class Ej4Config {
-        public List<ParticleGenerationConfig> particleGenerationConfig;
-        public int particleCount;
+        public int rounds;
         public double spaceWidth;
+        public int particleCount;
         public int maxIterations;
-        public String particlesFile;
         public String outputFile;
+        public List<ParticleGenerationConfig> particleGenerationConfig;
     }
 
     @Data
     @Jacksonized
     @Builder(setterPrefix = "with")
     public static class Ej4Summary {
-        public List<List<Particle2D>> particleEvents;
-        public List<Double> times;
+        public List<List<List<Double[]>>> positions;
+        public List<List<Double>> times;
     }
 }
