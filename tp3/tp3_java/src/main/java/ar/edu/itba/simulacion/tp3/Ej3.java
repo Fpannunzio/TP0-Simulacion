@@ -4,12 +4,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ar.edu.itba.simulacion.particle.Particle2D;
 import ar.edu.itba.simulacion.particle.ParticleGeneration;
+import ar.edu.itba.simulacion.tp3.BrownianParticleSystem.Collision;
 import ar.edu.itba.simulacion.tp3.BrownianParticleSystem.SimulationState;
 import lombok.Builder;
 import lombok.Data;
@@ -26,7 +28,7 @@ public class Ej3 {
 
         final Ej3Config config = mapper.readValue(new File(args[0]), Ej3Config.class);
         
-        final List<RoundSummary> summary = new ArrayList<>(config.getTemperatures().length);
+        final List<RoundSummary>    summary = new ArrayList<>(config.getTemperatures().length);
         
         for(final int temp : config.getTemperatures()) {
             
@@ -46,8 +48,18 @@ public class Ej3 {
                 .map(particles -> new Double[]{particles.get(0).getX(), particles.get(0).getY()})
                 .collect(Collectors.toList())
                 ;
+            
+            final List<Double> times = new ArrayList<>(bigParticleStates.size());
+            times.add(0.0);
+            brownianSystem.getStates()
+                .stream()
+                .map(SimulationState::getCollision)
+                .filter(Objects::nonNull)
+                .map(Collision::getDTime)
+                .forEach(times::add)
+                ;
 
-            summary.add(new RoundSummary(bigParticleStates, temp));
+            summary.add(new RoundSummary(bigParticleStates, times, temp));
         }
 
         mapper.writeValue(new File(config.outputFile), summary);
@@ -69,6 +81,7 @@ public class Ej3 {
     @Builder(setterPrefix = "with")
     public static class RoundSummary {
         public List<Double[]>               states;
+        public List<Double>                 times;
         public int                          temp;
     }
 

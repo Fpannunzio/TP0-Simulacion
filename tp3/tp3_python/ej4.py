@@ -10,6 +10,7 @@ from matplotlib import cm
 from models import Collision, Config, Particle, SimulationState, Wall
 from plot import Plotter
 from math import ceil
+from formater import MathTextSciFormatter
 
 @dataclass
 @from_dict
@@ -26,7 +27,7 @@ def main(data_path):
     times       = list(map(lambda t: np.array(t), summary.times))
 
 
-    clockStep = 0.005
+    clockStep = 8.5e-4
 
     (clockIndices, minClockIndex) = calcClockIndices(times, clockStep)
 
@@ -137,6 +138,7 @@ def plotRegressionError(polys, errors):
     
     ax.set_ylabel(r'Error ($m^2$)', size=20)
     ax.set_xlabel(r'Pendiente del ajuste ($m^2/s$)', size=20)
+    ax.yaxis.set_major_formatter(MathTextSciFormatter("%1.1e"))
     ax.tick_params(labelsize=16)
 
 

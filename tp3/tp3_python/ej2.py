@@ -43,24 +43,28 @@ def main(data_path):
 
     fig = plt.figure(figsize=(16, 10))
     ax = fig.add_subplot(1, 1, 1)
-    ax.set_title(f'Ultimo tercio vs Valores Iniciales')
+    print(f'BinInicial={(3 * binSize):.2f}. BinUltimoTercio={(binSize):.2f}.')
     ax.set_xlabel(r'$v$: Modulo de la velocidad (m/s)', size=20)
-    ax.set_ylabel(r'Probabilidad del intervalo', size=20)
+    ax.set_ylabel(r'Densidad de probabilidad', size=20)
     
     for i in range(len(particleCounts)):
-        allInitials: np.ndarray = initialVelocities[i].flatten() 
         allThird: np.ndarray = lastThirdValues[i].flatten() 
+        thirdHist, thirdBin         = np.histogram(allThird.flatten(), bins=np.arange(0, np.max(allThird.flatten()), binSize), density=True)
 
-        thirdHist, thirdBin         = np.histogram(allThird.flatten(), bins=np.arange(0, np.max(allThird.flatten()), binSize))
-        initialsHist, initialsBin   = np.histogram(allInitials, bins=np.arange(0, np.max(allInitials), binSize*3))
+        ax.plot(thirdBin[:-1], thirdHist, marker='o', color=cm.get_cmap('tab20c')(4*i), alpha=0.5,
+            label=f'N={int(particleCounts[i])}. Ultimo tercio.')
+        
+        print(f'N={int(particleCounts[i])}. Iteraciones={len(lastThirdValues[i][0])}')
 
-        ax.plot(thirdBin[:-1], thirdHist / allThird.size, marker='o', color=cm.get_cmap('tab10')(i),
-            label=f'N={int(particleCounts[i])}. BinSize: {binSize}, Ultimo tercio, Total Velocidades analizadas={len(lastThirdValues[i][0])}')
-        ax.plot(initialsBin[:-1], initialsHist / allInitials.size, marker='o', color=cm.get_cmap('Set1')(i + 6),
-            label=f'N={int(particleCounts[i])}. BinSize: {3 * binSize} Valores Iniciales')
+    for i in range(len(particleCounts)):
+        allInitials: np.ndarray = initialVelocities[i].flatten() 
+        initialsHist, initialsBin   = np.histogram(allInitials, bins=np.arange(0, np.max(allInitials), binSize*3), density=True)
+        ax.plot(initialsBin[:-1], initialsHist, marker='o', color=cm.get_cmap('tab20b')(8 + 4*i + 2),
+            label=f'N={int(particleCounts[i])}. Valores Iniciales.')
+
 
     ax.tick_params(labelsize=16)
-    ax.legend()
+    ax.legend(fontsize=14)
     plt.show()
 
 

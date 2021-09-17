@@ -45,7 +45,7 @@ def main(data_path):
     fig = plt.figure(figsize=(16, 10))
     ax = fig.add_subplot(1, 1, 1)
     ax.set_yscale('log')
-    ax.set_title(f'BinSize: {binSize}. Rounds: {roundCount}.')
+    print(f'BinSize: {binSize}. Rounds: {roundCount}.')
     ax.set_xlabel(r'$t_c$: Tiempo entre colision (s)', size=20)
     ax.set_ylabel(r'Probabilidad del intervalo', size=20)
     ax.tick_params(labelsize=16)
@@ -59,7 +59,8 @@ def main(data_path):
             color=cm.get_cmap('tab10')(i),
             label=f'N={int(particleCounts[i])}.'
         )
-    plt.legend()
+        print(f'N={int(particleCounts[i])}. Iter={iterations[i]}')
+    plt.legend(fontsize=14)
     plt.show()
 
 
