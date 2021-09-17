@@ -1,6 +1,8 @@
 package ar.edu.itba.simulacion.tp3;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
@@ -28,14 +30,21 @@ public class BrownianMotionSimulation {
 
         final BrownianParticleSystem brownianSystem = new BrownianParticleSystem(config.spaceWidth, initialState);
 
-        brownianSystem.calculateUntilBigParticleCollision(config.maxIterations, (state, i) -> {
-            if(i % 1000 == 0) {
-                // Informamos que la simulacion avanza
-                System.out.println("Total states processed so far: " + i);
-            }
-        });
+        try(final BufferedWriter writer = new BufferedWriter(new FileWriter(config.outputFile))) {
 
-        XYZWritable.exportToFile(config.outputFile, brownianSystem.getStates());
+            brownianSystem.calculateUntilBigParticleCollision(config.maxIterations, (state, i) -> {
+                try {
+                    state.xyzWrite(writer);
+                } catch(final IOException e) {
+                    throw new RuntimeException(e);
+                }
+
+                if(i % 1000 == 0) {
+                    // Informamos que la simulacion avanza
+                    System.out.println("Total states processed so far: " + i);
+                }
+            });
+        }
     }
 
     @Data
