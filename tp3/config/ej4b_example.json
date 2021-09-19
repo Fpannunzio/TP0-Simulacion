@@ -1,9 +1,9 @@
 {
-  "rounds": 50,
+  "rounds": 1,
   "spaceWidth": 6,
   "particleCount": 135,
   "maxIterations": 50,
-  "outputFile": "output/ej4_out.json",
+  "outputFile": "output/ej4b_out.json",
   "particleGenerationConfig": [
       {
         "spaceWidth": 6,

@@ -32,22 +32,22 @@ def main(data_path):
 
     (clockIndices, minClockIndex) = calcClockIndices(times, clockStep)
 
-    msd         = calcMsd(positions, clockIndices, minClockIndex, particle=0)
-    # small_p_msd = calc_msd_small_particles(positions, clockIndices, minClockIndex)
+    # msd         = calcMsd(positions, clockIndices, minClockIndex, particle=0)
+    small_p_msd = calc_msd_small_particles(positions, clockIndices, minClockIndex)
 
-    msdMean             = msd[:, 0]
-    # small_p_msd_mean    = small_p_msd[:, 0]
+    # msdMean             = msd[:, 0]
+    small_p_msd_mean    = small_p_msd[:, 0]
 
     clock = generateClock(0, clockStep * minClockIndex, clockStep)
 
-    (polys, errors)                 = regression(msdMean, clock[:msdMean.size], polyCount=10_000)
-    # small_p_polys, small_p_errors   = regression(small_p_msd_mean, clock[:small_p_msd_mean.size], polyCount=10_000)
+    # (polys, errors)                 = regression(msdMean, clock[:msdMean.size], polyCount=10_000)
+    small_p_polys, small_p_errors   = regression(small_p_msd_mean, clock[:small_p_msd_mean.size], polyCount=10_000)
 
-    plotMsdAndRegression(clock, msd, polys[np.argmin(errors)])
-    # plotMsdAndRegression(clock, small_p_msd, small_p_polys[np.argmin(small_p_errors)], small_p=True)
+    # plotMsdAndRegression(clock, msd, polys[np.argmin(errors)])
+    plotMsdAndRegression(clock, small_p_msd, small_p_polys[np.argmin(small_p_errors)], small_p=True)
 
-    plotRegressionError(polys[:, 0], errors)
-    # plotRegressionError(small_p_polys[:, 0], small_p_errors, small_p=True)
+    # plotRegressionError(polys[:, 0], errors)
+    plotRegressionError(small_p_polys[:, 0], small_p_errors, small_p=True)
 
     plt.show()
 

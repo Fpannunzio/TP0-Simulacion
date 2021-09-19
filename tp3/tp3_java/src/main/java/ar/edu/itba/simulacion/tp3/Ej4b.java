@@ -17,7 +17,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
 
-public class Ej4 {
+public class Ej4b {
     public static void main(String[] args) throws IOException {
 
         if (args.length < 1) {
@@ -64,7 +64,6 @@ public class Ej4 {
                 state.getParticles()
                     .stream()
                     .filter(particle -> remainingParticles.containsKey(particle.getId()))
-                    .filter(particle -> particle.getId() == 0)
                     .forEach(particle -> remainingParticles.get(particle.getId()).add(new double[]{particle.getX(), particle.getY()}))
                     ;
 
