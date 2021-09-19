@@ -36,20 +36,20 @@ public class Ej4 {
 
             final List<Particle2D> initialState = ParticleGeneration.particleGenerator(config.getParticleGenerationConfig());
     
-            final Map<Integer, List<Double[]>> remainingParticles = new HashMap<>(initialState.size());
+            final Map<Integer, List<double[]>> remainingParticles = new HashMap<>(initialState.size());
 
             if (initialState.isEmpty()) {
                 throw new IllegalArgumentException("No small particles for initial state found");
             }
 
-            final List<List<Double[]>> roundParticles = new ArrayList<>(initialState.size());
+            final List<List<double[]>> roundParticles = new ArrayList<>(initialState.size());
             summary.getPositions().add(roundParticles);
             
             final List<Double> roundTimes = new LinkedList<>();
             summary.getTimes().add(roundTimes);
 
             for (Particle2D particle: initialState) {
-                List<Double[]> states = new LinkedList<>();
+                List<double[]> states = new LinkedList<>();
                 remainingParticles.put(particle.getId(), states);
                 roundParticles.add(states);
             }
@@ -64,8 +64,7 @@ public class Ej4 {
                 state.getParticles()
                     .stream()
                     .filter(particle -> remainingParticles.containsKey(particle.getId()))
-                    .filter(particle -> particle.getId() == 0)
-                    .forEach(particle -> remainingParticles.get(particle.getId()).add(new Double[]{particle.getX(), particle.getY()}))
+                    .forEach(particle -> remainingParticles.get(particle.getId()).add(new double[]{particle.getX(), particle.getY()}))
                     ;
 
                 if (state.getCollision().isWallCollision()) {
@@ -95,7 +94,7 @@ public class Ej4 {
     @Jacksonized
     @Builder(setterPrefix = "with")
     public static class Ej4Summary {
-        public List<List<List<Double[]>>> positions;
+        public List<List<List<double[]>>> positions;
         public List<List<Double>> times;
     }
 }

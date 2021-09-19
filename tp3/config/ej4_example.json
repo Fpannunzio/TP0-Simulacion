@@ -1,5 +1,5 @@
 {
-  "rounds": 50,
+  "rounds": 10,
   "spaceWidth": 6,
   "particleCount": 135,
   "maxIterations": 50000,

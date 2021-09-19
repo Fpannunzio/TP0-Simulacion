@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 import json
+from functools import reduce
 from os import error
 import sys
 import numpy as np
@@ -31,16 +32,22 @@ def main(data_path):
 
     (clockIndices, minClockIndex) = calcClockIndices(times, clockStep)
 
-    msd = calcMsd(positions, clockIndices, minClockIndex, particle=0)    
+    msd         = calcMsd(positions, clockIndices, minClockIndex, particle=0)
+    small_p_msd = calc_msd_small_particles(positions, clockIndices, minClockIndex)
 
-    msdMean = msd[:,0]
+    msdMean             = msd[:, 0]
+    small_p_msd_mean    = small_p_msd[:, 0]
+
     clock = generateClock(0, clockStep * minClockIndex, clockStep)
 
-    (polys, errors) = regression(msdMean, clock[:msdMean.size], polyCount=10_000)
+    (polys, errors)                 = regression(msdMean, clock[:msdMean.size], polyCount=10_000)
+    small_p_polys, small_p_errors   = regression(small_p_msd_mean, clock[:small_p_msd_mean.size], polyCount=10_000)
 
     plotMsdAndRegression(clock, msd, polys[np.argmin(errors)])
+    plotMsdAndRegression(clock, small_p_msd, small_p_polys[np.argmin(small_p_errors)])
 
-    plotRegressionError(polys[:,0], errors)
+    plotRegressionError(polys[:, 0], errors)
+    plotRegressionError(small_p_polys[:, 0], small_p_errors)
 
     plt.show()
 
@@ -72,6 +79,22 @@ def calcMsd(positions, indices, minEventCount, particle=0):
 
             tempMsd[r]  = np.sum((positions[r][particle][endIndex] - positions[r][particle][startIndex]) ** 2)
         
+        msd[t][0] = np.mean(tempMsd)
+        msd[t][1] = np.std(tempMsd)
+
+    return msd
+
+def calc_msd_small_particles(positions, indices, min_event_count):
+    msd = np.empty((min_event_count, 2))
+    tempMsd = np.empty(len(positions))
+
+    for t in range(min_event_count):
+        for r in range(len(positions)):
+            endIndex = indices[r][t].astype(int)
+            startIndex = indices[r][0].astype(int)
+
+            tempMsd[r] = sum(np.sum((p[endIndex] - p[startIndex]) ** 2) for p in positions[r][1:] if len(p) > endIndex)
+
         msd[t][0] = np.mean(tempMsd)
         msd[t][1] = np.std(tempMsd)
 
@@ -111,7 +134,7 @@ def calcClockIndices(times, step):
 
     return (clockIndices, minClockSize)
 
-def plotMsdAndRegression(clock, msd, poly):
+def plotMsdAndRegression(clock, msd, poly, small_p=True):
     
     fig = plt.figure('MSD', figsize=(16, 10))
     ax = fig.add_subplot(1, 1, 1)
