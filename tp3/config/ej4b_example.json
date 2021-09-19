@@ -2,7 +2,7 @@
   "rounds": 1,
   "spaceWidth": 6,
   "particleCount": 135,
-  "maxIterations": 50,
+  "maxIterations": 50000,
   "outputFile": "output/ej4b_out.json",
   "particleGenerationConfig": [
       {
