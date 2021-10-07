@@ -13,24 +13,28 @@ public class Ej1 {
         
         final ObjectMapper mapper = new ObjectMapper();
         
-        final int count = 10_000;
+        final int count = 1_000_000;
 
         final double[][][] results = new double[3][count][];
         
         double A                        = 1;
+        double k                        = 10_000;
+        double gamma                    = 100;
         double m                        = 70;
+
         double tf                       = 5;
         double dt                       = tf / count;
+
         int degree                      = 6;
-        double[] functionCoeficients    = new double[]{-10_000, -100};
-        double[] initialValues          = new double[]{1, -A * 100 / (2*m)};
+        double[] functionCoeficients    = new double[]{-k, -gamma}; //r0, r1
+        double[] initialValues          = new double[]{1, -(A * gamma)/(2*m)}; //r0, r1
 
         VerletSolver vSolver    = new VerletSolver(m, dt, functionCoeficients, initialValues);
         BeemanSolver bSolver    = new BeemanSolver(m, dt, functionCoeficients, initialValues);
         GearSolver gSolver      = new GearSolver(m, dt, functionCoeficients, initialValues, degree);
 
         for (int i = 0; i < count; i++) {
-            if(i%100 == 0) {
+            if(i % (count/10) == 0) {
                 System.out.println("1_000");
             }
 
