@@ -81,7 +81,7 @@ public class MarsMissionSimulation {
 
         @Override
         public void xyzWrite(Writer writer) throws IOException {
-            writer.write(celestialBodies.size());
+            writer.write(String.valueOf(celestialBodies.size()));
             XYZWritable.newLine(writer);
             XYZWritable.newLine(writer);
             
