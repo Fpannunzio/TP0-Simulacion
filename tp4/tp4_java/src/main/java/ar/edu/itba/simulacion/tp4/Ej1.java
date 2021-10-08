@@ -13,7 +13,7 @@ public class Ej1 {
         
         final ObjectMapper mapper = new ObjectMapper();
         
-        final int count = 1_000_000;
+        final int count = 10_000;
 
         final double[][][] results = new double[3][count][];
         
@@ -32,6 +32,8 @@ public class Ej1 {
         VerletSolver vSolver    = new VerletSolver(m, dt, functionCoeficients, initialValues);
         BeemanSolver bSolver    = new BeemanSolver(m, dt, functionCoeficients, initialValues);
         GearSolver gSolver      = new GearSolver(m, dt, functionCoeficients, initialValues, degree);
+        
+
 
         for (int i = 0; i < count; i++) {
             if(i % (count/10) == 0) {

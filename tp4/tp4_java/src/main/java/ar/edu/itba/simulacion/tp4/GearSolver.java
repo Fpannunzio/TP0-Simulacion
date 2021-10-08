@@ -102,38 +102,39 @@ public class GearSolver {
     private void predict() {
 
         // {r0, r1, r2, r3, r4, r5}
-        double[] mid_terms = new double[degree];
+        final double[] mid_terms = new double[degree];
         
-        double[] currentValues = values.peek();
+        final double[] currentValues = values.peek();
 
-        for(int i = 0; i < degree; i++) {
-            mid_terms[degree - i - 1] = currentValues[degree - i - 1];
-            for (int k = 0; k < i; k++) {
-                mid_terms[degree - k - 1] = mid_terms[degree - k - 1] * dt / (i - k); 
+        for(int i = degree - 1; i >= 0; i--) {
+            
+            double acum = currentValues[i];
+            mid_terms[i] = currentValues[i];
+            
+            for(int k = 1; k < degree - i; k++) {
+                mid_terms[degree - k] = mid_terms[degree - k] * dt / (degree - i - k); 
+                acum += mid_terms[degree - k]; 
             }
             
-            double acum = currentValues[degree - i - 1];
-
-            for (int k = 0; k < i; k++) {
-                acum += mid_terms[degree - k - 1]; 
-            }
-            
-            prediction[degree - i - 1] = acum;
+            prediction[i] = acum;
         }
     }
 
     private void evaluate() {
-        
-        double[] currentValues = values.peek();
 
-        double r2 = functionEval(currentValues[0], currentValues[1]) / m;
-        double predict_r2 = prediction[2];
+        final double predict_r0 = prediction[0];
+        final double predict_r1 = prediction[1];
 
-        dr2 = (r2 - predict_r2) * dt * dt / 2;
+        // r2(t+dt)
+        final double next_r2 = functionEval(predict_r0, predict_r1) / m;
+        final double predict_r2 = prediction[2];
+
+        dr2 = (next_r2 - predict_r2) * dt * dt / 2;
     }
 
     private void correct() {
 
+        // dt^n/n!
         double acum = 1;
 
         double[] corrections = new double[degree];
@@ -148,16 +149,5 @@ public class GearSolver {
 
     private double functionEval(final double r0, final double r1) {
         return functionCoeficients[0] * r0 + functionCoeficients[1] * r1;
-    }
-
-    public static class GearSolverConfig {
-
-        private final double[] functionCoeficients;
-
-        public GearSolverConfig(double[] functionCoeficients) {
-            this.functionCoeficients = functionCoeficients;
-        }
-
-        
     }
 }

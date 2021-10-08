@@ -12,19 +12,22 @@ def main(data_path):
     with open(data_path, 'r') as particles_fd:
         rounds: List[List[float]] = json.load(particles_fd)
 
-    results = np.array(list(map(lambda r: np.array(r)[:,0], rounds)))
-    t = np.linspace(0, 5, 10_000)
-    analytic = np.exp(( -100/(2*70)* t)) * np.cos(((1e4/70) - 100**2/(4 * 70**2))**(0.5) * t)
+    errors = np.array(list(map(lambda r: np.array(r), rounds)))
+    
+    factor = 250
+    count = 1_000
+
+    t = np.linspace(5/factor, 5/(factor*count), count)
     
     fig = plt.figure(figsize=(10, 10))
     ax = fig.add_subplot(1, 1, 1)
-
+    ax.set_yscale('log')
+    ax.set_xlabel(r'$d_t$ (s)', size=20)
+    ax.set_ylabel(r'Error cuadratico medio ($m^2$)', size=20)
     labels = ['Verlet', 'Beemam', 'Gear']
 
-    ax.plot(t, analytic)
-    for i in range(len(results)):
-        ax.plot(t, results[i], label=labels[i])
-        print(f'MSD de {labels[i]}: {np.sum(np.power(analytic - results[i], 2))}')
+    for i in range(len(errors)):
+        ax.plot(t, errors[i], label=labels[i])
 
     plt.legend(fontsize=14)
     plt.show()
