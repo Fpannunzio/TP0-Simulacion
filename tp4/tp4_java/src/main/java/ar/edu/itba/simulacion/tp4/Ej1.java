@@ -37,7 +37,7 @@ public class Ej1 {
         final Force force = (axis, state) -> -k * state[axis].position - gamma * state[axis].velocity;
 
         VerletSolver vSolver    = new VerletSolver(1, dt, mass, force, initialState);
-        BeemanSolver bSolver    = new BeemanSolver(mass, dt, functionCoeficients, initialValues);
+        BeemanSolver bSolver    = new BeemanSolver(1, dt, mass, force, initialState);
         GearSolver gSolver      = new GearSolver(mass, dt, functionCoeficients, initialValues, degree);
 
         for (int i = 0; i < count; i++) {
@@ -46,7 +46,7 @@ public class Ej1 {
             }
 
             results[0][i] = vSolver.oneAxisNextStep().r;
-            results[1][i] = bSolver.nextStep();
+            results[1][i] = bSolver.oneAxisNextStep().r;
             results[2][i] = gSolver.nextStep();
         }
 

@@ -1,93 +1,121 @@
 package ar.edu.itba.simulacion.tp4;
 
-import java.util.Deque;
-import java.util.LinkedList;
+import java.util.Arrays;
 
+public class BeemanSolver implements MolecularDynamicSolver{
 
+    // Configuration
+    private final int                   dim;
+    private final double                dt;
+    private final double                mass;
+    private final Force                 force;
 
-public class BeemanSolver {
-    
-    private final double[] functionCoeficients;
-    private final double m;
-    private final double dt;
+    // Mutable State
+    private MoleculeStateAxis[]         currentState;
+    private final double[]                    prev_r2;
 
-    private Deque<double[]> values;
-    private double prev_r2;
+    public BeemanSolver(
+        final int                   dimensions,
+        final double                dt,
+        final double                mass,
+        final Force                 force,
+        final MoleculeStateAxis[]   initialState) {
 
+        if(initialState.length != dimensions) {
+            throw new IllegalArgumentException("dimensions and initial state length must be the same");
+        }
 
-    public BeemanSolver(final double m, final double dt, final double[] functionCoeficients, final double[] initialValues) {
-        
-        this.functionCoeficients = functionCoeficients;
-        this.values = new LinkedList<>();
-        this.values.push(initialValues);
+        this.dim            = dimensions;
+        this.dt             = dt;
+        this.mass           = mass;
+        this.force          = force;
+        this.currentState   = initialState;
 
-        this.m = m;
-        this.dt = dt;
+        // Calculamos estado anterior mediante Euler Modificado para obtener aceleraciones
+        this.prev_r2 = new double[dim];
+        final MoleculeStateAxis[] prevState = new MoleculeStateAxis[AXIS_DIM];
+        for(int axis = 0; axis < dim; axis++) {
+            final double r2         = calculateAcceleration(axis, currentState);                    // r2(t)
+            final double prev_r0    = modifiedEulerPosition(currentState[axis].r, r2, -this.dt);    // r0(t - dt)
+            final double prev_r1    = modifiedEulerVelocity(prev_r0, r2, -this.dt);                 // r1(t - dt)
 
-        initialAceleration();
+            prevState[axis] = new MoleculeStateAxis(prev_r0, prev_r1);
+        }
+        for(int axis = 0; axis < dim; axis++) {
+            prev_r2[axis] = calculateAcceleration(axis, prevState);
+        }
     }
 
-    public double[] nextStep() {
+    @Override
+    public MoleculeStateAxis[] nextStep() {
+        double[] r;                                             // r(t)
+        double[] r_dt;                                          // r(t + dt)
+        double[] r_dt_p;                                        // predicted r(t + dt)
+        final double[][][] r_by_axis = new double[dim][3][];    // r_by_axis[axis] = {r, r_dt, r_dt_p}
 
-        final double[] currentValues = values.peek();
-        
-        final double r0 = currentValues[0];
-        final double r1 = currentValues[1];
+        final MoleculeStateAxis[] predictedNextState = new MoleculeStateAxis[dim];
+        for(int axis = 0; axis < dim; axis++) {
+            r               = Arrays.copyOf(currentState[axis].r, AXIS_DIM + 1);
+            r[2]            = calculateAcceleration(axis, currentState);
+            r_dt            = new double[AXIS_DIM];
+            r_dt_p          = new double[AXIS_DIM + 1];
+            r_by_axis[axis] = new double[][]{r, r_dt, r_dt_p};
 
-        final double[] nextValues = new double[2];
+            r_dt[0] = r[0] + (r[1] * dt) + ((2.0 / 3.0) * r[2] * dt * dt) - ((1.0 / 6.0) * prev_r2[axis] * dt * dt);
 
-        // r2 = f/m
-        final double r2 = acelerationEval(r0, r1);
+            r_dt_p[1] = r[1] + ((3.0 / 2.0) * r[2] * dt) - ((1.0 / 2.0) * prev_r2[axis] * dt);
 
-        //r0(t +dt)
-        nextValues[0] = r0 + (r1*dt) + ((2.0/3.0) * r2 * dt*dt) - ((1.0/6.0) * prev_r2 * dt*dt);  
-        
-        //r1_p(t +dt)
-        final double predict_r1 = r1 + ((3.0/2.0) * r2 * dt) - ((1.0/2.0) * prev_r2 * dt);
-        
-        //r2_p(t +dt)
-        final double predict_r2 = acelerationEval(nextValues[0], predict_r1);
+            predictedNextState[axis] = new MoleculeStateAxis(r_dt[0], r_dt_p[1]);
+        }
 
-        //r1(t + dt)
-        nextValues[1] = r1 + ((1.0/3.0) * predict_r2 * dt) + ((5.0/6.0) * r2 * dt) - ((1.0/6.0) * prev_r2 * dt);
+        final MoleculeStateAxis[] newState = new MoleculeStateAxis[dim];
+        for(int axis = 0; axis < dim; axis++) {
+            r       = r_by_axis[axis][0];
+            r_dt    = r_by_axis[axis][1];
+            r_dt_p  = r_by_axis[axis][2];
 
-        prev_r2 = r2; // TODO: PUEDE QUE TENGA QUE SER `predicted_r2`
+            r_dt_p[2] = calculateAcceleration(axis, predictedNextState);
 
-        values.push(nextValues);
+            r_dt[1] = r[1] + ((1.0/3.0) * r_dt_p[2] * dt) + ((5.0/6.0) * r[2] * dt) - ((1.0/6.0) * prev_r2[axis] * dt);
 
-        return nextValues;
+            prev_r2[axis] = r[2];
+
+            newState[axis] = new MoleculeStateAxis(r_dt);
+        }
+
+        currentState = newState;
+        return currentState;
     }
 
-    private double functionEval(final double r0, final double r1) {
-        return functionCoeficients[0] * r0 + functionCoeficients[1] * r1;
+    private double calculateAcceleration(final int axis, final MoleculeStateAxis[] state) {
+        return force.apply(axis, state) / mass;
     }
 
-    private double acelerationEval(final double r0, final double r1) {
-        return functionEval(r0, r1) / m;
+    private double modifiedEulerPosition(final double[] r, final double r2, final double dt) {
+        return r[0] + (dt * r[1]) + ((dt * dt) / 2) * r2;
     }
 
-    private double eulerPositionStep(final double r0, final double r1, final double m, final double dt) {
-        return r0 + (dt * r1) + ((dt * dt) / 2.0) * acelerationEval(r0, r1);
+    private double modifiedEulerVelocity(final double r1, final double r2, final double dt) {
+        return r1 + (dt * r2);
     }
 
-    private double eulerVelocityStep(final double r0, final double r1, final double m, final double dt) {
-        return r1 + (dt * acelerationEval(r0, r1));
+    @Override
+    public int getDim() {
+        return dim;
     }
 
-    private void initialAceleration() {
+    @Override
+    public double getDt() {
+        return dt;
+    }
 
-        final double[] currentValues = values.peek();
+    @Override
+    public double getMass() {
+        return mass;
+    }
 
-        final double r0 = currentValues[0];
-        final double r1 = currentValues[1];
-
-        // r0(-dt)
-        final double prev_r0 = eulerPositionStep(r0, r1, m, -dt);
-
-        // r1(-dt)
-        final double prev_r1 = eulerVelocityStep(r0, r1, m, -dt);
-
-        // r2(-dt)
-        prev_r2 = acelerationEval(prev_r0, prev_r1);
+    @Override
+    public Force getForce() {
+        return force;
     }
 }

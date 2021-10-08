@@ -41,7 +41,7 @@ public class Ej1sub3 {
             final int count         = sim * simStep;
             final double dt         = tf / count;
             VerletSolver vSolver    = new VerletSolver(1, dt, mass, force, initialState);
-            BeemanSolver bSolver    = new BeemanSolver(mass, dt, functionCoeficients, initialValues);
+            BeemanSolver bSolver    = new BeemanSolver(1, dt, mass, force, initialState);
             GearSolver gSolver      = new GearSolver(mass, dt, functionCoeficients, initialValues, degree);
             
             double t = 0;
@@ -52,7 +52,7 @@ public class Ej1sub3 {
             for (int i = 0; i < count; i++) {
                 final double analiticVal =  analitic(A, gamma, mass, k, t);
                 final double vValue = vSolver.oneAxisNextStep().r[0];
-                final double bValue = bSolver.nextStep()[0];
+                final double bValue = bSolver.oneAxisNextStep().r[0];
                 final double gValue = gSolver.nextStep()[0];
 
                 t += dt;
