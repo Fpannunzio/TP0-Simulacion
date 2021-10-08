@@ -1,33 +1,38 @@
 {
-    "dt": 3600,
-    "gravitationalConstant": 0.0000000006744,
-    "spaceshipMass": 200000,
-    "spaceshipInitialVelocity": 8, 
-    "spaceStationDistance": 1500,
-    "spaceStationOrbitalVelocity": 7.12,
-    "sun": {
-      "x": 0,
-      "y": 0,
-      "velocityX": 0,
-      "velocityY": 0,
-      "mass": 1.9885,
-      "radius": 696340 
-    },
-    "earth": {
-      "x": 150061996.2348151,
-      "y": 2288499.2481970,
-      "velocityX": -0.9322979,
-      "velocityY": 29.6636503,
-      "mass": 0.0000059721986,
-      "radius": 6378.137
-    },
-    "mars": {
-      "x": -242661740.1833969,
-      "y": -35788361.5435476,
-      "velocityX": 4.4359079,
-      "velocityY": -21.900441,
-      "mass": 0.00000064171,
-      "radius": 3396.19
-    },
-    "outputFile": "output/ej2.exyz" 
-  }
+  "dt": 3600,
+  "gravitationalConstant": 0.0000000006744,
+  "spaceshipMass": 2,
+  "spaceshipMassScale": 5,
+  "spaceshipInitialVelocity": 8, 
+  "spaceStationDistance": 1500,
+  "spaceStationOrbitalVelocity": 7.12,
+  "sun": {
+    "x": 0,
+    "y": 0,
+    "velocityX": 0,
+    "velocityY": 0,
+    "mass": 1.9885,
+    "massScale": 30,
+    "radius": 696340 
+  },
+  "earth": {
+    "x": 150061996.2348151,
+    "y": 2288499.2481970,
+    "velocityX": -0.9322979,
+    "velocityY": 29.6636503,
+    "mass": 5.9721986,
+    "massScale": 24,
+    "radius": 6378.137
+  },
+  "mars": {
+    "x": -242661740.1833969,
+    "y": -35788361.5435476,
+    "velocityX": 4.4359079,
+    "velocityY": -21.900441,
+    "mass": 6.4171,
+    "massScale": 23,
+    "radius": 3396.19
+  },
+  "outputFile": "output/ej2.xyz" 
+}
+
