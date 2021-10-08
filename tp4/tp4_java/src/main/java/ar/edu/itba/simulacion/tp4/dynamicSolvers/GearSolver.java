@@ -2,6 +2,8 @@ package ar.edu.itba.simulacion.tp4.dynamicSolvers;
 
 import ar.edu.itba.simulacion.tp4.MolecularDynamicSolver;
 
+import lombok.Builder;
+
 public class GearSolver implements MolecularDynamicSolver {
 
     private final static int MIN_DEGREE = 2;
@@ -53,6 +55,7 @@ public class GearSolver implements MolecularDynamicSolver {
     // Mutable state
     private final double[][]            currentState;   // por cada axis, r(t) de dimension degree
 
+    @Builder(setterPrefix = "with")
     public GearSolver(
         final int                   dimensions,
         final double                dt,

@@ -8,14 +8,15 @@ import java.util.function.ObjIntConsumer;
 import ar.edu.itba.simulacion.particle.marshalling.XYZWritable;
 import ar.edu.itba.simulacion.tp4.Ej2.MarsMissionConfig;
 import ar.edu.itba.simulacion.tp4.MolecularDynamicSolver.MoleculeStateAxis;
-import ar.edu.itba.simulacion.tp4.dynamicSolvers.BeemanSolver;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
 
 public class MarsMissionSimulation {
      
-    private final static double     massMultiplier = 1E+30;
+    private final static int        gearDimention = 2;
+    private final static int        gearDegree = 5;
+
     private final double            gravitationalConstant;
     private final CelestialBody     sun;
     private final CelestialBody     earth;
@@ -50,11 +51,36 @@ public class MarsMissionSimulation {
 
     private void addCelestialBodiesSolver(double dt) {
 
-        earth.setSolver(new BeemanSolver(2, dt, earth.getMass() * massMultiplier, new GravitationalForce(List.of(sun, mars), earth.getMass(), gravitationalConstant), new MoleculeStateAxis[]{new MoleculeStateAxis(earth.getX(),earth.getVelocityX()), new MoleculeStateAxis(earth.getY(), earth.getVelocityY())}));
-        mars.setSolver(new BeemanSolver(2, dt, mars.getMass() * massMultiplier, new GravitationalForce(List.of(sun, earth), mars.getMass(), gravitationalConstant), new MoleculeStateAxis[]{new MoleculeStateAxis(mars.getX(),mars.getVelocityX()), new MoleculeStateAxis(mars.getY(), mars.getVelocityY())}));        
-        spaceShip.setSolver(new BeemanSolver(2, dt, spaceShip.getMass() * massMultiplier, new GravitationalForce(List.of(sun, earth, mars), spaceShip.getMass(), gravitationalConstant), new MoleculeStateAxis[]{new MoleculeStateAxis(spaceShip.getX(), spaceShip.getVelocityX()), new MoleculeStateAxis(spaceShip.getY(), spaceShip.getVelocityY())}));        
+        earth.setSolver(gearSolverBuilder(dt, earth, List.of(sun, mars)));        
+        mars.setSolver(gearSolverBuilder(dt, mars, List.of(sun, earth)));        
+        spaceShip.setSolver(gearSolverBuilder(dt, spaceShip, List.of(sun, earth, mars)));        
+    }
+
+    private GearSolver gearSolverBuilder(double dt, CelestialBody celestialBody, List<CelestialBody> affectingCelestialBoddies) {
+        
+        return GearSolver.builder()
+       .withDimensions(gearDimention)
+       .withDegree(gearDegree)
+       .withDt(dt)
+       .withMass(celestialBody.getScaledMass())
+       .withForce(new GravitationalForce(affectingCelestialBoddies, celestialBody.getScaledMass(), gravitationalConstant))
+       .withForceAxisMaxR(1)
+       .withInitialState(getGearInitialState(celestialBody))
+       .build();
     }
     
+    private double[][] getGearInitialState(CelestialBody celestialBody) {
+        final double[][] initialState = new double[gearDimention][gearDegree + 1];
+        
+        initialState[0][0] = celestialBody.getX();
+        initialState[1][0] = celestialBody.getY();
+        initialState[0][1] = celestialBody.getVelocityX();
+        initialState[1][1] = celestialBody.getVelocityY();
+
+        return initialState;
+        
+    }
+
     public void simulate(int iterations, final ObjIntConsumer<MissionControlState> callback) {
         final MissionControlState missionControlState = new MissionControlState(List.of(spaceShip, earth, mars, sun));
         for (int i = 0; i < iterations; i++) {

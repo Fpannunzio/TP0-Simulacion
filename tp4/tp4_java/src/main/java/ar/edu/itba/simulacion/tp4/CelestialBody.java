@@ -13,16 +13,22 @@ import lombok.extern.jackson.Jacksonized;
 @Builder(setterPrefix = "with")
 public class CelestialBody implements XYZWritable {
 
-    private double                  x;
-    private double                  y;
-    private double                  velocityX;
-    private double                  velocityY;
-    private final double            mass;
-    private final double            radius;
-    private MolecularDynamicSolver  solver;
+    private double x;
+    private double y;
+    private double velocityX;
+    private double velocityY;
+    private final double mass;
+    private final int massScale;
+    private final double radius;
+    private MolecularDynamicSolver solver;
 
     public double distanceTo(double otherX, double otherY) {
         return Math.hypot(x - otherX, y - otherY);
+    }
+
+
+    public double getScaledMass() {
+        return Math.pow(mass, massScale);
     }
 
     @Override
@@ -32,7 +38,6 @@ public class CelestialBody implements XYZWritable {
             getY()          + FIELD_SEPARATOR +
             getVelocityX()  + FIELD_SEPARATOR +
             getVelocityY()  + FIELD_SEPARATOR +
-            getMass()       + FIELD_SEPARATOR +
             getRadius()     + FIELD_SEPARATOR
         );
         XYZWritable.newLine(writer);

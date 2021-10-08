@@ -50,6 +50,7 @@ public class Ej2 {
         public double                                               dt;
         public double                                               gravitationalConstant;
         public int                                                  spaceshipMass;
+        public int                                                  spaceshipMassScale;
         public int                                                  spaceshipInitialVelocity;
         public double                                               spaceStationDistance;
         public double                                               spaceStationOrbitalVelocity;
@@ -69,6 +70,7 @@ public class Ej2 {
         public double                                               velocityX;
         public double                                               velocityY;
         public double                                               mass;
+        public int                                                  massScale;
         public double                                               radius;                                                
     
 
