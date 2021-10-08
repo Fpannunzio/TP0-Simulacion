@@ -1,68 +1,88 @@
 package ar.edu.itba.simulacion.tp4;
 
-import java.util.Arrays;
-import java.util.Deque;
-import java.util.LinkedList;
+public class VerletSolver implements MolecularDynamicSolver {
 
-public class VerletSolver {
-    
-    private final double[] functionCoeficients;
-    private final Deque<double[]> values;
-    private final double m;
-    private final double dt;
+    // Configuration
+    private final int                   dim;
+    private final double                dt;
+    private final double                mass;
+    private final Force                 force;
 
-    private double prev_r0;
-    private double next_r0;
+    // Mutable state
+    private MoleculeStateAxis[]         currentState;   // r(t)
+    private final double[]              prev_r0;        // r0(t - dt)
 
-    public VerletSolver(final double m, final double dt, final double[] functionCoeficients, final double[] initialValues) {
-        
-        this.functionCoeficients = functionCoeficients;
-        this.values = new LinkedList<>();
-        this.values.push(initialValues);
-        this.m = m;
-        this.dt = dt;
+    public VerletSolver(
+        final int                   dimensions,
+        final double                dt,
+        final double                mass,
+        final Force                 force,
+        final MoleculeStateAxis[]   initialState) {
 
-        //euler para conseguir r0(-dt)
-        initialBackStep();
+        if(initialState.length != dimensions) {
+            throw new IllegalArgumentException("dimensions and initial state length must be the same");
+        }
+
+        this.dim            = dimensions;
+        this.dt             = dt;
+        this.mass           = mass;
+        this.force          = force;
+        this.currentState   = initialState;
+
+        // euler para conseguir prev_r0 = r0(-dt)
+        prev_r0 = new double[dim];
+        for(int axis = 0; axis < dim; axis++) {
+            prev_r0[axis] = modifiedEulerSolver(axis, -this.dt);
+        }
     }
 
-    public double[] nextStep() {
-        
-        final double[] currentValues = values.peek();
-        final double[] nextValues = new double[2];
+    @Override
+    public MoleculeStateAxis[] nextStep() {
+        final MoleculeStateAxis[] newState = new MoleculeStateAxis[dim];
 
-        final double r0 = currentValues[0];
-        final double r1 = currentValues[1];
-        
-        //r0(t+dt)
-        nextValues[0] = 2.0*r0 - prev_r0 + ((dt*dt)/m) * functionEval(r0, r1);
-        
-        //ES r1(t) Y DEBERIA SER r1(t+dt) TODO:
-        nextValues[1] = (nextValues[0] - prev_r0) / (2.0 * dt);
+        for(int axis = 0; axis < dim; axis++) {
+            newState[axis] = nextStepAxis(axis);
+            prev_r0[axis] = currentState[axis].r[0];
+        }
+        currentState = newState;
 
-        values.push(nextValues);
-
-        prev_r0 = r0;
-        
-        return nextValues;
+        return newState;
     }
 
-    private double functionEval(final double r0, final double r1) {
-        return functionCoeficients[0] * r0 + functionCoeficients[1] * r1;
+    private MoleculeStateAxis nextStepAxis(final int axis) {
+        final double[] r_dt = new double[AXIS_DIM]; // r(t + dt)
+        final double[] r = currentState[axis].r;    // r(t)
+
+        r_dt[0] = 2 * r[0] - prev_r0[axis] + ((dt*dt) / mass) * force.apply(axis, currentState);
+
+        // r_dt[1] = (r_dt[0] - prev_r0[axis]) / (2 * dt); // Es error cuadratico, pero te va r1(t) :(
+        r_dt[1] = (r_dt[0] - r[0]) / dt;                   // Error lineal, pero nos da r1(t + dt) :)
+
+        return new MoleculeStateAxis(r_dt);
     }
 
-    private void initialBackStep() {
-        
-        final double[] currentValues = values.peek();
-
-        final double r0 = currentValues[0];
-        final double r1 = currentValues[1];
-        
-        prev_r0 = eulerPositionStep(r0, r1, m, -dt);
+    private double modifiedEulerSolver(final int axis, final double dt) {
+        final double[] r = currentState[axis].r;
+        return r[0] + (dt * r[1]) + ((dt * dt) / (2 * mass)) * force.apply(axis, currentState);
     }
 
-    private double eulerPositionStep(final double r0, final double r1, final double m, final double dt) {
-        return r0 + (dt * r1) + ((dt * dt) / (2.0 * m)) * functionEval(r0, r1);
+    @Override
+    public int getDim() {
+        return dim;
     }
 
+    @Override
+    public double getDt() {
+        return dt;
+    }
+
+    @Override
+    public double getMass() {
+        return mass;
+    }
+
+    @Override
+    public Force getForce() {
+        return force;
+    }
 }
