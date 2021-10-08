@@ -50,6 +50,9 @@ def main(data_path):
     ax.set_ylabel(r'Probabilidad del intervalo', size=20)
     ax.tick_params(labelsize=16)
     ax.xaxis.set_major_formatter(MathTextSciFormatter("%1.2e"))
+    ax.grid(which="both")
+    ax.set_axisbelow(True)
+
 
     for i in range(len(particleCounts)):
         hist, bins = np.histogram(rounds[i].flatten(), bins=np.arange(0, np.max(rounds[i]), binSize))
@@ -60,6 +63,7 @@ def main(data_path):
             label=f'N={int(particleCounts[i])}.'
         )
         print(f'N={int(particleCounts[i])}. Iter={iterations[i]}')
+
     plt.legend(fontsize=14)
     plt.show()
 

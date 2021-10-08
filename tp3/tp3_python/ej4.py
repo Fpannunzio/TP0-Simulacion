@@ -144,11 +144,13 @@ def plotMsdAndRegression(clock, msd, poly, small_p=False):
     fig = plt.figure(f'MSD {small_p}', figsize=(16, 10))
     ax = fig.add_subplot(1, 1, 1)
 
-    ax.errorbar(clock[:msd[:,0].size], msd[:,0], yerr=msd[:,1], color=cm.get_cmap('tab20')(3), alpha=0.03, capthick=2)
-    ax.plot(clock[:msd[:,0].size], msd[:,0], color=cm.get_cmap('tab20')(2))
+    ax.errorbar(clock[:msd[:,0].size], msd[:,0], yerr=msd[:,1], color=cm.get_cmap('tab20c')(7), alpha=0.03, capthick=2)
+    ax.plot(clock[:msd[:,0].size], np.polyval(poly, clock[:msd[:,0].size]), label=f'D={poly[0]/2:.3f}' + r'$m^2/s$', color='black')
+    ax.plot(clock[:msd[:,0].size], msd[:,0], color=cm.get_cmap('tab20c')(4))
 
+    ax.grid(which="both")
+    ax.set_axisbelow(True)
 
-    ax.plot(clock[:msd[:,0].size], np.polyval(poly, clock[:msd[:,0].size]), label=f'D={poly[0]/2:.3f}' + r'$m^2/s$')
     
     ax.set_ylabel(r'$<z^2>$: Desplazamiento cuadratico medio ($m^2$)', size=20)
     ax.set_xlabel(r'Tiempo (s)', size=20)
@@ -162,6 +164,9 @@ def plotRegressionError(polys, errors, small_p=False):
     
     ax.plot(polys, errors)
     
+    ax.grid(which="both")
+    ax.set_axisbelow(True)
+    print(errors[np.argmin(errors)])
     ax.plot(polys[np.argmin(errors)], errors[np.argmin(errors)], marker='x', color='r')
     
     ax.set_ylabel(r'Error ($m^2$)', size=20)

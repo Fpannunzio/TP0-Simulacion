@@ -43,7 +43,7 @@ def main(data_path):
     ax.set_xticks([])
     
     for i in range(len(temps)):
-        ax.plot(*positions[i][:maxIterations].T, label=f"v=[{temps[i]}, {temps[i] + 1}]", color=cm.get_cmap('tab10')(i))
+        ax.plot(*positions[i][:maxIterations].T, label=f"v=[{temps[i]}, {temps[i] + 1}] m/s" , color=cm.get_cmap('tab10')(i))
         print(f"v=[{temps[i]}, {temps[i] + 1}]. Iter={maxIterations}. Duration={np.sum(times[i][:maxIterations])}")
         start = ax.add_artist(plt.Circle((positions[i].T[0, 0],positions[i].T[1, 0]),                               0.1, color='green', alpha=0.3))
         end = ax.add_artist(plt.Circle((positions[i].T[0, maxIterations],positions[i].T[1, maxIterations]),         0.7, color=cm.get_cmap('tab10')(i), alpha=0.3))

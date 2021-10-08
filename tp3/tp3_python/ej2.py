@@ -46,7 +46,9 @@ def main(data_path):
     print(f'BinInicial={(3 * binSize):.2f}. BinUltimoTercio={(binSize):.2f}.')
     ax.set_xlabel(r'$v$: Modulo de la velocidad (m/s)', size=20)
     ax.set_ylabel(r'Densidad de probabilidad', size=20)
-    
+    ax.grid(which="both")
+    ax.set_axisbelow(True)
+
     for i in range(len(particleCounts)):
         allThird: np.ndarray = lastThirdValues[i].flatten() 
         thirdHist, thirdBin         = np.histogram(allThird.flatten(), bins=np.arange(0, np.max(allThird.flatten()), binSize), density=True)
