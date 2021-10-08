@@ -1,18 +1,17 @@
 package ar.edu.itba.simulacion.tp4;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
 
 public class Ej2 {
-    
     public static void main(String[] args) throws IOException {
          
         if(args.length < 1) {
@@ -25,14 +24,27 @@ public class Ej2 {
 
         final MarsMissionSimulation marsMissionSimulation = new MarsMissionSimulation(config);
 
-        marsMissionSimulation.simulate(10000);
-    
+        try(final BufferedWriter writer = new BufferedWriter(new FileWriter(config.outputFile))) {
+
+            marsMissionSimulation.simulate(10000, (state, i) -> {
+                try {
+                    state.xyzWrite(writer);
+                } catch(final IOException e) {
+                    throw new RuntimeException(e);
+                }
+
+                if(i % 1000 == 0) {
+                    // Informamos que la simulacion avanza
+                    System.out.println("Total states processed so far: " + i);
+                }
+            });
+        }
     }
+
     
     @Data
     @Jacksonized
-    @AllArgsConstructor
-    @NoArgsConstructor
+
     @Builder(setterPrefix = "with")
     public static class MarsMissionConfig {
         public double                                               dt;
@@ -49,8 +61,6 @@ public class Ej2 {
     
     //La masa esta medida en 10^30 kg por lo que hay que expandir 
     @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
     @Jacksonized
     @Builder(setterPrefix = "with")
     public static class CelestialBodyData {

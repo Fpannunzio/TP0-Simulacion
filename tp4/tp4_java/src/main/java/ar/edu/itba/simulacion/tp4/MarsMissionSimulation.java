@@ -1,9 +1,16 @@
 package ar.edu.itba.simulacion.tp4;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.List;
+import java.util.function.ObjIntConsumer;
 
+import ar.edu.itba.simulacion.particle.marshalling.XYZWritable;
 import ar.edu.itba.simulacion.tp4.Ej2.MarsMissionConfig;
 import ar.edu.itba.simulacion.tp4.MolecularDynamicSolver.MoleculeStateAxis;
+import lombok.Builder;
+import lombok.Data;
+import lombok.extern.jackson.Jacksonized;
 
 public class MarsMissionSimulation {
      
@@ -47,15 +54,14 @@ public class MarsMissionSimulation {
         spaceShip.setSolver(new BeemanSolver(2, dt, spaceShip.getMass() * massMultiplier, new GravitationalForce(List.of(sun, earth, mars), spaceShip.getMass(), gravitationalConstant), new MoleculeStateAxis[]{new MoleculeStateAxis(spaceShip.getX(), spaceShip.getVelocityX()), new MoleculeStateAxis(spaceShip.getY(), spaceShip.getVelocityY())}));        
     }
     
-    public void simulate(int iterations) {
-
-        System.out.println("Spaceship position: (" + spaceShip.getX() + ", "+ spaceShip.getY() +") Earth position: (" + earth.getX() + ", "+ earth.getY() +")");
+    public void simulate(int iterations, final ObjIntConsumer<MissionControlState> callback) {
+        final MissionControlState missionControlState = new MissionControlState(List.of(spaceShip, earth, mars, sun));
         for (int i = 0; i < iterations; i++) {
             updateCelestialBody(spaceShip);
             updateCelestialBody(earth);
             updateCelestialBody(mars);
+            callback.accept(missionControlState, i);
         }
-        System.out.println("Spaceship position: (" + spaceShip.getX() + ", "+ spaceShip.getY() +") Earth position: (" + earth.getX() + ", "+ earth.getY() +")");
 
     }
 
@@ -66,4 +72,23 @@ public class MarsMissionSimulation {
         celestialBody.setY(results[1].getPosition());
         celestialBody.setVelocityY(results[1].getVelocity());
     }
-}
+  
+    @Data
+    @Jacksonized
+    @Builder(setterPrefix = "with")
+    public static class MissionControlState implements XYZWritable {
+        private List<CelestialBody> celestialBodies;
+
+        @Override
+        public void xyzWrite(Writer writer) throws IOException {
+            writer.write(celestialBodies.size());
+            XYZWritable.newLine(writer);
+            XYZWritable.newLine(writer);
+            
+            for(final CelestialBody celestialBody : celestialBodies) {
+                celestialBody.xyzWrite(writer);
+            }
+        }
+    }  
+}   
+
