@@ -1,4 +1,6 @@
-package ar.edu.itba.simulacion.tp4;
+package ar.edu.itba.simulacion.tp4.dynamicSolvers;
+
+import ar.edu.itba.simulacion.tp4.MolecularDynamicSolver;
 
 public class VerletSolver implements MolecularDynamicSolver {
 

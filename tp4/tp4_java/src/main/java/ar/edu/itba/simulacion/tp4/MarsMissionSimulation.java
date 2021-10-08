@@ -8,6 +8,7 @@ import java.util.function.ObjIntConsumer;
 import ar.edu.itba.simulacion.particle.marshalling.XYZWritable;
 import ar.edu.itba.simulacion.tp4.Ej2.MarsMissionConfig;
 import ar.edu.itba.simulacion.tp4.MolecularDynamicSolver.MoleculeStateAxis;
+import ar.edu.itba.simulacion.tp4.dynamicSolvers.BeemanSolver;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
@@ -49,7 +50,7 @@ public class MarsMissionSimulation {
 
     private void addCelestialBodiesSolver(double dt) {
 
-        earth.setSolver(new BeemanSolver(2, dt, earth.getMass() * massMultiplier, new GravitationalForce(List.of(sun, mars), earth.getMass(), gravitationalConstant), new MoleculeStateAxis[]{new MoleculeStateAxis(earth.getX(),earth.getVelocityX()), new MoleculeStateAxis(earth.getY(), earth.getVelocityY())}));        
+        earth.setSolver(new BeemanSolver(2, dt, earth.getMass() * massMultiplier, new GravitationalForce(List.of(sun, mars), earth.getMass(), gravitationalConstant), new MoleculeStateAxis[]{new MoleculeStateAxis(earth.getX(),earth.getVelocityX()), new MoleculeStateAxis(earth.getY(), earth.getVelocityY())}));
         mars.setSolver(new BeemanSolver(2, dt, mars.getMass() * massMultiplier, new GravitationalForce(List.of(sun, earth), mars.getMass(), gravitationalConstant), new MoleculeStateAxis[]{new MoleculeStateAxis(mars.getX(),mars.getVelocityX()), new MoleculeStateAxis(mars.getY(), mars.getVelocityY())}));        
         spaceShip.setSolver(new BeemanSolver(2, dt, spaceShip.getMass() * massMultiplier, new GravitationalForce(List.of(sun, earth, mars), spaceShip.getMass(), gravitationalConstant), new MoleculeStateAxis[]{new MoleculeStateAxis(spaceShip.getX(), spaceShip.getVelocityX()), new MoleculeStateAxis(spaceShip.getY(), spaceShip.getVelocityY())}));        
     }

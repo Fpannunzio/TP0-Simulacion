@@ -8,6 +8,10 @@ import java.util.function.DoubleBinaryOperator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import ar.edu.itba.simulacion.tp4.dynamicSolvers.BeemanSolver;
+import ar.edu.itba.simulacion.tp4.dynamicSolvers.GearSolver;
+import ar.edu.itba.simulacion.tp4.dynamicSolvers.VerletSolver;
+
 public class Ej1 {
 
     public static double oscillatorForce(final double k, final double gamma, final double position, final double velocity) {

@@ -1,8 +1,10 @@
-package ar.edu.itba.simulacion.tp4;
+package ar.edu.itba.simulacion.tp4.dynamicSolvers;
 
 import java.util.Arrays;
 
-public class BeemanSolver implements MolecularDynamicSolver{
+import ar.edu.itba.simulacion.tp4.MolecularDynamicSolver;
+
+public class BeemanSolver implements MolecularDynamicSolver {
 
     // Configuration
     private final int                   dim;
