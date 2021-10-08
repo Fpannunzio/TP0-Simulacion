@@ -18,7 +18,6 @@ public class CelestialBody {
     private MolecularDynamicSolver solver;
 
     public double calculateDistance(double otherX, double otherY) {
-        
         return Math.hypot(x - otherX, y - otherY);
     }
     

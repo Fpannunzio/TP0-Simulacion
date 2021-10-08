@@ -5,14 +5,15 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
 
 public class Ej2 {
     
     public static void main(String[] args) throws IOException {
-        
          
         if(args.length < 1) {
             throw new IllegalArgumentException("First argument must be config path");
@@ -22,13 +23,16 @@ public class Ej2 {
 
         final MarsMissionConfig config = mapper.readValue(new File(args[0]), MarsMissionConfig.class);
 
-        
-        // mapper.writeValue(new File("output/ej2.json"), results);
+        final MarsMissionSimulation marsMissionSimulation = new MarsMissionSimulation(config);
+
+        marsMissionSimulation.simulate(10000);
     
     }
     
     @Data
     @Jacksonized
+    @AllArgsConstructor
+    @NoArgsConstructor
     @Builder(setterPrefix = "with")
     public static class MarsMissionConfig {
         public double                                               dt;
@@ -42,9 +46,11 @@ public class Ej2 {
         public CelestialBodyData                                    mars;
         public String                                               outputFile;
     }
-
+    
     //La masa esta medida en 10^30 kg por lo que hay que expandir 
     @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
     @Jacksonized
     @Builder(setterPrefix = "with")
     public static class CelestialBodyData {
