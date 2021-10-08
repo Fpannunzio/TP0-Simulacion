@@ -13,15 +13,15 @@ import lombok.extern.jackson.Jacksonized;
 @Builder(setterPrefix = "with")
 public class CelestialBody implements XYZWritable {
 
-    private double x;
-    private double y;
-    private double velocityX;
-    private double velocityY;
-    private final double mass;
-    private final double radius;
-    private MolecularDynamicSolver solver;
+    private double                  x;
+    private double                  y;
+    private double                  velocityX;
+    private double                  velocityY;
+    private final double            mass;
+    private final double            radius;
+    private MolecularDynamicSolver  solver;
 
-    public double calculateDistance(double otherX, double otherY) {
+    public double distanceTo(double otherX, double otherY) {
         return Math.hypot(x - otherX, y - otherY);
     }
 
