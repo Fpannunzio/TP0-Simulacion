@@ -4,10 +4,15 @@ import static ar.edu.itba.simulacion.tp4.MolecularDynamicSolver.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.function.DoubleBinaryOperator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Ej1 {
+
+    public static double oscillatorForce(final double k, final double gamma, final double position, final double velocity) {
+        return -k * position - gamma * velocity;
+    }
     
     public static void main(String[] args) throws IOException {
         
@@ -25,20 +30,20 @@ public class Ej1 {
         double tf                       = 5;
         double dt                       = tf / count;
 
-        int degree                      = 6;
-        double[] functionCoeficients    = new double[]{-k, -gamma};
+        int degree                      = 5;
 
         final double initPosition = 1;
         final double initVelocity = -(A * gamma)/(2*mass);
-
-        double[] initialValues          = new double[]{initPosition, initVelocity};
         final MoleculeStateAxis[] initialState = new MoleculeStateAxis[]{new MoleculeStateAxis(initPosition, initVelocity)};
 
-        final Force force = (axis, state) -> -k * state[axis].position - gamma * state[axis].velocity;
+        final DoubleBinaryOperator oscillatorForce = (position, velocity) -> oscillatorForce(k, gamma, position, velocity);
+        final Force force = (axis, state) -> oscillatorForce.applyAsDouble(state[axis].position, state[axis].velocity);
 
-        VerletSolver vSolver    = new VerletSolver(1, dt, mass, force, initialState);
-        BeemanSolver bSolver    = new BeemanSolver(1, dt, mass, force, initialState);
-        GearSolver gSolver      = new GearSolver(mass, dt, functionCoeficients, initialValues, degree);
+        final double[][] gearInitState = new double[][]{gearInitState(initPosition, initVelocity, degree, mass, oscillatorForce)};
+
+        final VerletSolver  vSolver    = new VerletSolver(1, dt, mass, force, initialState);
+        final BeemanSolver  bSolver    = new BeemanSolver(1, dt, mass, force, initialState);
+        final GearSolver    gSolver    = new GearSolver(1, dt, mass, force, degree, 1, gearInitState);
 
         for (int i = 0; i < count; i++) {
             if(i % (count/10) == 0) {
@@ -47,9 +52,27 @@ public class Ej1 {
 
             results[0][i] = vSolver.oneAxisNextStep().r;
             results[1][i] = bSolver.oneAxisNextStep().r;
-            results[2][i] = gSolver.nextStep();
+            results[2][i] = gSolver.oneAxisNextStep().r;
         }
 
         mapper.writeValue(new File("output/ej1.json"), results);
+    }
+
+    public static double[] gearInitState(
+        final double                initPosition,
+        final double                initialVelocity,
+        final int                   degree,
+        final double                mass,
+        final DoubleBinaryOperator  force) {
+
+        final double[] initState = new double[degree + 1];
+        initState[0] = initPosition;
+        initState[1] = initialVelocity;
+
+        for(int i = 2; i <= degree; i++) {
+            initState[i] = force.applyAsDouble(initState[i-2], initState[i-1]) / mass;
+        }
+
+        return initState;
     }
 }
