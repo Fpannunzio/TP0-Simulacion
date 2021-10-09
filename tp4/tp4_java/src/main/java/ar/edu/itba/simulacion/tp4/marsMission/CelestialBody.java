@@ -1,4 +1,4 @@
-package ar.edu.itba.simulacion.tp4;
+package ar.edu.itba.simulacion.tp4.marsMission;
 
 import static ar.edu.itba.simulacion.tp4.MolecularDynamicSolver.*;
 
@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.Writer;
 
 import ar.edu.itba.simulacion.particle.marshalling.XYZWritable;
+import ar.edu.itba.simulacion.tp4.MolecularDynamicSolver;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
@@ -22,7 +23,7 @@ public class CelestialBody implements XYZWritable {
     private         double                  velocityY;
     private final   double                  mass;
     private final   double                  radius;
-    private         MolecularDynamicSolver  solver;
+    private MolecularDynamicSolver solver;
 
     public void update() {
         final MoleculeStateAxis[] newState = solver.nextStep();

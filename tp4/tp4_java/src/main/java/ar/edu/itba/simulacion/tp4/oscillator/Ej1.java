@@ -1,4 +1,4 @@
-package ar.edu.itba.simulacion.tp4;
+package ar.edu.itba.simulacion.tp4.oscillator;
 
 import static ar.edu.itba.simulacion.tp4.MolecularDynamicSolver.*;
 

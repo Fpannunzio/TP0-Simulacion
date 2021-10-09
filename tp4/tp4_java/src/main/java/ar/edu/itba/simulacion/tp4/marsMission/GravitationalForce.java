@@ -1,4 +1,4 @@
-package ar.edu.itba.simulacion.tp4;
+package ar.edu.itba.simulacion.tp4.marsMission;
 
 import java.util.Arrays;
 import java.util.List;
@@ -49,6 +49,10 @@ public class GravitationalForce implements Force {
 
             cachedForce[0] += normalForce * ((body.getX() - state[0].position) / distance);
             cachedForce[1] += normalForce * ((body.getY() - state[1].position) / distance);
+        }
+
+        if(name.equals("spaceship")) {
+            System.out.println("Axis " + axis + ": " + Arrays.toString(cachedForce));
         }
 
         return cachedForce[axis];

@@ -1,7 +1,8 @@
-package ar.edu.itba.simulacion.tp4;
+package ar.edu.itba.simulacion.tp4.marsMission;
 
 import java.util.List;
 
+import ar.edu.itba.simulacion.tp4.MolecularDynamicSolver;
 import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
@@ -51,8 +52,8 @@ public class MarsMissionSimulation {
             .withName       ("spaceship")
             .withX          (earthX * positionFactor)
             .withY          (earthY * positionFactor)
-            .withVelocityX  (Math.signum(earthVx) * orbitalVelocity * (earthX / earthDistance) + earthVx)
-            .withVelocityY  (Math.signum(earthVy) * orbitalVelocity * (earthY / earthDistance) + earthVy)
+            .withVelocityX  (-Math.signum(earthVx) * orbitalVelocity * (earthX / earthDistance) + earthVx)
+            .withVelocityY  (-Math.signum(earthVy) * orbitalVelocity * (earthY / earthDistance) + earthVy)
             .withMass       (spaceshipParams.scaledMass())
             .withRadius     (0)
             .build()

@@ -1,17 +1,8 @@
-package ar.edu.itba.simulacion.tp4;
+package ar.edu.itba.simulacion.tp4.marsMission;
 
-import static ar.edu.itba.simulacion.tp4.MarsMissionSimulation.*;
-import static ar.edu.itba.simulacion.tp4.MolecularDynamicSolver.*;
+import static ar.edu.itba.simulacion.tp4.marsMission.MarsMissionSimulation.SYSTEM_DIMENSION;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.List;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import ar.edu.itba.simulacion.particle.marshalling.XYZWritable;
+import ar.edu.itba.simulacion.tp4.MolecularDynamicSolver;
 import ar.edu.itba.simulacion.tp4.dynamicSolvers.BeemanSolver;
 import ar.edu.itba.simulacion.tp4.dynamicSolvers.GearSolver;
 import ar.edu.itba.simulacion.tp4.dynamicSolvers.VerletSolver;
@@ -19,48 +10,25 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
 
-public class Ej2 {
+public final class SimulationSettings {
+    private SimulationSettings() {
+        // static
+    }
 
     public static final int GEAR_SOLVER_DEGREE = 5;
-
-    public static void main(String[] args) throws IOException {
-         
-        if(args.length < 1) {
-            throw new IllegalArgumentException("First argument must be config path");
-        }
-
-        final ObjectMapper mapper = new ObjectMapper();
-
-        final MarsMissionConfig config = mapper.readValue(new File(args[0]), MarsMissionConfig.class);
-
-        final MarsMissionSimulation simulation = config.toSimulation();
-
-        try(final BufferedWriter writer = new BufferedWriter(new FileWriter(config.outputFile))) {
-
-            simulation.simulate(10000, (i, spaceship, earth, mars, sun) -> {
-                // Imprimimos estado
-                XYZWritable.xyzWrite(writer, List.of(spaceship, earth, mars, sun));
-
-                if(i % 1000 == 0) {
-                    // Informamos que la simulacion avanza
-                    System.out.println("Total states processed so far: " + i);
-                }
-            });
-        }
-    }
 
     public static VerletSolver verletSolverSupplier(
         final double    dt, final double    mass, final GravitationalForce  force,
         final double    x,  final double    y,
         final double    vx, final double    vy) {
-        return new VerletSolver(SYSTEM_DIMENSION, dt, mass, force, new MoleculeStateAxis[]{new MoleculeStateAxis(x, vx), new MoleculeStateAxis(y, vy)});
+        return new VerletSolver(SYSTEM_DIMENSION, dt, mass, force, new MolecularDynamicSolver.MoleculeStateAxis[]{new MolecularDynamicSolver.MoleculeStateAxis(x, vx), new MolecularDynamicSolver.MoleculeStateAxis(y, vy)});
     }
 
     public static BeemanSolver beemanSolverSupplier(
         final double    dt, final double    mass, final GravitationalForce  force,
         final double    x,  final double    y,
         final double    vx, final double    vy) {
-        return new BeemanSolver(SYSTEM_DIMENSION, dt, mass, force, new MoleculeStateAxis[]{new MoleculeStateAxis(x, vx), new MoleculeStateAxis(y, vy)});
+        return new BeemanSolver(SYSTEM_DIMENSION, dt, mass, force, new MolecularDynamicSolver.MoleculeStateAxis[]{new MolecularDynamicSolver.MoleculeStateAxis(x, vx), new MolecularDynamicSolver.MoleculeStateAxis(y, vy)});
     }
 
     public static GearSolver gearSolverSupplier(
@@ -75,18 +43,18 @@ public class Ej2 {
     }
 
     public enum SolverStrategy {
-        VERLET  (Ej2::verletSolverSupplier),
-        BEEMAN  (Ej2::beemanSolverSupplier),
-        GEAR    (Ej2::gearSolverSupplier),
+        VERLET  (SimulationSettings::verletSolverSupplier),
+        BEEMAN  (SimulationSettings::beemanSolverSupplier),
+        GEAR    (SimulationSettings::gearSolverSupplier),
         ;
 
-        private final SolverSupplier solverSupplier;
+        private final MarsMissionSimulation.SolverSupplier solverSupplier;
 
-        SolverStrategy(final SolverSupplier solverSupplier) {
+        SolverStrategy(final MarsMissionSimulation.SolverSupplier solverSupplier) {
             this.solverSupplier = solverSupplier;
         }
 
-        public SolverSupplier getSolverSupplier() {
+        public MarsMissionSimulation.SolverSupplier getSolverSupplier() {
             return solverSupplier;
         }
     }
@@ -97,7 +65,7 @@ public class Ej2 {
     public static class MarsMissionConfig {
         public double               dt;
         public double               gravitationalConstant;
-        public SpaceshipInitParams  spaceship;
+        public MarsMissionSimulation.SpaceshipInitParams spaceship;
         public CelestialBodyData    sun;
         public CelestialBodyData    earth;
         public CelestialBodyData    mars;
@@ -117,8 +85,7 @@ public class Ej2 {
                 ;
         }
     }
-    
-    //La masa esta medida en 10^30 kg por lo que hay que expandir 
+
     @Data
     @Jacksonized
     @Builder(setterPrefix = "with")
