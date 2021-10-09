@@ -17,6 +17,32 @@ public interface XYZWritable {
         writer.write(LINE_SEPARATOR);
     }
 
+    static void xyzWrite(final Writer writer, final XYZWritable writable) throws RuntimeException {
+        try {
+            writable.xyzWrite(writer);
+        } catch(final IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    static void xyzWrite(final Writer writer, final Collection<? extends XYZWritable> writable) throws RuntimeException {
+        try {
+            writeCollection(writer, writable);
+        } catch(final IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    static void writeCollection(final Writer writer, final Collection<? extends XYZWritable> collection) throws IOException {
+        writer.write(String.valueOf(collection.size()));
+        XYZWritable.newLine(writer);
+        XYZWritable.newLine(writer);
+
+        for(final XYZWritable elem : collection) {
+            elem.xyzWrite(writer);
+        }
+    }
+
     static void exportToFile(final String filePath, final XYZWritable writable) {
         try(final BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
             writable.xyzWrite(writer);
