@@ -20,7 +20,6 @@ public class CelestialBody implements XYZWritable {
     private         double                  velocityX;
     private         double                  velocityY;
     private final   double                  mass;
-    private final   int                     massScale;
     private final   double                  radius;
     private         MolecularDynamicSolver  solver;
 
@@ -35,11 +34,6 @@ public class CelestialBody implements XYZWritable {
 
     public double distanceTo(double otherX, double otherY) {
         return Math.hypot(x - otherX, y - otherY);
-    }
-
-
-    public double getScaledMass() {
-        return mass * Math.pow(10, massScale);
     }
 
     @Override

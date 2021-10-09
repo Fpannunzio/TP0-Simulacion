@@ -131,14 +131,17 @@ public class Ej2 {
         public int      massScale;
         public double   radius;
 
+        public double scaledMass() {
+            return mass * Math.pow(10, massScale);
+        }
+
         public CelestialBody toCelestialBody(){
             return CelestialBody.builder()
                 .withX          (x)
                 .withY          (y)
                 .withVelocityX  (velocityX)
                 .withVelocityY  (velocityY)
-                .withMass       (mass)
-                .withMassScale  (massScale)
+                .withMass       (scaledMass())
                 .withRadius     (radius)
                 .build()
                 ;

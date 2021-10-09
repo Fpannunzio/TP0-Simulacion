@@ -18,8 +18,8 @@ public class GravitationalForce implements Force {
 
     // Force Cache
     // Lo usamos porque es muy comun que todos los inputs sean iguales menos el axis. Aprovechamos que ya lo calculamos.
-    private int                   lastStateHashcode;
-    private final double[]        cachedForce;
+    private int                         lastStateHashcode;
+    private final double[]              cachedForce;
 
 
     public GravitationalForce(final double gravitationalConstant, final double mass, final List<CelestialBody> bodiesAffectedBy) {
@@ -37,12 +37,13 @@ public class GravitationalForce implements Force {
             return cachedForce[axis];
         }
 
-        lastStateHashcode = stateHashcode;
+        // TODO(tobi): Cachear
+//        lastStateHashcode = stateHashcode;
         Arrays.fill(cachedForce, 0);
 
         for(final CelestialBody body : bodiesAffectedBy) {
             final double distance    = body.distanceTo(state[0].position, state[1].position);
-            final double normalForce = mass * body.getScaledMass() * gravitationalConstant / (distance * distance);
+            final double normalForce = mass * body.getMass() * gravitationalConstant / (distance * distance);
 
             cachedForce[0] += normalForce * ((body.getX() - state[0].position) / distance);
             cachedForce[1] += normalForce * ((body.getY() - state[1].position) / distance);

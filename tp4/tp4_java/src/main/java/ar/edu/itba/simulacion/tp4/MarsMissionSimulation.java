@@ -30,7 +30,7 @@ public class MarsMissionSimulation {
         this.sun                    = sun;
         this.earth                  = earth;
         this.mars                   = mars;
-        this.spaceship = buildSpaceShip(spaceship);
+        this.spaceship              = buildSpaceShip(spaceship);
 
         this.earth      .setSolver(buildCelestialBodySolver(dt, this.earth,     List.of(sun, mars),         solverSupplier));
         this.mars       .setSolver(buildCelestialBodySolver(dt, this.mars,      List.of(sun, earth),        solverSupplier));
@@ -66,8 +66,8 @@ public class MarsMissionSimulation {
 
         return solverSupplier.get(
             dt,
-            celestialBody.getScaledMass(),
-            new GravitationalForce(gravitationalConstant, celestialBody.getScaledMass(), bodiesAffectedBy),
+            celestialBody.getMass(),
+            new GravitationalForce(gravitationalConstant, celestialBody.getMass(), bodiesAffectedBy),
             celestialBody.getX(),
             celestialBody.getY(),
             celestialBody.getVelocityX(),
