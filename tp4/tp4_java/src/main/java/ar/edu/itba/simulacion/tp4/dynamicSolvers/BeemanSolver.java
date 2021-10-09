@@ -14,7 +14,7 @@ public class BeemanSolver implements MolecularDynamicSolver {
 
     // Mutable State
     private MoleculeStateAxis[]         currentState;
-    private final double[]                    prev_r2;
+    private double[]                    prev_r2;
 
     public BeemanSolver(
         final int                   dimensions,
@@ -119,5 +119,18 @@ public class BeemanSolver implements MolecularDynamicSolver {
     @Override
     public Force getForce() {
         return force;
+    }
+
+    @Override
+    public BeemanSolver copyState(final MolecularDynamicSolver solver) {
+        if(!(solver instanceof BeemanSolver)) {
+            throw new IllegalArgumentException("solver debe extender " + BeemanSolver.class);
+        }
+        final BeemanSolver s = (BeemanSolver) solver;
+
+        currentState    = s.currentState.clone();
+        prev_r2         = s.prev_r2.clone();
+
+        return this;
     }
 }

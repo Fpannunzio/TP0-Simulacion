@@ -53,7 +53,7 @@ public class GearSolver implements MolecularDynamicSolver {
     private final double[]  alpha;
 
     // Mutable state
-    private final double[][]            currentState;   // por cada axis, r(t) de dimension degree
+    private double[][]      currentState;   // por cada axis, r(t) de dimension degree
 
     @Builder(setterPrefix = "with")
     public GearSolver(
@@ -163,5 +163,17 @@ public class GearSolver implements MolecularDynamicSolver {
     @Override
     public Force getForce() {
         return force;
+    }
+
+    @Override
+    public GearSolver copyState(final MolecularDynamicSolver solver) {
+        if(!(solver instanceof GearSolver)) {
+            throw new IllegalArgumentException("solver debe extender " + GearSolver.class);
+        }
+        final GearSolver s = (GearSolver) solver;
+
+        currentState    = deepCopy(s.currentState);
+
+        return this;
     }
 }

@@ -11,8 +11,8 @@ public class VerletSolver implements MolecularDynamicSolver {
     private final Force                 force;
 
     // Mutable state
-    private MoleculeStateAxis[]         currentState;   // r(t)
-    private final double[]              prev_r0;        // r0(t - dt)
+    private MoleculeStateAxis[]     currentState;   // r(t)
+    private double[]                prev_r0;        // r0(t - dt)
 
     public VerletSolver(
         final int                   dimensions,
@@ -86,5 +86,18 @@ public class VerletSolver implements MolecularDynamicSolver {
     @Override
     public Force getForce() {
         return force;
+    }
+
+    @Override
+    public VerletSolver copyState(final MolecularDynamicSolver solver) {
+        if(!(solver instanceof VerletSolver)) {
+            throw new IllegalArgumentException("solver debe extender " + VerletSolver.class);
+        }
+        final VerletSolver s = (VerletSolver) solver;
+
+        currentState    = s.currentState.clone();
+        prev_r0         = s.prev_r0.clone();
+
+        return this;
     }
 }

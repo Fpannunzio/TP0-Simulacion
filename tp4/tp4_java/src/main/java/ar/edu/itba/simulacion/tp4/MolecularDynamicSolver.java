@@ -16,6 +16,12 @@ public interface MolecularDynamicSolver {
     Force getForce();
 
     /**
+     * Copia el estado interno mutable del Solver, evitando que se pierda informacion util que fue recolectando
+     * @throws IllegalArgumentException El tipo del solver argumento no coincide con el de la clase
+     */
+    MolecularDynamicSolver copyState(final MolecularDynamicSolver solver);
+
+    /**
      * Metodo de utilidad.
      * Si la dimension del solver es 1, este metodo directamente retorna el axis correspondiente.
      * @throws IllegalStateException si la dimension no es 1

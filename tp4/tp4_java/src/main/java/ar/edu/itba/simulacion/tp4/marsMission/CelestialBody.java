@@ -9,11 +9,10 @@ import ar.edu.itba.simulacion.particle.marshalling.XYZWritable;
 import ar.edu.itba.simulacion.tp4.MolecularDynamicSolver;
 import lombok.Builder;
 import lombok.Data;
+import lombok.With;
 import lombok.extern.jackson.Jacksonized;
 
 @Data
-@Jacksonized
-@Builder(setterPrefix = "with")
 public class CelestialBody implements XYZWritable {
 
     private         String                  name;
@@ -23,7 +22,31 @@ public class CelestialBody implements XYZWritable {
     private         double                  velocityY;
     private final   double                  mass;
     private final   double                  radius;
-    private MolecularDynamicSolver solver;
+    @With
+    private MolecularDynamicSolver          solver;
+
+    @Jacksonized
+    @Builder(setterPrefix = "with")
+    public CelestialBody(
+        final String    name,
+        final double    x,          final double    y,
+        final double    velocityX,  final double    velocityY,
+        final double    mass,       final double    radius,
+        final MolecularDynamicSolver                solver) {
+
+        this.name       = name;
+        this.x          = x;
+        this.y          = y;
+        this.velocityX  = velocityX;
+        this.velocityY  = velocityY;
+        this.mass       = mass;
+        this.radius     = radius;
+        this.solver     = solver;
+    }
+
+    public CelestialBody(final CelestialBody other) {
+        this(other.name, other.x, other.y, other.velocityX, other.velocityY, other.mass, other.radius, other.solver);
+    }
 
     public void update() {
         final MoleculeStateAxis[] newState = solver.nextStep();
@@ -42,8 +65,12 @@ public class CelestialBody implements XYZWritable {
         return Math.hypot(x - otherX, y - otherY);
     }
 
-    public boolean hasColided(final CelestialBody otherCelestialBody) {
-        return distanceTo(otherCelestialBody.getX(), otherCelestialBody.getY()) <= (this.radius + otherCelestialBody.getRadius());
+    public double distanceTo(final CelestialBody body) {
+        return distanceTo(body.x, body.y);
+    }
+
+    public boolean hasCollided(final CelestialBody body) {
+        return distanceTo(body) <= radius + body.radius;
     }
 
     public double getVelocityModule() {
