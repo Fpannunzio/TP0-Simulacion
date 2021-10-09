@@ -52,7 +52,7 @@ public class MarsMissionSimulation {
             .withY          (earthY * positionFactor)
             .withVelocityX  (Math.signum(earthVx) * orbitalVelocity * (earthX / earthDistance) + earthVx)
             .withVelocityY  (Math.signum(earthVy) * orbitalVelocity * (earthY / earthDistance) + earthVy)
-            .withMass       (spaceshipParams.spaceshipMass)
+            .withMass       (spaceshipParams.scaledMass())
             .withRadius     (0)
             .build()
             ;
