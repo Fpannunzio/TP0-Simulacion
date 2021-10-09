@@ -45,25 +45,25 @@ public class GearSolver implements MolecularDynamicSolver {
     }
 
     // Configuration
-    private final int                   dim;
-    private final double                dt;
-    private final double                mass;
-    private final Force                 force;
-    private final int                   degree;
-    private final double[]              alpha;
+    private final int       dim;
+    private final double    dt;
+    private final double    mass;
+    private final Force     force;
+    private final int       degree;
+    private final double[]  alpha;
 
     // Mutable state
     private final double[][]            currentState;   // por cada axis, r(t) de dimension degree
 
     @Builder(setterPrefix = "with")
     public GearSolver(
-        final int                   dimensions,
-        final double                dt,
-        final double                mass,
-        final Force                 force,
-        final int                   degree,
-        final int                   forceAxisMaxR,  // El valor maximo de derivada que afecta a la fuerza
-        final double[][]            initialState) { // El initial state incluye hasta el degree seleccionado
+        final int           dimensions,
+        final double        dt,
+        final double        mass,
+        final Force         force,
+        final int           degree,
+        final int           forceAxisMaxR,  // El valor maximo de derivada que afecta a la fuerza
+        final double[][]    initialState) { // El initial state incluye hasta el degree seleccionado
 
         if(degree < MIN_DEGREE || degree > MAX_DEGREE) {
             throw new IllegalArgumentException("degree must be between " + MIN_DEGREE + " and " + MAX_DEGREE);
