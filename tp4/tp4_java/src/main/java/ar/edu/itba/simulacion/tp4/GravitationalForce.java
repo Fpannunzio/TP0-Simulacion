@@ -13,6 +13,7 @@ public class GravitationalForce implements Force {
 
     // Configuration
     private final double                gravitationalConstant;
+    private final String                name;
     private final double                mass;
     private final List<CelestialBody>   bodiesAffectedBy;
 
@@ -22,8 +23,9 @@ public class GravitationalForce implements Force {
     private final double[]              cachedForce;
 
 
-    public GravitationalForce(final double gravitationalConstant, final double mass, final List<CelestialBody> bodiesAffectedBy) {
+    public GravitationalForce(final double gravitationalConstant, final String name, final double mass, final List<CelestialBody> bodiesAffectedBy) {
         this.gravitationalConstant  = gravitationalConstant;
+        this.name                   = name;
         this.mass                   = mass;
         this.bodiesAffectedBy       = bodiesAffectedBy;
 
@@ -51,5 +53,8 @@ public class GravitationalForce implements Force {
 
         return cachedForce[axis];
     }
-  
+
+    public String getName() {
+        return name;
+    }
 }

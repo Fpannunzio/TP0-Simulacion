@@ -48,6 +48,7 @@ public class MarsMissionSimulation {
         final double orbitalVelocity = spaceshipParams.spaceshipInitialVelocity + spaceshipParams.spaceStationOrbitalVelocity;
 
         return CelestialBody.builder()
+            .withName       ("spaceship")
             .withX          (earthX * positionFactor)
             .withY          (earthY * positionFactor)
             .withVelocityX  (Math.signum(earthVx) * orbitalVelocity * (earthX / earthDistance) + earthVx)
@@ -67,7 +68,7 @@ public class MarsMissionSimulation {
         return solverSupplier.get(
             dt,
             celestialBody.getMass(),
-            new GravitationalForce(gravitationalConstant, celestialBody.getMass(), bodiesAffectedBy),
+            new GravitationalForce(gravitationalConstant, celestialBody.getName(), celestialBody.getMass(), bodiesAffectedBy),
             celestialBody.getX(),
             celestialBody.getY(),
             celestialBody.getVelocityX(),
@@ -117,5 +118,9 @@ public class MarsMissionSimulation {
         public int      spaceshipInitialVelocity;
         public double   spaceStationDistance;
         public double   spaceStationOrbitalVelocity;
+
+        public double scaledMass() {
+            return spaceshipMass * Math.pow(10, spaceshipMassScale);
+        }
     }
 }   

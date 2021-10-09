@@ -108,9 +108,9 @@ public class Ej2 {
             return MarsMissionSimulation.builder()
                 .withDt                     (dt)
                 .withGravitationalConstant  (gravitationalConstant)
-                .withSun                    (sun.toCelestialBody())
-                .withMars                   (mars.toCelestialBody())
-                .withEarth                  (earth.toCelestialBody())
+                .withSun                    (sun.toCelestialBody("sun"))
+                .withMars                   (mars.toCelestialBody("mars"))
+                .withEarth                  (earth.toCelestialBody("earth"))
                 .withSpaceship              (spaceship)
                 .withSolverSupplier         (solver.getSolverSupplier())
                 .build()
@@ -135,8 +135,9 @@ public class Ej2 {
             return mass * Math.pow(10, massScale);
         }
 
-        public CelestialBody toCelestialBody(){
+        public CelestialBody toCelestialBody(final String name) {
             return CelestialBody.builder()
+                .withName       (name)
                 .withX          (x)
                 .withY          (y)
                 .withVelocityX  (velocityX)

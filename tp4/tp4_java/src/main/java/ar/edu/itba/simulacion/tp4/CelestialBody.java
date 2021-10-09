@@ -15,6 +15,7 @@ import lombok.extern.jackson.Jacksonized;
 @Builder(setterPrefix = "with")
 public class CelestialBody implements XYZWritable {
 
+    private         String                  name;
     private         double                  x;
     private         double                  y;
     private         double                  velocityX;
