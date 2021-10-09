@@ -28,7 +28,7 @@ public class CelestialBody implements XYZWritable {
 
 
     public double getScaledMass() {
-        return Math.pow(mass, massScale);
+        return mass * Math.pow(10, massScale);
     }
 
     @Override
