@@ -1,8 +1,8 @@
 package ar.edu.itba.simulacion.tp4.marsMission;
 
+import static ar.edu.itba.simulacion.tp4.MolecularDynamicSolver.*;
 import static ar.edu.itba.simulacion.tp4.marsMission.MarsMissionSimulation.SYSTEM_DIMENSION;
 
-import ar.edu.itba.simulacion.tp4.MolecularDynamicSolver;
 import ar.edu.itba.simulacion.tp4.dynamicSolvers.BeemanSolver;
 import ar.edu.itba.simulacion.tp4.dynamicSolvers.GearSolver;
 import ar.edu.itba.simulacion.tp4.dynamicSolvers.VerletSolver;
@@ -21,14 +21,14 @@ public final class SimulationSettings {
         final double    dt, final double    mass, final GravitationalForce  force,
         final double    x,  final double    y,
         final double    vx, final double    vy) {
-        return new VerletSolver(SYSTEM_DIMENSION, dt, mass, force, new MolecularDynamicSolver.MoleculeStateAxis[]{new MolecularDynamicSolver.MoleculeStateAxis(x, vx), new MolecularDynamicSolver.MoleculeStateAxis(y, vy)});
+        return new VerletSolver(SYSTEM_DIMENSION, dt, mass, force, new MoleculeStateAxis[]{new MoleculeStateAxis(x, vx), new MoleculeStateAxis(y, vy)});
     }
 
     public static BeemanSolver beemanSolverSupplier(
         final double    dt, final double    mass, final GravitationalForce  force,
         final double    x,  final double    y,
         final double    vx, final double    vy) {
-        return new BeemanSolver(SYSTEM_DIMENSION, dt, mass, force, new MolecularDynamicSolver.MoleculeStateAxis[]{new MolecularDynamicSolver.MoleculeStateAxis(x, vx), new MolecularDynamicSolver.MoleculeStateAxis(y, vy)});
+        return new BeemanSolver(SYSTEM_DIMENSION, dt, mass, force, new MoleculeStateAxis[]{new MoleculeStateAxis(x, vx), new MoleculeStateAxis(y, vy)});
     }
 
     public static GearSolver gearSolverSupplier(

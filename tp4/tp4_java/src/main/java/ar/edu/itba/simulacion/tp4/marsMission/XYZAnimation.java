@@ -17,8 +17,9 @@ public final class XYZAnimation {
         // static
     }
 
+    public static final int ITERATIONS = 1000;
+
     public static void main(String[] args) throws IOException {
-         
         if(args.length < 1) {
             throw new IllegalArgumentException("First argument must be config path");
         }
@@ -31,7 +32,7 @@ public final class XYZAnimation {
 
         try(final BufferedWriter writer = new BufferedWriter(new FileWriter(config.outputFile))) {
 
-            simulation.simulate(10000, (i, spaceship, earth, mars, sun) -> {
+            simulation.simulate((i, spaceship, earth, mars, sun) -> {
                 // Imprimimos estado
                 XYZWritable.xyzWrite(writer, List.of(spaceship, earth, mars, sun));
 
@@ -39,6 +40,8 @@ public final class XYZAnimation {
                     // Informamos que la simulacion avanza
                     System.out.println("Total states processed so far: " + i);
                 }
+
+                return i <= ITERATIONS;
             });
         }
     }

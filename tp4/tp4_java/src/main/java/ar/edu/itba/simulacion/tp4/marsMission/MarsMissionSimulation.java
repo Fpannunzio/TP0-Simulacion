@@ -77,24 +77,23 @@ public class MarsMissionSimulation {
         );
     }
 
-    public void simulate(final int iterations, final SimulationStateConsumer consumer) {
-        consumer.accept(0, spaceship, earth, mars, sun);
-
-        for(int i = 1; i <= iterations; i++) {
+    public void simulate(final SimulationStateNotifier notifier) {
+        int iteration = 0;
+        while(notifier.notify(iteration, spaceship, earth, mars, sun)) {
             spaceship   .update();
             earth       .update();
             mars        .update();
             // Al sol no lo updeteamos, consideramos que esta estatico en (0, 0)
 
-            consumer.accept(i, spaceship, earth, mars, sun);
+            iteration++;
         }
     }
 
     /* ----------------------------------------- Clases Auxiliares ----------------------------------------------- */
 
     @FunctionalInterface
-    public interface SimulationStateConsumer {
-        void accept(
+    public interface SimulationStateNotifier {
+        boolean notify(
             final int           iteration,
             final CelestialBody spaceship,
             final CelestialBody earth,
