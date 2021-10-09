@@ -35,10 +35,17 @@ public class MarsMissionSimulation {
 
         this.earth      .setSolver(buildCelestialBodySolver(dt, this.earth,     List.of(sun, mars),         solverSupplier));
         this.mars       .setSolver(buildCelestialBodySolver(dt, this.mars,      List.of(sun, earth),        solverSupplier));
-        this.spaceship  .setSolver(buildCelestialBodySolver(dt, this.spaceship, List.of(sun, earth, mars),  solverSupplier));
+        
+        if(this.spaceship != null) {
+            this.spaceship  .setSolver(buildCelestialBodySolver(dt, this.spaceship, List.of(sun, earth, mars),  solverSupplier));
+        }
     }
 
     private CelestialBody buildSpaceShip(final SpaceshipInitParams spaceshipParams) {
+        if(spaceshipParams == null) {
+            return null;
+        }
+
         final double earthX     = earth.getX();
         final double earthY     = earth.getY();
         final double earthVx    = earth.getVelocityX();
@@ -52,8 +59,8 @@ public class MarsMissionSimulation {
             .withName       ("spaceship")
             .withX          (earthX * positionFactor)
             .withY          (earthY * positionFactor)
-            .withVelocityX  (-Math.signum(earthVx) * orbitalVelocity * (earthX / earthDistance) + earthVx)
-            .withVelocityY  (-Math.signum(earthVy) * orbitalVelocity * (earthY / earthDistance) + earthVy)
+            .withVelocityX  (Math.signum(earthVx) * orbitalVelocity * (earthY / earthDistance) + earthVx)
+            .withVelocityY  (Math.signum(earthVy) * orbitalVelocity * (earthX / earthDistance) + earthVy)
             .withMass       (spaceshipParams.scaledMass())
             .withRadius     (0)
             .build()
@@ -80,7 +87,9 @@ public class MarsMissionSimulation {
     public void simulate(final SimulationStateNotifier notifier) {
         int iteration = 0;
         do {
-            spaceship   .update();
+            if(spaceship != null) {
+                spaceship   .update();
+            }
             earth       .update();
             mars        .update();
             // Al sol no lo updeteamos, consideramos que esta estatico en (0, 0)

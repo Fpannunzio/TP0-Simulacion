@@ -51,10 +51,6 @@ public class GravitationalForce implements Force {
             cachedForce[1] += normalForce * ((body.getY() - state[1].position) / distance);
         }
 
-        if(name.equals("spaceship")) {
-            System.out.println("Axis " + axis + ": " + Arrays.toString(cachedForce));
-        }
-
         return cachedForce[axis];
     }
 

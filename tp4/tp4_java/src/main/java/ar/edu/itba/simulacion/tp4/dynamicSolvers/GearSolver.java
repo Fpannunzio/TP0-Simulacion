@@ -86,7 +86,7 @@ public class GearSolver implements MolecularDynamicSolver {
     public MoleculeStateAxis[] nextStep() {
         final MoleculeStateAxis[] predictedState = new MoleculeStateAxis[dim];
 
-        final double[][] predictions = new double[dim][];
+        final double[][] predictions = new double[dim][degree];
         for(int axis = 0; axis < dim; axis++) {
             final double[] prediction = predict(axis);
             predictions[axis] = prediction;

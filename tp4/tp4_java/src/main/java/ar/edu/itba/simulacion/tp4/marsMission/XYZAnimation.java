@@ -17,7 +17,8 @@ public final class XYZAnimation {
         // static
     }
 
-    public static final int MAX_ITERATIONS = 1_000;
+    public static final int MAX_ITERATIONS = 10_000_000;
+    public static final int OUTPUT_SAMPLE_RATE = MAX_ITERATIONS / 10_000;
 
     public static void main(String[] args) throws IOException {
         if(args.length < 1) {
@@ -40,9 +41,10 @@ public final class XYZAnimation {
 
             simulation.simulate((i, spaceship, earth, mars, sun) -> {
                 // Imprimimos estado
-                XYZWritable.xyzWrite(writer, List.of(spaceship, earth, mars, sun));
-
-                if(i % 1_000 == 0) {
+                if(i % OUTPUT_SAMPLE_RATE == 0) {
+                    XYZWritable.xyzWrite(writer, List.of(spaceship, earth, mars, sun));
+                }
+                if(i % (MAX_ITERATIONS / 10) == 0) {
                     // Informamos que la simulacion avanza
                     System.out.println("Total states processed so far: " + i);
                 }

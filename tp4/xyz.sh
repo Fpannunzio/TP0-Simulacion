@@ -13,4 +13,4 @@ echo "Particluas creadas ✅️"
 echo "Ejecutando simulacion 🕘️"
 
 # Ejecutamos simulacion
-mvn -f tp4_java exec:java -Dexec.mainClass=ar.edu.itba.simulacion.tp4.Ej2 -Dexec.args="$CONFIG" -q || exit
+mvn -f tp4_java exec:java -Dexec.mainClass=ar.edu.itba.simulacion.tp4.marsMission.XYZAnimation -Dexec.args="$CONFIG" -q || exit
