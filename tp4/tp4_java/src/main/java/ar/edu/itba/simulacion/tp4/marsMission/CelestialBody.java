@@ -42,6 +42,14 @@ public class CelestialBody implements XYZWritable {
         return Math.hypot(x - otherX, y - otherY);
     }
 
+    public boolean hasColided(final CelestialBody otherCelestialBody) {
+        return distanceTo(otherCelestialBody.getX(), otherCelestialBody.getY()) <= (this.radius + otherCelestialBody.getRadius());
+    }
+
+    public double getVelocityModule() {
+        return Math.hypot(velocityX, velocityY);
+    }
+
     @Override
     public void xyzWrite(final Writer writer) throws IOException {
         writer.write(

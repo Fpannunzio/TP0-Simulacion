@@ -21,9 +21,9 @@ public final class XYZAnimationS {
         // static
     }
 
-    public static final int MAX_ITERATIONS = 1_000_000_000;
-    public static final int LAUNCH_COUNT = 10;
-    public static final int LAUNCH_ITERATIONS = MAX_ITERATIONS / LAUNCH_COUNT;
+    public static final int MAX_ITERATIONS = 1_000_000_000; // 30 años
+    public static final int LAUNCH_COUNT = 30;
+    public static final int LAUNCH_ITERATIONS = MAX_ITERATIONS / LAUNCH_COUNT;  // 1 año
     public static final int OUTPUT_SAMPLE_RATE = MAX_ITERATIONS / 10_000;
 
     public static void main(String[] args) throws IOException {
@@ -33,26 +33,32 @@ public final class XYZAnimationS {
 
         final ObjectMapper mapper = new ObjectMapper();
 
-        final MarsMissionConfig config = mapper.readValue(new File(args[0]), MarsMissionConfig.class);
+        final XYZAnimationSCon config = mapper.readValue(new File(args[0]), XYZAnimationSCon.class);
+        
+        MarsMissionSimulation simulation = config.toSimulation();
+        String aux;
 
-        final MarsMissionSimulation simulation = config.toSimulation();
+        for (int launchCoun = 0; launchCoun < LAUNCH_COUNT; launchCoun++) {
+        
+            try(final BufferedWriter writer = new BufferedWriter(new FileWriter(config.outputFile.replace(".exyz", launchCoun + ".exyz")))) {
 
-        try(final BufferedWriter writer = new BufferedWriter(new FileWriter(config.outputFile))) {
-
-            for (int launchCoun = 0; launchCoun < args.length; launchCoun++) {
-                simulation.simulate((i, spaceship, earth, mars, sun) -> {
-                    // Imprimimos estado
-                    if(i % OUTPUT_SAMPLE_RATE == 0) {
-                        XYZWritable.xyzWrite(writer, List.of(spaceship, earth, mars, sun));
-                    }
-                    if(i % (MAX_ITERATIONS / 10) == 0) {
-                        // Informamos que la simulacion avanza
-                        System.out.println("Total states processed so far: " + i);
-                    }
-    
-                    return i <= LAUNCH_ITERATIONS;
-                });
+                    aux = simulation.simulate((i, spaceship, earth, mars, sun) -> {
+                        // Imprimimos estado
+                        if(i % OUTPUT_SAMPLE_RATE == 0) {
+                            XYZWritable.xyzWrite(writer, List.of(spaceship, earth, mars, sun));
+                        }
+                        if(i % (LAUNCH_ITERATIONS / 10) == 0) {
+                            // Informamos que la simulacion avanza
+                            System.out.println("Total states processed so far: " + i);
+                        }
+        
+                        return i <= LAUNCH_ITERATIONS;
+                    });
+                    
+                    System.out.println(aux);
             }
+
+            simulation = config.toSimulation(simulation.getSun(), simulation.getMars(), simulation.getEarth());
         }
     }
 
@@ -76,6 +82,19 @@ public final class XYZAnimationS {
                 .withSun                    (sun.toCelestialBody("sun"))
                 .withMars                   (mars.toCelestialBody("mars"))
                 .withEarth                  (earth.toCelestialBody("earth"))
+                .withSpaceship              (spaceship)
+                .withSolverSupplier         (solver.getSolverSupplier())
+                .build()
+                ;
+        }
+
+        public MarsMissionSimulation toSimulation(CelestialBody sun, CelestialBody mars, CelestialBody earth) {
+            return MarsMissionSimulation.builder()
+                .withDt                     (dt)
+                .withGravitationalConstant  (gravitationalConstant)
+                .withSun                    (sun)
+                .withMars                   (mars)
+                .withEarth                  (earth)
                 .withSpaceship              (spaceship)
                 .withSolverSupplier         (solver.getSolverSupplier())
                 .build()

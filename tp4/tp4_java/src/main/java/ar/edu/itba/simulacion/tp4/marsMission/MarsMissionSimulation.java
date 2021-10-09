@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 
+
 public class MarsMissionSimulation {
 
     public static final int SYSTEM_DIMENSION = 2;
@@ -88,7 +89,8 @@ public class MarsMissionSimulation {
         );
     }
 
-    public void simulate(final SimulationStateNotifier notifier) {
+    public String simulate(final SimulationStateNotifier notifier) {
+        
         int iteration = 0;
         do {
             if(spaceship != null) {
@@ -99,7 +101,9 @@ public class MarsMissionSimulation {
             // Al sol no lo updeteamos, consideramos que esta estatico en (0, 0)
 
             iteration++;
-        } while(notifier.notify(iteration, spaceship, earth, mars, sun));
+        } while(notifier.notify(iteration, spaceship, earth, mars, sun) && hasSpaceshipCollided() == null);
+
+        return hasSpaceshipCollided();
     }
 
     public double getDt() {
@@ -124,6 +128,31 @@ public class MarsMissionSimulation {
 
     public CelestialBody getSpaceship() {
         return spaceship;
+    }
+
+    public String hasSpaceshipCollided(){
+        if (spaceship.hasColided(earth)) {
+            return earth.getName();
+        }
+        if (spaceship.hasColided(sun)) {
+            return sun.getName();
+        }
+        if (spaceship.hasColided(mars)) {
+            return mars.getName();
+        }
+        return null;
+    }
+
+    public double getSystemEnergy() {
+        double totalEnergy = 0;
+        totalEnergy += getCelestialBodyEnergy(earth);
+        totalEnergy += getCelestialBodyEnergy(mars);
+        totalEnergy += getCelestialBodyEnergy(spaceship);
+        return totalEnergy;
+    }
+
+    private double getCelestialBodyEnergy(CelestialBody body){
+        return ((GravitationalForce)body.getSolver().getForce()).getPotentialEnergy(body.getX(), body.getY()) + 0.5 * body.getMass() * body.getVelocityModule() * body.getVelocityModule();    
     }
 
     /* ----------------------------------------- Clases Auxiliares ----------------------------------------------- */
