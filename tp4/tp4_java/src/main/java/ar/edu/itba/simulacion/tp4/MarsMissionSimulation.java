@@ -1,121 +1,121 @@
 package ar.edu.itba.simulacion.tp4;
 
-import java.io.IOException;
-import java.io.Writer;
 import java.util.List;
-import java.util.function.ObjIntConsumer;
 
-import ar.edu.itba.simulacion.particle.marshalling.XYZWritable;
-import ar.edu.itba.simulacion.tp4.Ej2.MarsMissionConfig;
-import ar.edu.itba.simulacion.tp4.MolecularDynamicSolver.MoleculeStateAxis;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 
 public class MarsMissionSimulation {
-     
-    private final static int        gearDimention = 2;
-    private final static int        gearDegree = 5;
+
+    public static final int SYSTEM_DIMENSION = 2;
 
     private final double            gravitationalConstant;
     private final CelestialBody     sun;
     private final CelestialBody     earth;
     private final CelestialBody     mars;
-    private final CelestialBody     spaceShip;
+    private final CelestialBody     spaceship;
 
-    public MarsMissionSimulation(MarsMissionConfig marsMissionConfig) {
+    @Builder(setterPrefix = "with")
+    public MarsMissionSimulation(
+        final double                dt,
+        final double                gravitationalConstant,
+        final CelestialBody         sun,
+        final CelestialBody         earth,
+        final CelestialBody         mars,
+        final SpaceshipInitParams   spaceship,
+        final SolverSupplier        solverSupplier) {
 
-        gravitationalConstant = marsMissionConfig.gravitationalConstant;
-        sun = marsMissionConfig.sun.toCelestialBody();
-        earth = marsMissionConfig.earth.toCelestialBody();
-        mars = marsMissionConfig.mars.toCelestialBody();
-        spaceShip = buildSpaceShip(marsMissionConfig);
-        addCelestialBodiesSolver(marsMissionConfig.dt);
+        this.gravitationalConstant  = gravitationalConstant;
+        this.sun                    = sun;
+        this.earth                  = earth;
+        this.mars                   = mars;
+        this.spaceship = buildSpaceShip(spaceship);
+
+        this.earth      .setSolver(buildCelestialBodySolver(dt, this.earth,     List.of(sun, mars),         solverSupplier));
+        this.mars       .setSolver(buildCelestialBodySolver(dt, this.mars,      List.of(sun, earth),        solverSupplier));
+        this.spaceship  .setSolver(buildCelestialBodySolver(dt, this.spaceship, List.of(sun, earth, mars),  solverSupplier));
     }
 
-    private CelestialBody buildSpaceShip(MarsMissionConfig marsMissionConfig) {
+    private CelestialBody buildSpaceShip(final SpaceshipInitParams spaceshipParams) {
+        final double earthX     = earth.getX();
+        final double earthY     = earth.getY();
+        final double earthVx    = earth.getVelocityX();
+        final double earthVy    = earth.getVelocityY();
 
-        // (1 + d/E)
-        double positionFactor = 1 + (earth.getRadius() + marsMissionConfig.spaceStationDistance)/(Math.hypot(earth.getX(), earth.getY()));
-        double spaceShipOrbitalVelocity = marsMissionConfig.spaceshipInitialVelocity + marsMissionConfig.spaceStationOrbitalVelocity;
+        final double earthDistance = Math.hypot(earthX, earthY);
+        final double positionFactor = 1 + (earth.getRadius() + spaceshipParams.spaceStationDistance) / earthDistance; // (1 + d/E)
+        final double orbitalVelocity = spaceshipParams.spaceshipInitialVelocity + spaceshipParams.spaceStationOrbitalVelocity;
 
         return CelestialBody.builder()
-        .withX(earth.getX() * positionFactor)
-        .withY(earth.getY() * positionFactor)
-        .withVelocityX(Math.signum(earth.getVelocityX())*spaceShipOrbitalVelocity * (earth.getX()/Math.hypot(earth.getX(), earth.getY())) + earth.getVelocityX())
-        .withVelocityY(Math.signum(earth.getVelocityY())*spaceShipOrbitalVelocity * (earth.getY()/Math.hypot(earth.getX(), earth.getY())) + earth.getVelocityY())
-        .withMass(marsMissionConfig.spaceshipMass)
-        .withRadius(0)
-        .build();
+            .withX          (earthX * positionFactor)
+            .withY          (earthY * positionFactor)
+            .withVelocityX  (Math.signum(earthVx) * orbitalVelocity * (earthX / earthDistance) + earthVx)
+            .withVelocityY  (Math.signum(earthVy) * orbitalVelocity * (earthY / earthDistance) + earthVy)
+            .withMass       (spaceshipParams.spaceshipMass)
+            .withRadius     (0)
+            .build()
+            ;
     }
 
-    private void addCelestialBodiesSolver(double dt) {
+    private MolecularDynamicSolver buildCelestialBodySolver(
+        final double                dt,
+        final CelestialBody         celestialBody,
+        final List<CelestialBody>   bodiesAffectedBy,
+        final SolverSupplier        solverSupplier) {
 
-        earth.setSolver(gearSolverBuilder(dt, earth, List.of(sun, mars)));        
-        mars.setSolver(gearSolverBuilder(dt, mars, List.of(sun, earth)));        
-        spaceShip.setSolver(gearSolverBuilder(dt, spaceShip, List.of(sun, earth, mars)));        
+        return solverSupplier.get(
+            dt,
+            celestialBody.getScaledMass(),
+            new GravitationalForce(gravitationalConstant, celestialBody.getScaledMass(), bodiesAffectedBy),
+            celestialBody.getX(),
+            celestialBody.getY(),
+            celestialBody.getVelocityX(),
+            celestialBody.getVelocityY()
+        );
     }
 
-    private GearSolver gearSolverBuilder(double dt, CelestialBody celestialBody, List<CelestialBody> affectingCelestialBoddies) {
-        
-        return GearSolver.builder()
-       .withDimensions(gearDimention)
-       .withDegree(gearDegree)
-       .withDt(dt)
-       .withMass(celestialBody.getScaledMass())
-       .withForce(new GravitationalForce(affectingCelestialBoddies, celestialBody.getScaledMass(), gravitationalConstant))
-       .withForceAxisMaxR(1)
-       .withInitialState(getGearInitialState(celestialBody))
-       .build();
-    }
-    
-    private double[][] getGearInitialState(CelestialBody celestialBody) {
-        final double[][] initialState = new double[gearDimention][gearDegree + 1];
-        
-        initialState[0][0] = celestialBody.getX();
-        initialState[1][0] = celestialBody.getY();
-        initialState[0][1] = celestialBody.getVelocityX();
-        initialState[1][1] = celestialBody.getVelocityY();
+    public void simulate(final int iterations, final SimulationStateConsumer consumer) {
+        consumer.accept(0, spaceship, earth, mars, sun);
 
-        return initialState;
-        
-    }
+        for(int i = 1; i <= iterations; i++) {
+            spaceship   .update();
+            earth       .update();
+            mars        .update();
+            // Al sol no lo updeteamos, consideramos que esta estatico en (0, 0)
 
-    public void simulate(int iterations, final ObjIntConsumer<MissionControlState> callback) {
-        final MissionControlState missionControlState = new MissionControlState(List.of(spaceShip, earth, mars, sun));
-        for (int i = 0; i < iterations; i++) {
-            updateCelestialBody(spaceShip);
-            updateCelestialBody(earth);
-            updateCelestialBody(mars);
-            callback.accept(missionControlState, i);
+            consumer.accept(i, spaceship, earth, mars, sun);
         }
-
     }
 
-    public void updateCelestialBody(CelestialBody celestialBody) {
-        MoleculeStateAxis[] results = celestialBody.getSolver().nextStep();
-        celestialBody.setX(results[0].getPosition());
-        celestialBody.setVelocityX(results[0].getVelocity());
-        celestialBody.setY(results[1].getPosition());
-        celestialBody.setVelocityY(results[1].getVelocity());
+    /* ----------------------------------------- Clases Auxiliares ----------------------------------------------- */
+
+    @FunctionalInterface
+    public interface SimulationStateConsumer {
+        void accept(
+            final int           iteration,
+            final CelestialBody spaceship,
+            final CelestialBody earth,
+            final CelestialBody mars,
+            final CelestialBody sun);
     }
-  
-    @Data
+
+    @FunctionalInterface
+    public interface SolverSupplier {
+        MolecularDynamicSolver get(
+            final double    dt, final double    mass, final GravitationalForce  force,
+            final double    x,  final double    y,
+            final double    vx, final double    vy);
+    }
+
+    @Value
     @Jacksonized
     @Builder(setterPrefix = "with")
-    public static class MissionControlState implements XYZWritable {
-        private List<CelestialBody> celestialBodies;
-
-        @Override
-        public void xyzWrite(Writer writer) throws IOException {
-            writer.write(String.valueOf(celestialBodies.size()));
-            XYZWritable.newLine(writer);
-            XYZWritable.newLine(writer);
-            
-            for(final CelestialBody celestialBody : celestialBodies) {
-                celestialBody.xyzWrite(writer);
-            }
-        }
-    }  
+    public static class SpaceshipInitParams {
+        public int      spaceshipMass;
+        public int      spaceshipMassScale;
+        public int      spaceshipInitialVelocity;
+        public double   spaceStationDistance;
+        public double   spaceStationOrbitalVelocity;
+    }
 }   
-

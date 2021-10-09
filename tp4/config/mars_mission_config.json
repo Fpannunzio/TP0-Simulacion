@@ -1,11 +1,13 @@
 {
   "dt": 3600,
   "gravitationalConstant": 0.0000000006744,
-  "spaceshipMass": 2,
-  "spaceshipMassScale": 5,
-  "spaceshipInitialVelocity": 8, 
-  "spaceStationDistance": 1500,
-  "spaceStationOrbitalVelocity": 7.12,
+  "spaceship": {
+    "spaceshipMass": 2,
+    "spaceshipMassScale": 5,
+    "spaceshipInitialVelocity": 8,
+    "spaceStationDistance": 1500,
+    "spaceStationOrbitalVelocity": 7.12
+  },
   "sun": {
     "x": 0,
     "y": 0,
@@ -33,6 +35,7 @@
     "massScale": 23,
     "radius": 3396.19
   },
-  "outputFile": "output/ej2.xyz" 
+  "solver": "VERLET",
+  "outputFile": "output/ej2.exyz"
 }
 
