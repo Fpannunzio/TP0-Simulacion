@@ -11,11 +11,13 @@ public class MarsMissionSimulation {
 
     public static final int SYSTEM_DIMENSION = 2;
 
+    private final double            dt;
     private final double            gravitationalConstant;
     private final CelestialBody     sun;
     private final CelestialBody     earth;
     private final CelestialBody     mars;
     private final CelestialBody     spaceship;
+    private final SolverSupplier    solverSupplier;
 
     @Builder(setterPrefix = "with")
     public MarsMissionSimulation(
@@ -27,11 +29,13 @@ public class MarsMissionSimulation {
         final SpaceshipInitParams   spaceship,
         final SolverSupplier        solverSupplier) {
 
+        this.dt                     = dt;
         this.gravitationalConstant  = gravitationalConstant;
         this.sun                    = sun;
         this.earth                  = earth;
         this.mars                   = mars;
         this.spaceship              = buildSpaceShip(spaceship);
+        this.solverSupplier         = solverSupplier;
 
         this.earth      .setSolver(buildCelestialBodySolver(dt, this.earth,     List.of(sun, mars),         solverSupplier));
         this.mars       .setSolver(buildCelestialBodySolver(dt, this.mars,      List.of(sun, earth),        solverSupplier));
@@ -88,7 +92,7 @@ public class MarsMissionSimulation {
         int iteration = 0;
         do {
             if(spaceship != null) {
-                spaceship   .update();
+                spaceship.update();
             }
             earth       .update();
             mars        .update();
@@ -96,6 +100,10 @@ public class MarsMissionSimulation {
 
             iteration++;
         } while(notifier.notify(iteration, spaceship, earth, mars, sun));
+    }
+
+    public double getDt() {
+        return dt;
     }
 
     public double getGravitationalConstant() {
