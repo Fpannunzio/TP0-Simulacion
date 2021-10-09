@@ -34,12 +34,16 @@ public class CelestialBody implements XYZWritable {
         velocityY   = newState[1].getVelocity();
     }
 
-    public double distanceTo(double otherX, double otherY) {
+    public double distanceFrom0() {
+        return Math.hypot(x, y);
+    }
+
+    public double distanceTo(final double otherX, final double otherY) {
         return Math.hypot(x - otherX, y - otherY);
     }
 
     @Override
-    public void xyzWrite(Writer writer) throws IOException {
+    public void xyzWrite(final Writer writer) throws IOException {
         writer.write(
             getX()          + FIELD_SEPARATOR +
             getY()          + FIELD_SEPARATOR +

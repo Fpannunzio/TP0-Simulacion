@@ -17,7 +17,7 @@ public final class XYZAnimation {
         // static
     }
 
-    public static final int ITERATIONS = 1000;
+    public static final int MAX_ITERATIONS = 1_000;
 
     public static void main(String[] args) throws IOException {
         if(args.length < 1) {
@@ -32,16 +32,22 @@ public final class XYZAnimation {
 
         try(final BufferedWriter writer = new BufferedWriter(new FileWriter(config.outputFile))) {
 
+            // Estado inicial
+            XYZWritable.xyzWrite(
+                writer,
+                List.of(simulation.getSpaceship(), simulation.getEarth(), simulation.getMars(), simulation.getSun())
+            );
+
             simulation.simulate((i, spaceship, earth, mars, sun) -> {
                 // Imprimimos estado
                 XYZWritable.xyzWrite(writer, List.of(spaceship, earth, mars, sun));
 
-                if(i % 1000 == 0) {
+                if(i % 1_000 == 0) {
                     // Informamos que la simulacion avanza
                     System.out.println("Total states processed so far: " + i);
                 }
 
-                return i <= ITERATIONS;
+                return i <= MAX_ITERATIONS;
             });
         }
     }

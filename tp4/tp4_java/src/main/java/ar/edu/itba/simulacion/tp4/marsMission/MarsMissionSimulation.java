@@ -79,14 +79,34 @@ public class MarsMissionSimulation {
 
     public void simulate(final SimulationStateNotifier notifier) {
         int iteration = 0;
-        while(notifier.notify(iteration, spaceship, earth, mars, sun)) {
+        do {
             spaceship   .update();
             earth       .update();
             mars        .update();
             // Al sol no lo updeteamos, consideramos que esta estatico en (0, 0)
 
             iteration++;
-        }
+        } while(notifier.notify(iteration, spaceship, earth, mars, sun));
+    }
+
+    public double getGravitationalConstant() {
+        return gravitationalConstant;
+    }
+
+    public CelestialBody getSun() {
+        return sun;
+    }
+
+    public CelestialBody getEarth() {
+        return earth;
+    }
+
+    public CelestialBody getMars() {
+        return mars;
+    }
+
+    public CelestialBody getSpaceship() {
+        return spaceship;
     }
 
     /* ----------------------------------------- Clases Auxiliares ----------------------------------------------- */
