@@ -142,13 +142,13 @@ public class MarsMissionSimulation {
         }
         return null;
     }
-
+    // Hay que pasar la energia de kg*km^2/s^2 kg*m^2/s^2 
     public double getSystemEnergy() {
         double totalEnergy = 0;
         totalEnergy += getCelestialBodyEnergy(earth);
         totalEnergy += getCelestialBodyEnergy(mars);
         totalEnergy += getCelestialBodyEnergy(spaceship);
-        return totalEnergy;
+        return totalEnergy * 1_000_000;
     }
 
     private double getCelestialBodyEnergy(CelestialBody body){
