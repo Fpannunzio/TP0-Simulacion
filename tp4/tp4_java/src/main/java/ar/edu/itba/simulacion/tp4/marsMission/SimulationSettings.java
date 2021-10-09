@@ -84,6 +84,19 @@ public final class SimulationSettings {
                 .build()
                 ;
         }
+
+        public MarsMissionSimulation toPlanetSimulation() {
+            return MarsMissionSimulation.builder()
+                .withDt                     (dt)
+                .withGravitationalConstant  (gravitationalConstant)
+                .withSun                    (sun.toCelestialBody("sun"))
+                .withMars                   (mars.toCelestialBody("mars"))
+                .withEarth                  (earth.toCelestialBody("earth"))
+                .withSpaceship              (null)
+                .withSolverSupplier         (solver.getSolverSupplier())
+                .build()
+                ;
+        }
     }
 
     @Data
