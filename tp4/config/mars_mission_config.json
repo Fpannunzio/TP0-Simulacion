@@ -35,7 +35,7 @@
     "massScale": 23,
     "radius": 3396.19
   },
-  "solver": "VERLET",
+  "solver": "GEAR",
   "outputFile": "output/ej2.exyz"
 }
 
