@@ -1,5 +1,7 @@
 package ar.edu.itba.simulacion.tp4;
 
+import static ar.edu.itba.simulacion.tp4.MolecularDynamicSolver.*;
+
 import java.io.IOException;
 import java.io.Writer;
 
@@ -13,14 +15,23 @@ import lombok.extern.jackson.Jacksonized;
 @Builder(setterPrefix = "with")
 public class CelestialBody implements XYZWritable {
 
-    private double x;
-    private double y;
-    private double velocityX;
-    private double velocityY;
-    private final double mass;
-    private final int massScale;
-    private final double radius;
-    private MolecularDynamicSolver solver;
+    private         double                  x;
+    private         double                  y;
+    private         double                  velocityX;
+    private         double                  velocityY;
+    private final   double                  mass;
+    private final   int                     massScale;
+    private final   double                  radius;
+    private         MolecularDynamicSolver  solver;
+
+    public void update() {
+        final MoleculeStateAxis[] newState = solver.nextStep();
+
+        x           = newState[0].getPosition();
+        velocityX   = newState[0].getVelocity();
+        y           = newState[1].getPosition();
+        velocityY   = newState[1].getVelocity();
+    }
 
     public double distanceTo(double otherX, double otherY) {
         return Math.hypot(x - otherX, y - otherY);
