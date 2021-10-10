@@ -17,7 +17,7 @@ public final class CyclicStateSearch {
         // static
     }
 
-    public static final int MAX_ITERATIONS      = 5490 * 24 * 60 * 60;  // 5490 dias
+    public static final int MAX_ITERATIONS_SEC  = 5_500 * 24 * 60 * 60;  // 5480 dias con 20 de changui
     public static final int OUTPUT_SAMPLE_RATE  = 10 * 24 * 60 * 60;    // 17 dias
     public static final double EPSILON          = 1e-5;
 
@@ -31,6 +31,8 @@ public final class CyclicStateSearch {
         final SimulationSettings.MarsMissionConfig config = mapper.readValue(new File(args[0]), SimulationSettings.MarsMissionConfig.class);
 
         final MarsMissionSimulation simulation = config.toPlanetSimulation();
+
+        final int maxIterations = (int) (MAX_ITERATIONS_SEC / config.dt) + 1;
 
         final CelestialBody ogEarth = simulation.getEarth();
         final CelestialBody ogMars = simulation.getMars();
@@ -80,7 +82,7 @@ public final class CyclicStateSearch {
                     XYZWritable.xyzWrite(writer, List.of(earth, mars, sun));
                 }
 
-                return i <= MAX_ITERATIONS;
+                return i <= maxIterations;
             });
         }
     }
