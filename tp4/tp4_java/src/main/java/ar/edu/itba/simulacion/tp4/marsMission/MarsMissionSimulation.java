@@ -38,12 +38,25 @@ public class MarsMissionSimulation {
         this.spaceship              = buildSpaceShip(spaceship);
         this.solverSupplier         = solverSupplier;
 
-        this.earth      .setSolver(buildCelestialBodySolver(dt, this.earth,     List.of(sun, mars),         solverSupplier));
-        this.mars       .setSolver(buildCelestialBodySolver(dt, this.mars,      List.of(sun, earth),        solverSupplier));
-        
-        if(this.spaceship != null) {
-            this.spaceship  .setSolver(buildCelestialBodySolver(dt, this.spaceship, List.of(sun, earth, mars),  solverSupplier));
+        if(this.earth.getSolver() == null) {
+            this.earth.setSolver(buildCelestialBodySolver(this.earth, bodiesAffectingEarth()));
         }
+        if(this.mars.getSolver() == null) {
+            this.mars.setSolver(buildCelestialBodySolver(this.mars, bodiesAffectingMars()));
+        }
+        if(this.spaceship != null) {
+            this.spaceship.setSolver(buildCelestialBodySolver(this.spaceship, bodiesAffectingSpaceship()));
+        }
+    }
+
+    private List<CelestialBody> bodiesAffectingEarth() {
+        return List.of(this.sun, this.mars);
+    }
+    private List<CelestialBody> bodiesAffectingMars() {
+        return List.of(this.sun, this.earth);
+    }
+    private List<CelestialBody> bodiesAffectingSpaceship() {
+        return List.of(this.sun, this.earth, this.mars);
     }
 
     private CelestialBody buildSpaceShip(final SpaceshipInitParams spaceshipParams) {
@@ -72,11 +85,7 @@ public class MarsMissionSimulation {
             ;
     }
 
-    private MolecularDynamicSolver buildCelestialBodySolver(
-        final double                dt,
-        final CelestialBody         celestialBody,
-        final List<CelestialBody>   bodiesAffectedBy,
-        final SolverSupplier        solverSupplier) {
+    private MolecularDynamicSolver buildCelestialBodySolver(final CelestialBody celestialBody, final List<CelestialBody> bodiesAffectedBy) {
 
         return solverSupplier.get(
             dt,
@@ -90,7 +99,8 @@ public class MarsMissionSimulation {
     }
 
     public String simulate(final SimulationStateNotifier notifier) {
-        
+        String ret = null;
+
         int iteration = 0;
         do {
             if(spaceship != null) {
@@ -101,9 +111,9 @@ public class MarsMissionSimulation {
             // Al sol no lo updeteamos, consideramos que esta estatico en (0, 0)
 
             iteration++;
-        } while(notifier.notify(iteration, spaceship, earth, mars, sun) && hasSpaceshipCollided() == null);
+        } while(notifier.notify(iteration, spaceship, earth, mars, sun) && (ret = hasSpaceshipCollided()) == null);
 
-        return hasSpaceshipCollided();
+        return ret;
     }
 
     public double getDt() {
@@ -130,14 +140,17 @@ public class MarsMissionSimulation {
         return spaceship;
     }
 
-    public String hasSpaceshipCollided(){
-        if (spaceship.hasColided(earth)) {
+    public String hasSpaceshipCollided() {
+        if(spaceship == null) {
+            return null;
+        }
+        if(spaceship.hasCollided(earth)) {
             return earth.getName();
         }
-        if (spaceship.hasColided(sun)) {
+        if(spaceship.hasCollided(sun)) {
             return sun.getName();
         }
-        if (spaceship.hasColided(mars)) {
+        if(spaceship.hasCollided(mars)) {
             return mars.getName();
         }
         return null;
@@ -153,6 +166,23 @@ public class MarsMissionSimulation {
 
     private double getCelestialBodyEnergy(CelestialBody body){
         return ((GravitationalForce)body.getSolver().getForce()).getPotentialEnergy(body.getX(), body.getY()) + 0.5 * body.getMass() * body.getVelocityModule() * body.getVelocityModule();    
+    }
+
+    public MarsMissionSimulation buildNewMission(final SpaceshipInitParams spaceshipParams) {
+        return MarsMissionSimulation.builder()
+            .withDt                     (dt)
+            .withGravitationalConstant  (gravitationalConstant)
+            .withSun                    (new CelestialBody(sun))
+            .withMars                   (new CelestialBody(mars).withSolver(
+                buildCelestialBodySolver(mars, bodiesAffectingMars()).copyState(mars.getSolver())
+            ))
+            .withEarth                  (new CelestialBody(earth).withSolver(
+                buildCelestialBodySolver(earth, bodiesAffectingEarth()).copyState(earth.getSolver())
+            ))
+            .withSpaceship              (spaceshipParams)
+            .withSolverSupplier         (solverSupplier)
+            .build()
+            ;
     }
 
     /* ----------------------------------------- Clases Auxiliares ----------------------------------------------- */
