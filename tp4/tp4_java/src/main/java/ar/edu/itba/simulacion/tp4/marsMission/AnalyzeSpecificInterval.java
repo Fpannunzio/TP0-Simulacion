@@ -74,7 +74,7 @@ public class AnalyzeSpecificInterval {
             simulation.simulate((i, spaceship, earth, mars, sun) -> {
                 lastIter[0]++;
 
-                double distance = spaceship.distanceTo(mars);
+                double distance = spaceship.distanceTo(mars) - mars.getRadius();
                 distance = distance <= 0 ? 0 : distance;
                 if(distance < bestDistancePtr[0]) {
                     bestDistancePtr[0] = distance;
