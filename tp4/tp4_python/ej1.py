@@ -21,7 +21,7 @@ def main(data_path):
 
     labels = ['Verlet', 'Beemam', 'Gear']
 
-    ax.plot(t, analytic)
+    ax.plot(t, analytic, label="Analytic")
     for i in range(len(results)):
         ax.plot(t, results[i], label=labels[i])
         print(f'MSD de {labels[i]}: {np.sum(np.power(analytic - results[i], 2))}')
