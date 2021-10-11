@@ -24,13 +24,15 @@ def main(data_path):
     fig = plt.figure(figsize=(16, 10))
     ax = fig.add_subplot(1, 1, 1)
     ax.yaxis.set_major_formatter(MathTextSciFormatter("%1.4e"))
+    ax.yaxis.set_minor_formatter(MathTextSciFormatter("%1.5e"))
     ax.grid(which="both")
     ax.set_axisbelow(True)
-    ax.yaxis.set_minor_locator(AutoMinorLocator())
+    ax.yaxis.set_minor_locator(AutoMinorLocator(n = 2))
 
     ax.set_xlabel(r'$v_0$: Velocidad inicial de despegue (km/s)', size=20, labelpad=20)
     ax.set_ylabel(r'Tiempo de viaje hasta colisionar (min)', size=20, labelpad=20)
     ax.tick_params(labelsize=16)
+    ax.tick_params(labelsize=12, which='minor')
 
     ax.scatter(velocities, durations / 60, marker='*', s=70)
 
