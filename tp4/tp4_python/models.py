@@ -23,5 +23,11 @@ class VelocityAnalysisInfo:
     tripDuration:       List[int]
     returnTrip:         bool
 
+@dataclass
+@from_dict
+class VelocityPerIterationInfo:
+    secondsStep:    int
+    velocities:     List[float]
+    returnTrip:     bool
 
 
