@@ -25,15 +25,17 @@ public final class AnalyzeInterval {
 
     public static final double      MAX_MARS_ORBITS = 0.001;
 
-    public static final int         ACCURATE_START = 44_496;
+    public static final int         ACCURATE_START = ACCURATE ? 86_400 : 0;
 
-    public static final long        ANALYZER_RESOLUTION_SECONDS = ACCURATE ? MINUTES.toSeconds(5) : HOURS.toSeconds(12);
+    public static final long        ANALYZER_RESOLUTION_SECONDS = ACCURATE ? MINUTES.toSeconds(5) : HOURS.toSeconds(6);
 
     public static final long        INTERVAL_SECONDS = ACCURATE ? DAYS.toSeconds(5) : DAYS.toSeconds(300);
 
     public static final double      DISTANCE_TOLERANCE = MARS_ORBIT / 1_00;
 
     public static final int         MAX_UNCHANGED_MIN_DIST = 100_000;
+
+    public static final int         MAX_ITERATIONS_RETURN_TRIP = 30_000;
 
     public static void main(String[] args) throws IOException {
         if(args.length < 1) {
@@ -47,7 +49,7 @@ public final class AnalyzeInterval {
         final double dt = config.dt;
         final SpaceshipInitParams spaceshipParams = config.spaceship.withReturnTrip(RETURN_TRIP);
 
-        final int maxIntervalIteration  = (int) (INTERVAL_SECONDS / dt) + 1;
+        final int maxIntervalIteration  = (int) (INTERVAL_SECONDS / dt) + ACCURATE_START;
         final int maxIterations         = (int) (MAX_MARS_ORBITS * MARS_ORBIT_SECONDS / dt) + 1;
         final int resolution            = (int) (ANALYZER_RESOLUTION_SECONDS / dt);
         final int totalSimulations      = maxIntervalIteration / resolution;
@@ -57,11 +59,11 @@ public final class AnalyzeInterval {
 
         final MarsMissionSimulation baseSimulation = config.toPlanetSimulation();
 
-        if(ACCURATE) {
+        if(ACCURATE_START > 0) {
             baseSimulation.simulate((i, spaceship, earth, mars, sun) -> i < ACCURATE_START);
         }
 
-        int currentIter = 0;
+        int currentIter = ACCURATE_START;
         while(currentIter <= maxIntervalIteration) {
             final double[] bestDistancePtr = new double[]{Double.POSITIVE_INFINITY};
 
@@ -82,12 +84,13 @@ public final class AnalyzeInterval {
                     unchangedDistIters[0]++;
                 }
 
-                return  i < maxIterations
-                    &&  RETURN_TRIP
+                return (RETURN_TRIP && i < MAX_ITERATIONS_RETURN_TRIP)
                     || (
-                            unchangedDistIters[0] < MAX_UNCHANGED_MIN_DIST
+                            !RETURN_TRIP
+                        &&  i < maxIterations
+                        &&  unchangedDistIters[0] < MAX_UNCHANGED_MIN_DIST
                         &&  spaceship.distanceFrom0() <= MARS_ORBIT + mars.getRadius() + DISTANCE_TOLERANCE
-                    )
+                        )
                     ;
             });
 
@@ -104,7 +107,7 @@ public final class AnalyzeInterval {
             );
 
             // Movemos la base simulation
-            baseSimulation.simulate((i, spaceship, earth, mars, sun) -> i <= resolution);
+            baseSimulation.simulate((i, spaceship, earth, mars, sun) -> i < resolution);
             currentIter += resolution;
         }
 
