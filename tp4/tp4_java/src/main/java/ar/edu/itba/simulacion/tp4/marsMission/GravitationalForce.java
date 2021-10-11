@@ -39,7 +39,6 @@ public class GravitationalForce implements Force {
             return cachedForce[axis];
         }
 
-        // TODO(tobi): Cachear
         lastStateHashcode = stateHashcode;
         Arrays.fill(cachedForce, 0);
 
@@ -54,12 +53,12 @@ public class GravitationalForce implements Force {
         return cachedForce[axis];
     }
 
-    public double getPotentialEnergy(double x, double y) {
+    public double getPotentialEnergy(final double x, final double y) {
         double potentialEnergy = 0;
 
-        for (CelestialBody celestialBody : bodiesAffectedBy) {
+        for(CelestialBody celestialBody : bodiesAffectedBy) {
             
-            if (name != "mars" || celestialBody.getName() != "earth") {
+            if(!name.equals("mars") || !celestialBody.getName().equals("earth")) {
                 potentialEnergy += -mass * celestialBody.getMass() * gravitationalConstant / celestialBody.distanceTo(x, y);
             }
         }
