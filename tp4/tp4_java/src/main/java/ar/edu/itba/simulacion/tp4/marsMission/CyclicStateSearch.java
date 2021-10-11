@@ -13,6 +13,8 @@ import org.apache.commons.math3.util.Precision;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ar.edu.itba.simulacion.particle.marshalling.XYZWritable;
+import ar.edu.itba.simulacion.tp4.marsMission.simulation.CelestialBody;
+import ar.edu.itba.simulacion.tp4.marsMission.simulation.MarsMissionSimulation;
 
 public final class CyclicStateSearch {
     private CyclicStateSearch() {

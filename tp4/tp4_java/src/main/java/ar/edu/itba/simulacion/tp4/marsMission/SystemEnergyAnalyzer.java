@@ -8,6 +8,7 @@ import java.io.IOException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ar.edu.itba.simulacion.tp4.marsMission.SimulationSettings.MarsMissionConfig;
+import ar.edu.itba.simulacion.tp4.marsMission.simulation.MarsMissionSimulation;
 
 public final class SystemEnergyAnalyzer {
     private SystemEnergyAnalyzer() {

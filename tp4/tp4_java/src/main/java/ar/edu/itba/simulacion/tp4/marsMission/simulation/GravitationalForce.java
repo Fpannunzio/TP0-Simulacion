@@ -1,4 +1,4 @@
-package ar.edu.itba.simulacion.tp4.marsMission;
+package ar.edu.itba.simulacion.tp4.marsMission.simulation;
 
 import java.util.Arrays;
 import java.util.List;

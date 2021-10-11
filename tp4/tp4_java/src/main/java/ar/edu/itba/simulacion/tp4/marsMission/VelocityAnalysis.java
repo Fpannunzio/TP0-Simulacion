@@ -1,6 +1,6 @@
 package ar.edu.itba.simulacion.tp4.marsMission;
 
-import static ar.edu.itba.simulacion.tp4.marsMission.MarsMissionSimulation.*;
+import static ar.edu.itba.simulacion.tp4.marsMission.simulation.MarsMissionSimulation.*;
 import static ar.edu.itba.simulacion.tp4.marsMission.SimulationSettings.*;
 
 import java.io.File;
@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import ar.edu.itba.simulacion.tp4.marsMission.simulation.MarsMissionSimulation;
 import lombok.Value;
 
 public final class VelocityAnalysis {

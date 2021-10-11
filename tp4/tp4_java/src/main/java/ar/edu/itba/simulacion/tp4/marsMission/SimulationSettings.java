@@ -1,8 +1,8 @@
 package ar.edu.itba.simulacion.tp4.marsMission;
 
 import static ar.edu.itba.simulacion.tp4.MolecularDynamicSolver.*;
-import static ar.edu.itba.simulacion.tp4.marsMission.MarsMissionSimulation.*;
-import static ar.edu.itba.simulacion.tp4.marsMission.MarsMissionSimulation.SYSTEM_DIMENSION;
+import static ar.edu.itba.simulacion.tp4.marsMission.simulation.MarsMissionSimulation.*;
+import static ar.edu.itba.simulacion.tp4.marsMission.simulation.MarsMissionSimulation.SYSTEM_DIMENSION;
 import static java.util.concurrent.TimeUnit.*;
 
 import java.time.LocalDateTime;
@@ -10,6 +10,9 @@ import java.time.LocalDateTime;
 import ar.edu.itba.simulacion.tp4.dynamicSolvers.BeemanSolver;
 import ar.edu.itba.simulacion.tp4.dynamicSolvers.GearSolver;
 import ar.edu.itba.simulacion.tp4.dynamicSolvers.VerletSolver;
+import ar.edu.itba.simulacion.tp4.marsMission.simulation.CelestialBody;
+import ar.edu.itba.simulacion.tp4.marsMission.simulation.GravitationalForce;
+import ar.edu.itba.simulacion.tp4.marsMission.simulation.MarsMissionSimulation;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
@@ -42,7 +45,7 @@ public final class SimulationSettings {
     }
 
     public static VerletSolver verletSolverSupplier(
-        final double    dt, final double    mass, final GravitationalForce  force,
+        final double    dt, final double    mass, final GravitationalForce force,
         final double    x,  final double    y,
         final double    vx, final double    vy) {
         return new VerletSolver(SYSTEM_DIMENSION, dt, mass, force, new MoleculeStateAxis[]{new MoleculeStateAxis(x, vx), new MoleculeStateAxis(y, vy)});

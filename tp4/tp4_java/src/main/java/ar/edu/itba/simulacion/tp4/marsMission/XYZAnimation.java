@@ -12,7 +12,8 @@ import java.util.List;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ar.edu.itba.simulacion.particle.marshalling.XYZWritable;
-import ar.edu.itba.simulacion.tp4.marsMission.MarsMissionSimulation.SpaceshipInitParams;
+import ar.edu.itba.simulacion.tp4.marsMission.simulation.MarsMissionSimulation;
+import ar.edu.itba.simulacion.tp4.marsMission.simulation.MarsMissionSimulation.SpaceshipInitParams;
 import ar.edu.itba.simulacion.tp4.marsMission.SimulationSettings.MarsMissionConfig;
 
 public final class XYZAnimation {

@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import ar.edu.itba.simulacion.tp4.marsMission.simulation.MarsMissionSimulation;
 import lombok.Value;
 
 public final class VelocityPerIteration {
