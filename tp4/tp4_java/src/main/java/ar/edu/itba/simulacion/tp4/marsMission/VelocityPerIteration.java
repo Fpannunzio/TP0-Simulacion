@@ -35,6 +35,10 @@ public final class VelocityPerIteration {
         final List<Double> velocities = new LinkedList<>();
         final MarsMissionSimulation simulation = planetSimulation.buildNewMission(config.spaceship.withReturnTrip(RETURN_TRIP));
 
+        final double initVMod = simulation.getSpaceship().getVelocityModule();
+        System.out.println("Initial Velocity " + initVMod);
+        velocities.add(initVMod);
+
         final int[] totalIterationsPtr = new int[]{0};
         final String collision = simulation.simulate((i, spaceship, earth, mars, sun) -> {
             if(i % ITERATION_STEP == 0) {
@@ -45,8 +49,15 @@ public final class VelocityPerIteration {
         });
         if(collision != null) {
             System.out.println("Velocity before collision: " + simulation.getSpaceship().getVelocityModule());
-            System.out.println("Mars velocity: " + simulation.getMars().getVelocityModule());
-            System.out.println("Relative speed to Mars: " + simulation.getSpaceship().getRelativeVelocityModule(simulation.getMars()));
+            if(RETURN_TRIP) {
+                System.out.println("Earth velocity: " + simulation.getEarth().getVelocityModule());
+            } else {
+                System.out.println("Mars velocity: " + simulation.getMars().getVelocityModule());
+            }
+            System.out.println("Relative speed to "
+                + (RETURN_TRIP ? "Earth :" : "Mars :")
+                + simulation.getSpaceship().getRelativeVelocityModule(RETURN_TRIP ? simulation.getEarth() : simulation.getMars())
+            );
             System.out.println("Total travel: " + totalIterationsPtr[0] * config.dt + " seconds");
         } else {
             System.out.println("No collision :(");
