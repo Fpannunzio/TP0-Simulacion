@@ -1,5 +1,5 @@
 {
-  "dt": 600,
+  "dt": 300,
   "gravitationalConstant": 6.67408e-20,
   "spaceship": {
     "spaceshipMass": 2,

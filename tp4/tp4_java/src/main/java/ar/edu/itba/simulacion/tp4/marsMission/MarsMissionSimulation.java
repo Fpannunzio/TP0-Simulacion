@@ -5,6 +5,7 @@ import java.util.List;
 import ar.edu.itba.simulacion.tp4.MolecularDynamicSolver;
 import lombok.Builder;
 import lombok.Value;
+import lombok.With;
 import lombok.extern.jackson.Jacksonized;
 
 
@@ -69,7 +70,7 @@ public class MarsMissionSimulation {
         final double earthVx    = earth.getVelocityX();
         final double earthVy    = earth.getVelocityY();
 
-        final double earthDistance = Math.hypot(earthX, earthY);
+        final double earthDistance = earth.distanceFrom0();
         final double positionFactor = 1 + (earth.getRadius() + spaceshipParams.spaceStationDistance) / earthDistance; // (1 + d/E)
         final double orbitalVelocity = spaceshipParams.spaceshipInitialVelocity + spaceshipParams.spaceStationOrbitalVelocity;
 
@@ -77,8 +78,8 @@ public class MarsMissionSimulation {
             .withName       ("spaceship")
             .withX          (earthX * positionFactor)
             .withY          (earthY * positionFactor)
-            .withVelocityX  (Math.signum(earthVx) * orbitalVelocity * (earthY / earthDistance) + earthVx)
-            .withVelocityY  (Math.signum(earthVy) * orbitalVelocity * (earthX / earthDistance) + earthVy)
+            .withVelocityX  (Math.signum(earthVx) * orbitalVelocity * (Math.abs(earthY) / earthDistance) + earthVx)
+            .withVelocityY  (Math.signum(earthVy) * orbitalVelocity * (Math.abs(earthX) / earthDistance) + earthVy)
             .withMass       (spaceshipParams.scaledMass())
             .withRadius     (0)
             .build()
@@ -205,13 +206,14 @@ public class MarsMissionSimulation {
             final double    vx, final double    vy);
     }
 
+    @With
     @Value
     @Jacksonized
     @Builder(setterPrefix = "with")
     public static class SpaceshipInitParams {
         public int      spaceshipMass;
         public int      spaceshipMassScale;
-        public int      spaceshipInitialVelocity;
+        public double   spaceshipInitialVelocity;
         public double   spaceStationDistance;
         public double   spaceStationOrbitalVelocity;
 
@@ -219,4 +221,4 @@ public class MarsMissionSimulation {
             return spaceshipMass * Math.pow(10, spaceshipMassScale);
         }
     }
-}   
+}

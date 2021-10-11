@@ -63,7 +63,7 @@ public final class SimulationSettings {
     @Jacksonized
     @Builder(setterPrefix = "with")
     public static class MarsMissionConfig {
-        public double               dt;
+        public int               dt;
         public double               gravitationalConstant;
         public MarsMissionSimulation.SpaceshipInitParams spaceship;
         public CelestialBodyData    sun;
