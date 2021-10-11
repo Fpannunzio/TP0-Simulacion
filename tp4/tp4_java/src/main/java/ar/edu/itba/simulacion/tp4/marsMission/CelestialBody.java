@@ -66,15 +66,24 @@ public class CelestialBody implements XYZWritable {
     }
 
     public double distanceTo(final CelestialBody body) {
-        return distanceTo(body.x, body.y);
+        return distanceTo(body.x, body.y) - radius - body.radius;
     }
 
     public boolean hasCollided(final CelestialBody body) {
-        return distanceTo(body) <= radius + body.radius;
+        return distanceTo(body) <= 0;
     }
 
     public double getVelocityModule() {
         return Math.hypot(velocityX, velocityY);
+    }
+
+    public double getRelativeVelocityModule(final CelestialBody body) {
+        return Math.hypot(velocityX - body.velocityX, velocityY - body.velocityY);
+    }
+
+    public double getKineticEnergy() {
+        final double vMod = getVelocityModule();
+        return 0.5 * mass * vMod * vMod;
     }
 
     @Override
