@@ -90,6 +90,7 @@ public final class XYZAnimation {
             });
 
             System.out.println("Min dist " + minDist[0] + " - Iteration " + iterationPtr[0] + " - Total Iterations: " + totalIterPtr[0]);
+            System.out.println("Launch Date: " + INITIAL_DATE_TIME.plusSeconds(Math.round(INITIAL_ITERATIONS +  config.dt)));
         }
     }
 }
