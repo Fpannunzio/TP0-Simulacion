@@ -1,10 +1,11 @@
 package ar.edu.itba.simulacion.tp4.marsMission;
 
+import static ar.edu.itba.simulacion.tp4.marsMission.SimulationSettings.*;
+import static java.util.concurrent.TimeUnit.*;
+
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -19,26 +20,19 @@ public final class AnalyzeInterval {
         // static
     }
 
-    public static final double  MARS_ORBIT              = 2.2799e8;
-    
-    public static final int  MARS_ORBIT_SECONDS         = 687 * 24 * 60 * 60;
+    public static final boolean     ACCURATE = true;
 
-    public static final double  MAX_MARS_ORBITS         = 0.5;
+    public static final double      MAX_MARS_ORBITS = 0.001;
 
-    public static final int ANALYZER_RESOLUTION_SECONDS = 24 * 60 * 60;     // 1 dia
+    public static final int         ACCURATE_START = 44_496;
 
-    public static final int     INTERVAL_SECONDS        = 5500 * 24 * 60 * 60;  // 5500 dias
+    public static final long        ANALYZER_RESOLUTION_SECONDS = ACCURATE ? MINUTES.toSeconds(5) : HOURS.toSeconds(12);
 
-    public static final double DISTANCE_TOLERANCE = MARS_ORBIT / 1_00;
+    public static final long        INTERVAL_SECONDS = ACCURATE ? DAYS.toSeconds(5) : DAYS.toSeconds(300);
 
-    public static final int MAX_UNCHANGED_MIN_DIST = 100_000;
+    public static final double      DISTANCE_TOLERANCE = MARS_ORBIT / 1_00;
 
-    public static final int INITIAL_TOLERANCE = 100_000;
-
-    public static final LocalDateTime INITIAL_DATE_TIME = LocalDateTime.of(2021, 10, 24, 0, 0, 0);
-
-
-    // public static final int MINIMUM_TOLERATED_ADVANCE = 100;
+    public static final int         MAX_UNCHANGED_MIN_DIST = 100_000;
 
     public static void main(String[] args) throws IOException {
         if(args.length < 1) {
@@ -50,7 +44,7 @@ public final class AnalyzeInterval {
         final MarsMissionConfig config = mapper.readValue(new File(args[0]), MarsMissionConfig.class);
 
         final double dt = config.dt;
-        final SpaceshipInitParams spaceshipParams = config.spaceship;
+        final SpaceshipInitParams spaceshipParams = config.spaceship.withReturnTrip(RETURN_TRIP);
 
         final int maxIntervalIteration  = (int) (INTERVAL_SECONDS / dt) + 1;
         final int maxIterations         = (int) (MAX_MARS_ORBITS * MARS_ORBIT_SECONDS / dt) + 1;
@@ -61,6 +55,10 @@ public final class AnalyzeInterval {
         IterationMarsDistance bestMarsDistance = null;
 
         final MarsMissionSimulation baseSimulation = config.toPlanetSimulation();
+
+        if(ACCURATE) {
+            baseSimulation.simulate((i, spaceship, earth, mars, sun) -> i < ACCURATE_START);
+        }
 
         int currentIter = 0;
         while(currentIter <= maxIntervalIteration) {
@@ -74,25 +72,25 @@ public final class AnalyzeInterval {
             simulation.simulate((i, spaceship, earth, mars, sun) -> {
                 lastIter[0]++;
 
-                double distance = spaceship.distanceTo(mars) - mars.getRadius();
+                double distance = spaceship.distanceTo(RETURN_TRIP ? earth : mars);
                 distance = distance <= 0 ? 0 : distance;
                 if(distance < bestDistancePtr[0]) {
                     bestDistancePtr[0] = distance;
                     unchangedDistIters[0] = 0;
                 } else {
-                    // if(i > INITIAL_TOLERANCE) {
-                    //     return false;
-                    // }
                     unchangedDistIters[0]++;
                 }
 
-                return  i <= maxIterations
-                    &&  unchangedDistIters[0] < MAX_UNCHANGED_MIN_DIST
-                    &&  spaceship.distanceFrom0() <= MARS_ORBIT + mars.getRadius() + DISTANCE_TOLERANCE
+                return  i < maxIterations
+                    &&  RETURN_TRIP
+                    || (
+                            unchangedDistIters[0] < MAX_UNCHANGED_MIN_DIST
+                        &&  spaceship.distanceFrom0() <= MARS_ORBIT + mars.getRadius() + DISTANCE_TOLERANCE
+                    )
                     ;
             });
 
-            final IterationMarsDistance marsDistance = new IterationMarsDistance(currentIter, INITIAL_DATE_TIME.plus(Math.round(currentIter * dt), ChronoUnit.SECONDS).toEpochSecond(ZoneOffset.UTC), bestDistancePtr[0]);
+            final IterationMarsDistance marsDistance = new IterationMarsDistance(currentIter, Math.round(currentIter * dt), bestDistancePtr[0]);
             bestDistances.add(marsDistance);
             if(marsDistance.compareTo(bestMarsDistance) < 0) {
                 bestMarsDistance = marsDistance;
@@ -109,7 +107,13 @@ public final class AnalyzeInterval {
             currentIter += resolution;
         }
 
-        mapper.writeValue(new File("output/analyze_interval.json"), new IntervalAnalysis(bestDistances, bestMarsDistance));
+        final String outputFile = "output/analyze"
+            + (ACCURATE ? "_accurate" : "")
+            + "_interval"
+            + (RETURN_TRIP ? "_return_trip" : "")
+            + ".json"
+            ;
+        mapper.writeValue(new File(outputFile), new IntervalAnalysis(bestDistances, bestMarsDistance));
     }
 
     @Value
@@ -117,6 +121,12 @@ public final class AnalyzeInterval {
         int     startIteration;
         long    startTimeEpoch;
         double  distance;
+
+        public IterationMarsDistance(final int startIteration, final long relativeStartTimeSeconds, final double distance) {
+            this.startIteration = startIteration;
+            this.startTimeEpoch = INITIAL_DATE_TIME.plusSeconds(relativeStartTimeSeconds).toEpochSecond(ZoneOffset.UTC);
+            this.distance = distance;
+        }
 
         @Override
         public int compareTo(final IterationMarsDistance o) {

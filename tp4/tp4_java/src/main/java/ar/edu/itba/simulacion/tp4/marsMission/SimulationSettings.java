@@ -1,7 +1,11 @@
 package ar.edu.itba.simulacion.tp4.marsMission;
 
 import static ar.edu.itba.simulacion.tp4.MolecularDynamicSolver.*;
+import static ar.edu.itba.simulacion.tp4.marsMission.MarsMissionSimulation.*;
 import static ar.edu.itba.simulacion.tp4.marsMission.MarsMissionSimulation.SYSTEM_DIMENSION;
+import static java.util.concurrent.TimeUnit.*;
+
+import java.time.LocalDateTime;
 
 import ar.edu.itba.simulacion.tp4.dynamicSolvers.BeemanSolver;
 import ar.edu.itba.simulacion.tp4.dynamicSolvers.GearSolver;
@@ -15,7 +19,27 @@ public final class SimulationSettings {
         // static
     }
 
-    public static final int GEAR_SOLVER_DEGREE = 5;
+    // Solver Settings
+    public static final int     GEAR_SOLVER_DEGREE = 5;
+
+    // Global Constants
+    public static final LocalDateTime   INITIAL_DATE_TIME   = LocalDateTime.of(2021, 10, 24, 0, 0, 0);
+    public static final double          MARS_ORBIT          = 2.2799e8;
+    public static final long            MARS_ORBIT_SECONDS  = DAYS.toSeconds(687);
+    public static final double          EPSILON             = 1e-5;
+
+    // Collision Information
+    public static final int     COLLISION_ITERATION             = 104_532;
+    public static final int     RETURN_TRIP_COLLISION_ITERATION = 61_920 + 456;
+    public static final int     MAX_COLLISION_TOLERANCE         = 25_000;
+
+    // Set return trip analysis
+    public static final boolean RETURN_TRIP = true;
+    static {
+        if(RETURN_TRIP) {
+            System.out.println("Analysing return trip!");
+        }
+    }
 
     public static VerletSolver verletSolverSupplier(
         final double    dt, final double    mass, final GravitationalForce  force,
@@ -48,13 +72,13 @@ public final class SimulationSettings {
         GEAR    (SimulationSettings::gearSolverSupplier),
         ;
 
-        private final MarsMissionSimulation.SolverSupplier solverSupplier;
+        private final SolverSupplier solverSupplier;
 
-        SolverStrategy(final MarsMissionSimulation.SolverSupplier solverSupplier) {
+        SolverStrategy(final SolverSupplier solverSupplier) {
             this.solverSupplier = solverSupplier;
         }
 
-        public MarsMissionSimulation.SolverSupplier getSolverSupplier() {
+        public SolverSupplier getSolverSupplier() {
             return solverSupplier;
         }
     }
@@ -63,9 +87,9 @@ public final class SimulationSettings {
     @Jacksonized
     @Builder(setterPrefix = "with")
     public static class MarsMissionConfig {
-        public int               dt;
+        public int                  dt;
         public double               gravitationalConstant;
-        public MarsMissionSimulation.SpaceshipInitParams spaceship;
+        public SpaceshipInitParams  spaceship;
         public CelestialBodyData    sun;
         public CelestialBodyData    earth;
         public CelestialBodyData    mars;
@@ -79,7 +103,7 @@ public final class SimulationSettings {
                 .withSun                    (sun.toCelestialBody("sun"))
                 .withMars                   (mars.toCelestialBody("mars"))
                 .withEarth                  (earth.toCelestialBody("earth"))
-                .withSpaceship              (spaceship)
+                .withSpaceship              (spaceship.withReturnTrip(RETURN_TRIP))
                 .withSolverSupplier         (solver.getSolverSupplier())
                 .build()
                 ;

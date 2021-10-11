@@ -1,5 +1,7 @@
 package ar.edu.itba.simulacion.tp4.marsMission;
 
+import static ar.edu.itba.simulacion.tp4.marsMission.SimulationSettings.EPSILON;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -18,8 +20,7 @@ public final class CyclicStateSearch {
     }
 
     public static final int MAX_ITERATIONS_SEC  = 5_500 * 24 * 60 * 60;  // 5480 dias con 20 de changui
-    public static final int OUTPUT_SAMPLE_RATE  = 10 * 24 * 60 * 60;    // 17 dias
-    public static final double EPSILON          = 1e-5;
+    public static final int OUTPUT_SAMPLE_RATE  = 10 * 24 * 60 * 60;    // 10 dias
 
     public static void main(String[] args) throws IOException {
         if(args.length < 1) {
@@ -32,7 +33,7 @@ public final class CyclicStateSearch {
 
         final MarsMissionSimulation simulation = config.toPlanetSimulation();
 
-        final int maxIterations = (int) (MAX_ITERATIONS_SEC / config.dt) + 1;
+        final int maxIterations = (MAX_ITERATIONS_SEC / config.dt) + 1;
 
         final CelestialBody ogEarth = simulation.getEarth();
         final CelestialBody ogMars = simulation.getMars();

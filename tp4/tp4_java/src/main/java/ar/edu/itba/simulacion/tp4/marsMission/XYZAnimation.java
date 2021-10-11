@@ -1,5 +1,8 @@
 package ar.edu.itba.simulacion.tp4.marsMission;
 
+import static ar.edu.itba.simulacion.tp4.marsMission.SimulationSettings.RETURN_TRIP;
+import static ar.edu.itba.simulacion.tp4.marsMission.SimulationSettings.RETURN_TRIP_COLLISION_ITERATION;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -17,9 +20,9 @@ public final class XYZAnimation {
         // static
     }
 
-    public static final int INITIAL_ITERATIONS = 360 * 144 + 215 - 1; //intervalo de inicio + cantidad hasta la mejor iteracion - 1
-    public static final int MAX_ITERATIONS = 1_000_000;
-    public static final int OUTPUT_SAMPLE_RATE = MAX_ITERATIONS / 10_000;
+    public static final int MAX_ITERATIONS      = 1_000_000;
+    public static final int OUTPUT_SAMPLE_RATE  = MAX_ITERATIONS / 10_000;
+    public static final int INITIAL_ITERATIONS  = RETURN_TRIP_COLLISION_ITERATION;
 
     public static void main(String[] args) throws IOException {
         if(args.length < 1) {
@@ -30,9 +33,9 @@ public final class XYZAnimation {
 
         final MarsMissionConfig config = mapper.readValue(new File(args[0]), MarsMissionConfig.class);
 
-        final SpaceshipInitParams spaceshipParams = config.spaceship;
+        final SpaceshipInitParams spaceshipParams = config.spaceship.withReturnTrip(RETURN_TRIP);
 
-        final MarsMissionSimulation baseSimulation = config.toSimulation();
+        final MarsMissionSimulation baseSimulation = config.toPlanetSimulation();
 
         try(final BufferedWriter writer = new BufferedWriter(new FileWriter(config.outputFile))) {
             
@@ -60,9 +63,10 @@ public final class XYZAnimation {
                 List.of(simulation.getSpaceship(), simulation.getEarth(), simulation.getMars(), simulation.getSun())
             );
 
-            String aux;
+            int[] iterationPtr = new int[]{0};
+            double[] minDist = new double[]{Double.POSITIVE_INFINITY};
 
-            aux = simulation.simulate((i, spaceship, earth, mars, sun) -> {
+            simulation.simulate((i, spaceship, earth, mars, sun) -> {
                 // Imprimimos estado
                 if(i % OUTPUT_SAMPLE_RATE == 0) {
                     XYZWritable.xyzWrite(writer, List.of(spaceship, earth, mars, sun));
@@ -71,12 +75,18 @@ public final class XYZAnimation {
                     // Informamos que la simulacion avanza
                     System.out.println("Total states processed so far: " + i);
                 }
-                return i <= MAX_ITERATIONS;
+                final double dist = spaceship.distanceTo(RETURN_TRIP ? earth : mars);
+                if(minDist[0] > dist) {
+                    if(dist <= 0) {
+                        System.out.println("Choque! " + i);
+                    }
+                    minDist[0] = dist;
+                    iterationPtr[0] = i;
+                }
+                return i < MAX_ITERATIONS;
             });
-            
-            if (aux != null){
-                System.out.println(aux);
-            }
+
+            System.out.println("Min dist " + minDist[0] + " - Iteration " + iterationPtr[0]);
         }
     }
 }
