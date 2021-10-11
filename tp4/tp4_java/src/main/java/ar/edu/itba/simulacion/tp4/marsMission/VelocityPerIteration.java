@@ -33,7 +33,7 @@ public final class VelocityPerIteration {
         planetSimulation.simulate((i, spaceship, earth, mars, sun) -> i < COLLISION_ITERATION);
 
         final List<Double> velocities = new LinkedList<>();
-        final MarsMissionSimulation simulation = planetSimulation.buildNewMission(config.spaceship);
+        final MarsMissionSimulation simulation = planetSimulation.buildNewMission(config.spaceship.withReturnTrip(RETURN_TRIP));
 
         final int[] totalIterationsPtr = new int[]{0};
         final String collision = simulation.simulate((i, spaceship, earth, mars, sun) -> {
@@ -48,9 +48,12 @@ public final class VelocityPerIteration {
             System.out.println("Mars velocity: " + simulation.getMars().getVelocityModule());
             System.out.println("Relative speed to Mars: " + simulation.getSpaceship().getRelativeVelocityModule(simulation.getMars()));
             System.out.println("Total travel: " + totalIterationsPtr[0] * config.dt + " seconds");
+        } else {
+            System.out.println("No collision :(");
         }
 
-        mapper.writeValue(new File("output/velocities_by_time.json"), new VelocityPerIterationInfo(ITERATION_STEP * config.dt, velocities));
+        final String outputFile = "output/velocities_by_time" + (RETURN_TRIP ? "_return_trip" : "") + ".json";
+        mapper.writeValue(new File(outputFile), new VelocityPerIterationInfo(ITERATION_STEP * config.dt, velocities));
     }
 
     @Value
