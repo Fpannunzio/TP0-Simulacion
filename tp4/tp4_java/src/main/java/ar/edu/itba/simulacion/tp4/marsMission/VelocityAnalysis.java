@@ -81,7 +81,7 @@ public final class VelocityAnalysis {
         }
 
         final String outputFile = "output/analyze_velocities" + (RETURN_TRIP ? "_return_trip" : "") + ".json";
-        mapper.writeValue(new File(outputFile), new VelocityAnalysisInfo(INITIAL_VELOCITY.doubleValue(), VELOCITY_STEP.doubleValue(), time));
+        mapper.writeValue(new File(outputFile), new VelocityAnalysisInfo(INITIAL_VELOCITY.doubleValue(), VELOCITY_STEP.doubleValue(), time, RETURN_TRIP));
     }
 
     @Value
@@ -89,5 +89,6 @@ public final class VelocityAnalysis {
         double initialVelocity;
         double velocityStep;
         int[] tripDuration;
+        boolean returnTrip;
     }
 }

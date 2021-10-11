@@ -117,7 +117,7 @@ public final class AnalyzeInterval {
             + (RETURN_TRIP ? "_return_trip" : "")
             + ".json"
             ;
-        mapper.writeValue(new File(outputFile), new IntervalAnalysis(bestDistances, bestMarsDistance));
+        mapper.writeValue(new File(outputFile), new IntervalAnalysis(bestDistances, bestMarsDistance, ACCURATE, RETURN_TRIP));
     }
 
     @Value
@@ -142,5 +142,7 @@ public final class AnalyzeInterval {
     public static class IntervalAnalysis {
         List<IterationMarsDistance> distances;
         IterationMarsDistance       bestDistance;
+        boolean                     accurate;
+        boolean                     returnTrip;
     }
 }

@@ -53,12 +53,13 @@ public final class VelocityPerIteration {
         }
 
         final String outputFile = "output/velocities_by_time" + (RETURN_TRIP ? "_return_trip" : "") + ".json";
-        mapper.writeValue(new File(outputFile), new VelocityPerIterationInfo(ITERATION_STEP * config.dt, velocities));
+        mapper.writeValue(new File(outputFile), new VelocityPerIterationInfo(ITERATION_STEP * config.dt, velocities, RETURN_TRIP));
     }
 
     @Value
     public static class VelocityPerIterationInfo {
         int             secondsStep;
         List<Double>    velocities;
+        boolean         returnTrip;
     }
 }
