@@ -9,7 +9,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ar.edu.itba.simulacion.tp4.marsMission.SimulationSettings.MarsMissionConfig;
 
-public class SystemEnergyAnalizer {
+public final class SystemEnergyAnalyzer {
+    private SystemEnergyAnalyzer() {
+        // static
+    }
 
     public static final int MAX_ITERATIONS = 10_000_000;
     public static final int TOTAL_DT_TRIED = 5;
@@ -36,9 +39,8 @@ public class SystemEnergyAnalizer {
                         try {
                             writer.write(config.dt + "," + i + "," + simulation.getSystemEnergy());
                             writer.newLine();
-                        } catch (IOException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
+                        } catch(final IOException e) {
+                            throw new RuntimeException(e);
                         }
 
                     }
@@ -47,7 +49,7 @@ public class SystemEnergyAnalizer {
                         System.out.println("Total states processed so far: " + i);
                     }
 
-                    return i <= MAX_ITERATIONS;
+                    return i < MAX_ITERATIONS;
                 });
                 config.dt *= DT_FACTOR_MULTIPLIER;
             }
