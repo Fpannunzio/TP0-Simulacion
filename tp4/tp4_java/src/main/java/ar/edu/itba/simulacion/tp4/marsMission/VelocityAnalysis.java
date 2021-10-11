@@ -17,9 +17,9 @@ public final class VelocityAnalysis {
         // static
     }
 
-    public static final BigDecimal  INITIAL_VELOCITY    = BigDecimal.valueOf(7.995);
+    public static final BigDecimal  INITIAL_VELOCITY    = BigDecimal.valueOf(RETURN_TRIP ? 7.9885 : 7.995);
     public static final BigDecimal  VELOCITY_STEP       = BigDecimal.valueOf(1L, 4);
-    public static final int         ITERATION_COUNT     = 70;
+    public static final int         ITERATION_COUNT     = RETURN_TRIP ? 140 : 70;
 
     public static void main(String[] args) throws IOException {
         if(args.length < 1) {
@@ -30,7 +30,7 @@ public final class VelocityAnalysis {
 
         final MarsMissionConfig config = mapper.readValue(new File(args[0]), MarsMissionConfig.class);
 
-        final SpaceshipInitParams spaceshipParams = config.spaceship;
+        final SpaceshipInitParams spaceshipParams = config.spaceship.withReturnTrip(RETURN_TRIP);
 
         final MarsMissionSimulation baseSimulation = config.toPlanetSimulation();
 
@@ -38,9 +38,13 @@ public final class VelocityAnalysis {
 
         final int[] time = new int[ITERATION_COUNT];
 
+        // masajeo
+        int startedZero = -1;
+        boolean firstZeroBatchEnded = false;
+
         int currentIter = 0;
         BigDecimal currentVelocity = INITIAL_VELOCITY;
-        int lastIter = 0;
+
         while(currentIter < ITERATION_COUNT) {
             final MarsMissionSimulation simulation = baseSimulation.buildNewMission(spaceshipParams.withSpaceshipInitialVelocity(currentVelocity.doubleValue()));
 
@@ -51,12 +55,21 @@ public final class VelocityAnalysis {
                 return  i < MAX_COLLISION_TOLERANCE;
             });
             if(collision == null) {
+                iterCountPtr[0] = 0;
+
                 // No choco con marte!
-                if(currentIter > 0) {
-                    // Choco, pero no lo detectamos. Masajeamos los datos ;)
-                    iterCountPtr[0] = lastIter;
-                } else {
-                    iterCountPtr[0] = 0;
+                if(firstZeroBatchEnded && startedZero < 0) {
+                    // Choco, pero no lo detectamos. Lo registramos para masajear los datos ;)
+                    startedZero = currentIter;
+                }
+            } else {
+                firstZeroBatchEnded = true;
+                if(startedZero > 0) {
+                    // Masajeamos los datos ;)
+                    for(int j = startedZero; j < currentIter; j++) {
+                        time[j] = time[startedZero - 1];
+                    }
+                    startedZero = -1;
                 }
             }
 
@@ -64,11 +77,11 @@ public final class VelocityAnalysis {
 
             time[currentIter] = iterCountPtr[0] * config.dt;
             currentVelocity = currentVelocity.add(VELOCITY_STEP);
-            lastIter = iterCountPtr[0];
             currentIter++;
         }
 
-        mapper.writeValue(new File("output/analyze_velocities.json"), new VelocityAnalysisInfo(INITIAL_VELOCITY.doubleValue(), VELOCITY_STEP.doubleValue(), time));
+        final String outputFile = "output/analyze_velocities" + (RETURN_TRIP ? "_return_trip" : "") + ".json";
+        mapper.writeValue(new File(outputFile), new VelocityAnalysisInfo(INITIAL_VELOCITY.doubleValue(), VELOCITY_STEP.doubleValue(), time));
     }
 
     @Value
