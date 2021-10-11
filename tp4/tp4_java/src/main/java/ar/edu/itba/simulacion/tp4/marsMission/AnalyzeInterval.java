@@ -23,7 +23,7 @@ public final class AnalyzeInterval {
 
     public static final boolean     ACCURATE = true;
 
-    public static final double      MAX_MARS_ORBITS = 0.001;
+    public static final double      MAX_MARS_ORBITS = 0.5;
 
     public static final int         ACCURATE_START = ACCURATE ? 86_400 : 0;
 
