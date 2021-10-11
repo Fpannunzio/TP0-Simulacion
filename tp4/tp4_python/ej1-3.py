@@ -14,14 +14,16 @@ def main(data_path):
 
     errors = np.array(list(map(lambda r: np.array(r), rounds)))
     
-    factor = 250
-    count = 1_000
+    factor = 1_000
+    count = 100
 
     t = np.linspace(5/factor, 5/(factor*count), count)
     
     fig = plt.figure(figsize=(10, 10))
     ax = fig.add_subplot(1, 1, 1)
     ax.set_yscale('log')
+    ax.grid(which="both")
+    ax.set_xscale('log')
     ax.set_xlabel(r'$d_t$ (s)', size=20)
     ax.set_ylabel(r'Error cuadratico medio ($m^2$)', size=20)
     labels = ['Verlet', 'Beemam', 'Gear']

@@ -13,15 +13,17 @@ def main(data_path):
         rounds: List[List[float]] = json.load(particles_fd)
 
     results = np.array(list(map(lambda r: np.array(r)[:,0], rounds)))
-    t = np.linspace(0, 5, 10_000)
+    t = np.linspace(0, 5, len(results[0]))
     analytic = np.exp(( -100/(2*70)* t)) * np.cos(((1e4/70) - 100**2/(4 * 70**2))**(0.5) * t)
     
     fig = plt.figure(figsize=(10, 10))
     ax = fig.add_subplot(1, 1, 1)
+    ax.set_xlabel(r'$t$ (s)', size=20)
+    ax.set_ylabel(r'r (m)', size=20)
 
-    labels = ['Verlet', 'Beemam', 'Gear']
+    labels = ['Verlet', 'Beemam', 'Gear O(5)']
 
-    ax.plot(t, analytic, label="Analytic")
+    ax.plot(t, analytic, label="Analítica")
     for i in range(len(results)):
         ax.plot(t, results[i], label=labels[i])
         print(f'MSD de {labels[i]}: {np.sum(np.power(analytic - results[i], 2))}')

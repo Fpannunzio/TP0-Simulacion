@@ -22,7 +22,7 @@ public class Ej1 {
         
         final ObjectMapper mapper = new ObjectMapper();
         
-        final int count = 10_000;
+        final int count = (int) (5 * 1e4);
 
         final double[][][] results = new double[3][count][];
         

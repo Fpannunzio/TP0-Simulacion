@@ -1,15 +1,17 @@
 package ar.edu.itba.simulacion.tp4.marsMission;
 
-import static ar.edu.itba.simulacion.tp4.marsMission.MarsMissionSimulation.*;
-import static ar.edu.itba.simulacion.tp4.marsMission.SimulationSettings.*;
-
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.LinkedList;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import ar.edu.itba.simulacion.tp4.marsMission.MarsMissionSimulation.SpaceshipInitParams;
+import ar.edu.itba.simulacion.tp4.marsMission.SimulationSettings.MarsMissionConfig;
 import lombok.Value;
 
 public final class AnalyzeInterval {
@@ -32,6 +34,9 @@ public final class AnalyzeInterval {
     public static final int MAX_UNCHANGED_MIN_DIST = 100_000;
 
     public static final int INITIAL_TOLERANCE = 100_000;
+
+    public static final LocalDateTime INITIAL_DATE_TIME = LocalDateTime.of(2021, 10, 24, 0, 0, 0);
+
 
     // public static final int MINIMUM_TOLERATED_ADVANCE = 100;
 
@@ -87,7 +92,7 @@ public final class AnalyzeInterval {
                     ;
             });
 
-            final IterationMarsDistance marsDistance = new IterationMarsDistance(currentIter, bestDistancePtr[0]);
+            final IterationMarsDistance marsDistance = new IterationMarsDistance(currentIter, INITIAL_DATE_TIME.plus(Math.round(currentIter * dt), ChronoUnit.SECONDS).toEpochSecond(ZoneOffset.UTC), bestDistancePtr[0]);
             bestDistances.add(marsDistance);
             if(marsDistance.compareTo(bestMarsDistance) < 0) {
                 bestMarsDistance = marsDistance;
@@ -110,6 +115,7 @@ public final class AnalyzeInterval {
     @Value
     public static class IterationMarsDistance implements Comparable<IterationMarsDistance> {
         int     startIteration;
+        long    startTimeEpoch;
         double  distance;
 
         @Override

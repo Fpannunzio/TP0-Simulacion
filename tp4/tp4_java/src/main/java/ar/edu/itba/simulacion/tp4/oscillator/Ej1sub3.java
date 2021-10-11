@@ -18,8 +18,8 @@ public class Ej1sub3 {
         
         final ObjectMapper mapper = new ObjectMapper();
         
-        final int simCount = 1_000;
-        final int simStep = 250;
+        final int simCount = 100;
+        final int simStep = 1_000;
 
         final double[][] errores = new double[3][simCount];
         

@@ -2,6 +2,9 @@ package ar.edu.itba.simulacion.tp4.marsMission;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -19,7 +22,7 @@ public class AnalyzeSpecificInterval {
 
     public static final double  MARS_ORBIT              = 2.2799e8;
 
-    public static final double  INITIAL_ITERATIONS      = 360 * 144; //144 intervalos de 10 min tiene un dia
+    public static final int  INITIAL_ITERATIONS      = 360 * 144; //144 intervalos de 10 min tiene un dia
     
     public static final int  MARS_ORBIT_SECONDS         = 687 * 24 * 60 * 60;
 
@@ -35,6 +38,7 @@ public class AnalyzeSpecificInterval {
 
     public static final int INITIAL_TOLERANCE           = 100_000;
 
+    public static final LocalDateTime INITIAL_DATE_TIME = LocalDateTime.of(2021, 10, 24, 0, 0, 0).plus(INITIAL_ITERATIONS * ANALYZER_RESOLUTION_SECONDS, ChronoUnit.SECONDS);
     
     public static void main(String[] args) throws IOException {
         if(args.length < 1) {
@@ -92,7 +96,7 @@ public class AnalyzeSpecificInterval {
                     ;
             });
 
-            final IterationMarsDistance marsDistance = new IterationMarsDistance(currentIter, bestDistancePtr[0]);
+            final IterationMarsDistance marsDistance = new IterationMarsDistance(currentIter, INITIAL_DATE_TIME.plus(Math.round(currentIter * dt), ChronoUnit.SECONDS).toEpochSecond(ZoneOffset.UTC),bestDistancePtr[0]);
             bestDistances.add(marsDistance);
             if(marsDistance.compareTo(bestMarsDistance) < 0) {
                 bestMarsDistance = marsDistance;
