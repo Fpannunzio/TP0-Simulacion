@@ -31,11 +31,6 @@ public final class SimulationSettings {
     public static final long            MARS_ORBIT_SECONDS  = DAYS.toSeconds(687);
     public static final double          EPSILON             = 1e-5;
 
-    // Collision Information
-    public static final int     COLLISION_ITERATION             = 104_532;
-    public static final int     RETURN_TRIP_COLLISION_ITERATION = 61_920 + 456;
-    public static final int     MAX_COLLISION_TOLERANCE         = 25_000;
-
     // Set return trip analysis
     public static final boolean RETURN_TRIP = true;
     static {
@@ -43,6 +38,10 @@ public final class SimulationSettings {
             System.out.println("Analysing return trip!");
         }
     }
+
+    // Collision Information
+    public static final int     COLLISION_ITERATION     = RETURN_TRIP ? 89_263 : 104_532;
+    public static final int     MAX_COLLISION_TOLERANCE = RETURN_TRIP ? 25_000 : 30_000;
 
     public static VerletSolver verletSolverSupplier(
         final double    dt, final double    mass, final GravitationalForce force,

@@ -1,7 +1,6 @@
 package ar.edu.itba.simulacion.tp4.marsMission;
 
-import static ar.edu.itba.simulacion.tp4.marsMission.SimulationSettings.RETURN_TRIP;
-import static ar.edu.itba.simulacion.tp4.marsMission.SimulationSettings.RETURN_TRIP_COLLISION_ITERATION;
+import static ar.edu.itba.simulacion.tp4.marsMission.SimulationSettings.*;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -21,9 +20,9 @@ public final class XYZAnimation {
         // static
     }
 
-    public static final int MAX_ITERATIONS      = 1_000_000;
-    public static final int OUTPUT_SAMPLE_RATE  = MAX_ITERATIONS / 10_000;
-    public static final int INITIAL_ITERATIONS  = RETURN_TRIP_COLLISION_ITERATION;
+    public static final int MAX_ITERATIONS      = MAX_COLLISION_TOLERANCE;
+    public static final int OUTPUT_SAMPLE_RATE  = 100;
+    public static final int INITIAL_ITERATIONS  = COLLISION_ITERATION;
 
     public static void main(String[] args) throws IOException {
         if(args.length < 1) {
@@ -64,8 +63,9 @@ public final class XYZAnimation {
                 List.of(simulation.getSpaceship(), simulation.getEarth(), simulation.getMars(), simulation.getSun())
             );
 
-            int[] iterationPtr = new int[]{0};
-            double[] minDist = new double[]{Double.POSITIVE_INFINITY};
+            final int[] iterationPtr = new int[]{0};
+            final double[] minDist = new double[]{Double.POSITIVE_INFINITY};
+            final int[] totalIterPtr = new int[] {0};
 
             simulation.simulate((i, spaceship, earth, mars, sun) -> {
                 // Imprimimos estado
@@ -84,10 +84,12 @@ public final class XYZAnimation {
                     minDist[0] = dist;
                     iterationPtr[0] = i;
                 }
+
+                totalIterPtr[0]++;
                 return i < MAX_ITERATIONS;
             });
 
-            System.out.println("Min dist " + minDist[0] + " - Iteration " + iterationPtr[0]);
+            System.out.println("Min dist " + minDist[0] + " - Iteration " + iterationPtr[0] + " - Total Iterations: " + totalIterPtr[0]);
         }
     }
 }
