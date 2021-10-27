@@ -27,6 +27,7 @@
         <module>tp2/tp2_java</module>
         <module>tp3/tp3_java</module>
         <module>tp4/tp4_java</module>
+        <module>tp5/tp5_java</module>
     </modules>
 
     <dependencyManagement>
