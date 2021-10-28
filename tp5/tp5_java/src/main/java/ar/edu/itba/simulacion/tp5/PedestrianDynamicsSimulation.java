@@ -132,7 +132,7 @@ public class PedestrianDynamicsSimulation {
             // borde inferior
 
             // Tenemos en cuenta los casos especiales de colision con puerta
-            if(x <= exitLeft && x >= exitRight) {
+            if(x <= exitLeft || x >= exitRight) {
                 // Centro afuera de puerta -> Colision normal
                 escapeY += 1;
             } else if(x - r <= exitLeft) {
