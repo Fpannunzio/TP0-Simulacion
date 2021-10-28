@@ -189,9 +189,10 @@ public class PedestrianDynamicsSimulation {
             final double newVMod = desiredVelocity * Math.pow((newR - minRadius) / radiusRange, beta);
             final double targetDirX = calculateTargetX(particle) - x;
             final double targetDirY = -y;
+            final double targetDirMod = Math.hypot(targetDirX, targetDirY);
 
-            newVx = newVMod * targetDirX;
-            newVy = newVMod * targetDirY;
+            newVx = newVMod * (targetDirX / targetDirMod);
+            newVy = newVMod * (targetDirY / targetDirMod);
         } else {
             // Colision
             final double escapeMod = Math.hypot(escapeX, escapeY);
