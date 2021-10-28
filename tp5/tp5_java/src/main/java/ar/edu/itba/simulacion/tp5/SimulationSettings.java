@@ -11,7 +11,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
 
-public class SimulationSettings {
+public final class SimulationSettings {
     private SimulationSettings() {
         // static
     }
@@ -27,6 +27,9 @@ public class SimulationSettings {
         public final double maxRadius;
         public final double desiredVelocity;
         public final double escapeVelocity;
+
+        @Builder.Default
+        public       int   iterations = 100_000;
         @Builder.Default
         public       long   seed = ThreadLocalRandom.current().nextLong();
 
