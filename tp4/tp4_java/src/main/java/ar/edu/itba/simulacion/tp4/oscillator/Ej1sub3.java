@@ -20,14 +20,18 @@ public final class Ej1sub3 {
     public static final int     simStep     = 1_000;
     public static final double  tf          = 5;
     
+    public static final double[]  dts = new double[]{1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8};
+    public static final int[]  counts = new int[]{(int) 5e1, (int) 5e2, (int) 5e3, (int) 5e4, (int) 5e5, (int) 5e6, (int) 5e7, (int) 5e8};
     public static void main(String[] args) throws IOException {
         final ObjectMapper mapper = new ObjectMapper();
 
         final double[][] errores = new double[3][simCount];
         
-        for(int sim = 1; sim <= simCount; sim++) {
-            final int count = sim * simStep;
-            final double dt = tf / count;
+        for(int sim = 1; sim <= counts.length; sim++) {
+            final int count = counts[sim - 1];
+            final double dt = dts[sim - 1];
+
+            System.out.println("dt: " + dt);
 
             final VerletSolver vSolver    = getVerletSolver(dt);
             final BeemanSolver bSolver    = getBeemanSolver(dt);

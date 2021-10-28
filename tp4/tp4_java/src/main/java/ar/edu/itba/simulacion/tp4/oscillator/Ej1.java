@@ -17,9 +17,9 @@ public final class Ej1 {
         // static
     }
 
-    public static final int     count   = (int) (5 * 1e4);
+    public static final int     count   = (int) (5e4);
     public static final double  tf      = 5;
-    public static final double  dt      = tf / count;
+    public static final double  dt      = 1e-4;
 
     public static void main(String[] args) throws IOException {
         final ObjectMapper mapper = new ObjectMapper();
@@ -31,10 +31,6 @@ public final class Ej1 {
         final GearSolver    gSolver    = getGearSolver(dt);
 
         for (int i = 0; i < count; i++) {
-            if(i % (count/10) == 0) {
-                System.out.println("1_000");
-            }
-
             results[0][i] = vSolver.oneAxisNextStep().r;
             results[1][i] = bSolver.oneAxisNextStep().r;
             results[2][i] = gSolver.oneAxisNextStep().r;

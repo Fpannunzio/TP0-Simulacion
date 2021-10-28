@@ -11,27 +11,27 @@ from matplotlib import cm
 
 @dataclass
 @from_dict
-class Round:
-    lastThirdVelocities:            List[float]
-    initialVelocities:              List[float]
-    particleCount:                  int
+class IntervalAnalysis:
+    distances:              List[IterationMarsDistance]
+    bestDistance:           IterationMarsDistance
 
 @dataclass
 @from_dict
-class RoundSummary:
-    roundsList:                     List[List[Round]]
+class IterationMarsDistance:
+    startIteration:     int
+    distance:           float
 
     
 def parse_state(data: Dict[str, Any]) -> Union[Collision, SimulationState, Particle]:
-    if 'roundsList' in data:
-        return RoundSummary.from_dict(data)
-    elif 'lastThirdVelocities' in data:
-        return Round.from_dict(data)
+    if 'startIteration' in data:
+        return IterationMarsDistance.from_dict(data)
+    elif 'distances' in data:
+        return IntervalAnalysis.from_dict(data)
 
 
 def main(data_path):
     with open(data_path, 'r') as particles_fd:
-        states: RoundSummary = json.load(particles_fd, object_hook=parse_state)
+        states: IntervalAnalysis = json.load(particles_fd, object_hook=parse_state)
 
     lastThirdValues = list(map(lambda state: np.array(list(map(lambda r: r.lastThirdVelocities, state))), states.roundsList))
     initialVelocities = list(map(lambda state: np.array(list(map(lambda r: r.initialVelocities, state))), states.roundsList))

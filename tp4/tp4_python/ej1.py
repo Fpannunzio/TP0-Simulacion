@@ -5,6 +5,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from typing import Any, Dict, List, Union
 from matplotlib import cm
+from formater import MathTextSciFormatter
 
 
 
@@ -18,16 +19,21 @@ def main(data_path):
     
     fig = plt.figure(figsize=(10, 10))
     ax = fig.add_subplot(1, 1, 1)
+
+    ax.xaxis.set_major_formatter(MathTextSciFormatter("%1.3e"))
+    ax.yaxis.set_major_formatter(MathTextSciFormatter("%1.4e"))
+    ax.tick_params(labelsize=16)
+
     ax.set_xlabel(r'$t$ (s)', size=20)
     ax.set_ylabel(r'r (m)', size=20)
 
     labels = ['Verlet', 'Beemam', 'Gear O(5)']
 
-    ax.plot(t, analytic, label="Analítica")
     for i in range(len(results)):
         ax.plot(t, results[i], label=labels[i])
-        print(f'MSD de {labels[i]}: {np.sum(np.power(analytic - results[i], 2))}')
+        print(f'MSD de {labels[i]}: {(np.square(analytic - results[i])).mean()} ')
 
+    ax.plot(t, analytic, label="Analítica")
     plt.legend(fontsize=14)
     plt.show()
 

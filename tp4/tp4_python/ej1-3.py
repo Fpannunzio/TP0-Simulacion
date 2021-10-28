@@ -17,7 +17,7 @@ def main(data_path):
     factor = 1_000
     count = 100
 
-    t = np.linspace(5/factor, 5/(factor*count), count)
+    t = [1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8]
     
     fig = plt.figure(figsize=(10, 10))
     ax = fig.add_subplot(1, 1, 1)
@@ -29,8 +29,11 @@ def main(data_path):
     labels = ['Verlet', 'Beemam', 'Gear']
 
     for i in range(len(errors)):
-        ax.plot(t, errors[i], label=labels[i])
+        ax.plot(t[1:], errors[i][1:len(t)], label=labels[i], marker='o')
 
+    # ax.xaxis.set_major_formatter(MathTextSciFormatter("%1.3e"))
+    # ax.yaxis.set_major_formatter(MathTextSciFormatter("%1.4e"))
+    ax.tick_params(labelsize=16)
     plt.legend(fontsize=14)
     plt.show()
 
