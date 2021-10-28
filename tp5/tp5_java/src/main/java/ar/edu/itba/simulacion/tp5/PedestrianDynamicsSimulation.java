@@ -3,10 +3,12 @@ package ar.edu.itba.simulacion.tp5;
 import static ar.edu.itba.simulacion.particle.neighbours.CellIndexMethod.optimalM;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import ar.edu.itba.simulacion.particle.Particle2D;
 import ar.edu.itba.simulacion.particle.neighbours.CellIndexMethod;
@@ -86,34 +88,72 @@ public class PedestrianDynamicsSimulation {
 
     public void simulate(final List<Particle2D> initialState, final SimulationStateNotifier notifier) {
         int iteration = 0;
-        List<Particle2D> currentState = initialState;
+        List<Particle2D> lockedParticles    = initialState;
+        List<Particle2D> escapedParticles   = List.of();
 
-        while(notifier.notify(iteration, currentState)) {
+        while(notifier.notify(iteration, lockedParticles, escapedParticles)) {
+            final List<Particle2D> locked    = new ArrayList<>(initialState.size());
+            final List<Particle2D> escaped   = new LinkedList<>();
 
-            currentState = calculateNextState(currentState);
+            calculateNextState(lockedParticles, locked::add, escaped::add);
+
+            lockedParticles  = locked;
+            escapedParticles = escaped;
             iteration++;
         }
     }
 
-    public List<Particle2D> calculateNextState(final List<Particle2D> lastState) {
-        final List<Particle2D> currentState = new ArrayList<>(lastState.size());
-
+    public void calculateNextState(final List<Particle2D> lastState, final Consumer<Particle2D> lockedConsumer, final Consumer<Particle2D> escapedConsumer) {
         final Map<Integer, Set<Particle2D>> neighbours = cim.calculateNeighbours(lastState);
 
-        for(final Particle2D particle2d : lastState) {
-            currentState.add(advanceParticle(particle2d, neighbours.get(particle2d.getId())));
+        for(final Particle2D particle : lastState) {
+            advanceParticle(particle, neighbours.get(particle.getId()), lockedConsumer, escapedConsumer);
         }
-
-        return currentState;
     }
 
-    public Particle2D advanceParticle(final Particle2D particle, final Set<Particle2D> neighbours) {
+    private void advanceParticle(final Particle2D particle, final Set<Particle2D> neighbours, final Consumer<Particle2D> lockedConsumer, final Consumer<Particle2D> escapedConsumer) {
         final double x = particle.getX();
         final double y = particle.getY();
         final double r = particle.getRadius();
 
         double escapeX = 0;
         double escapeY = 0;
+
+        // Verificamos choques con bordes
+        if(x - r <= 0) {
+            // borde izquierdo
+            escapeX += 1;
+        } else if(x + r >= spaceWidth) {
+            // borde derecho
+            escapeX -= 1;
+        }
+        if(y + r >= spaceWidth) {
+            // borde superior
+            escapeY -= 1;
+        } else if(y - r <= 0) {
+            // borde inferior
+
+            // Tenemos en cuenta los casos especiales de colision con puerta
+            if(x <= exitLeft && x >= exitRight) {
+                // Centro afuera de puerta -> Colision normal
+                escapeY += 1;
+            } else if(x - r <= exitLeft) {
+                // Particula colisiona con borde izquierdo de puerta
+                final double diffX = x - exitLeft;
+                final double distance = Math.hypot(diffX, y);
+
+                escapeX += diffX / distance;
+                escapeY += y / distance;
+            } else if(x + r >= exitRight) {
+                // Particula colisiona con borde derecho de puerta
+                final double diffX = x - exitRight;
+                final double distance = Math.hypot(diffX, y);
+
+                escapeX += diffX / distance;
+                escapeY += y / distance;
+            }
+            // Sino, la particula esta completamente dentro de puerta -> No hay colision
+        }
 
         // Verificamos choques con vecinos
         for(final Particle2D neighbour : neighbours) {
@@ -126,22 +166,6 @@ public class PedestrianDynamicsSimulation {
                 escapeX += diffX / distance;
                 escapeY += diffY / distance;
             }
-        }
-
-        // Verificamos choques con bordes
-        if(x - r <= 0) {
-            // borde izquierdo
-            escapeX += 1;
-        } else if(x + r >= spaceWidth) {
-            // borde derecho
-            escapeX -= 1;
-        }
-        if(y - r <= 0) {
-            // borde inferior
-            escapeY += 1;
-        } else if(y + r >= spaceWidth) {
-            // borde superior
-            escapeY -= 1;
         }
 
         final double newVx;
@@ -165,7 +189,14 @@ public class PedestrianDynamicsSimulation {
             newR    = minRadius;
         }
 
-        return particle.moveCartesian(dt, newVx, newVy, newR);
+        final Particle2D ret = particle.moveCartesian(dt, newVx, newVy, newR);
+        if(ret.getY() <= 0) {
+            // La particula escapo
+            escapedConsumer.accept(ret);
+        } else {
+            // La particula sigue encerrada
+            lockedConsumer.accept(ret);
+        }
     }
 
     private double calculateTargetX(final Particle2D particle) {
@@ -187,6 +218,7 @@ public class PedestrianDynamicsSimulation {
     public interface SimulationStateNotifier {
         boolean notify(
             final int               iteration,
-            final List<Particle2D>  state);
+            final List<Particle2D>  state,
+            final List<Particle2D>  escapedParticles);
     }
 }

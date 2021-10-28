@@ -41,9 +41,9 @@ public class XYZAnimation {
         System.out.println("Seed: " + simulation.getSeed());
 
         try(final BufferedWriter writer = new BufferedWriter(new FileWriter(config.outputFile))) {
-            simulation.simulate(initialState, (i, state) -> {
+            simulation.simulate(initialState, (i, locked, escaped) -> {
                 if(i % OUTPUT_SAMPLE_RATE == 0) {
-                    XYZWritable.xyzWrite(writer, state);
+                    XYZWritable.xyzWrite(writer, locked);
                 }
 
                 return i < MAX_ITERATIONS;
