@@ -21,8 +21,7 @@ public class SimulationSettings {
     public static class PedestrianDynamicsConfig {
         public final double tau;
         public final double beta;
-        public final double exitLeft;
-        public final double exitRight;
+        public final double exitDistance;
         public final double minRadius;
         public final double maxRadius;
         public final double desiredVelocity;
@@ -41,8 +40,8 @@ public class SimulationSettings {
             return PedestrianDynamicsSimulation.builder()
                 .withTau            (tau)
                 .withBeta           (beta)
-                .withExitLeft       (exitLeft)
-                .withExitRight      (exitRight)
+                .withExitLeft       (particleGeneration.spaceWidth/2 - exitDistance/2)
+                .withExitRight      (particleGeneration.spaceWidth/2 + exitDistance/2)
                 .withMinRadius      (minRadius)
                 .withMaxRadius      (maxRadius)
                 .withDesiredVelocity(desiredVelocity)
