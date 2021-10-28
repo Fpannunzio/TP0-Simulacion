@@ -1,27 +1,184 @@
 package ar.edu.itba.simulacion.tp5;
 
+import static ar.edu.itba.simulacion.particle.neighbours.CellIndexMethod.optimalM;
+
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 
 import ar.edu.itba.simulacion.particle.Particle2D;
+import ar.edu.itba.simulacion.particle.neighbours.CellIndexMethod;
+import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.Data;
+import lombok.Getter;
 
+@Data
 public class PedestrianDynamicsSimulation {
 
+    // Configuration
+    private final double            tau;
+    private final double            beta;
+    private final double            exitLeft;
+    private final double            exitRight;
+    private final double            minRadius;
+    private final double            maxRadius;
+    private final double            desiredVelocity;
+    private final double            escapeVelocity;
+    private final double            spaceWidth;
+    private final long              seed;
+
+    // Derived Configuration
+    private final double            dt;
+
+    // Internal Configuration
+    @Getter(AccessLevel.NONE) private final Random            randomGen;
+    @Getter(AccessLevel.NONE) private final CellIndexMethod   cim;
+
+    // Cached derived properties
+    @Getter(AccessLevel.NONE) private final double  dr;
+    @Getter(AccessLevel.NONE) private final double  leftTargetLimit;
+    @Getter(AccessLevel.NONE) private final double  rightTargetLimit;
+    @Getter(AccessLevel.NONE) private final double  radiusRange;
+
+    // Variable State
+    private       int               iteration;
+    private       List<Particle2D>  lastState;
+
     @Builder(setterPrefix = "with")
-    public PedestrianDynamicsSimulation() {
-        // TODO:
+    public PedestrianDynamicsSimulation(
+        final double            tau,
+        final double            beta,
+        final double            exitLeft,
+        final double            exitRight,
+        final double            minRadius,
+        final double            maxRadius,
+        final double            desiredVelocity,
+        final double            escapeVelocity,
+        final double            spaceWidth,
+        final long              seed) {
+
+        this.tau                = tau;
+        this.beta               = beta;
+        this.exitLeft           = exitLeft;
+        this.exitRight          = exitRight;
+        this.minRadius          = minRadius;
+        this.maxRadius          = maxRadius;
+        this.spaceWidth         = spaceWidth;
+        this.desiredVelocity    = desiredVelocity;
+        this.escapeVelocity     = escapeVelocity;
+        this.seed               = seed;
+
+        this.dt                 = minRadius / (2 * Math.max(desiredVelocity, escapeVelocity));
+
+        this.randomGen          = new Random(this.seed);
+        this.cim                = new CellIndexMethod(optimalM(spaceWidth, maxRadius, maxRadius), spaceWidth, maxRadius, false);
+
+        final double exitLength = exitRight - exitLeft;
+
+        this.dr                 = maxRadius * dt / tau;
+        this.leftTargetLimit    = exitLeft + 0.2 * exitLength;
+        this.rightTargetLimit   = exitRight + 0.8 * exitLength;
+        this.radiusRange        = maxRadius - minRadius;
     }
 
-    public void simulate(final SimulationStateNotifier notifier) {
+    public void simulate(final List<Particle2D> initialState, final SimulationStateNotifier notifier) {
         int iteration = 0;
-        List<Particle2D> currentState = List.of(); // TODO: Calcular current state
+        List<Particle2D> currentState = initialState;
 
         while(notifier.notify(iteration, currentState)) {
-            // TODO: Calcular current state
-            currentState = List.of();
 
+            currentState = calculateNextState(currentState);
             iteration++;
         }
+    }
+
+    public List<Particle2D> calculateNextState(final List<Particle2D> lastState) {
+        final List<Particle2D> currentState = new ArrayList<>(lastState.size());
+
+        final Map<Integer, Set<Particle2D>> neighbours = cim.calculateNeighbours(lastState);
+
+        for(final Particle2D particle2d : lastState) {
+            currentState.add(advanceParticle(particle2d, neighbours.get(particle2d.getId())));
+        }
+
+        return currentState;
+    }
+
+    public Particle2D advanceParticle(final Particle2D particle, final Set<Particle2D> neighbours) {
+        final double x = particle.getX();
+        final double y = particle.getY();
+        final double r = particle.getRadius();
+
+        double escapeX = 0;
+        double escapeY = 0;
+
+        // Verificamos choques con vecinos
+        for(final Particle2D neighbour : neighbours) {
+            final double diffX      = x - neighbour.getX();
+            final double diffY      = y - neighbour.getY();
+            final double distance   = Math.hypot(diffX, diffY);
+
+            if(distance - r - neighbour.getRadius() <= 0) {
+                // Si colisionaron, ponderamos el vector escape con el resto
+                escapeX += diffX / distance;
+                escapeY += diffY / distance;
+            }
+        }
+
+        // Verificamos choques con bordes
+        if(x - r <= 0) {
+            // borde izquierdo
+            escapeX += 1;
+        } else if(x + r >= spaceWidth) {
+            // borde derecho
+            escapeX -= 1;
+        }
+        if(y - r <= 0) {
+            // borde inferior
+            escapeY += 1;
+        } else if(y + r >= spaceWidth) {
+            // borde superior
+            escapeY -= 1;
+        }
+
+        final double newVx;
+        final double newVy;
+        final double newR;
+        if(escapeX == 0 && escapeY == 0) {
+            // No hay colision
+            newR = Math.min(maxRadius, r + dr);
+
+            final double newVMod = desiredVelocity * Math.pow((newR - minRadius) / radiusRange, beta);
+            final double targetDirX = calculateTargetX(particle) - x;
+            final double targetDirY = -y;
+
+            newVx = newVMod * targetDirX;
+            newVy = newVMod * targetDirY;
+        } else {
+            // Colision
+            final double escapeMod = Math.hypot(escapeX, escapeY);
+            newVx   = escapeVelocity * (escapeX / escapeMod);
+            newVy   = escapeVelocity * (escapeY / escapeMod);
+            newR    = minRadius;
+        }
+
+        return particle.moveCartesian(dt, newVx, newVy, newR);
+    }
+
+    private double calculateTargetX(final Particle2D particle) {
+        final double x = particle.getX();
+
+        return x < leftTargetLimit || x > rightTargetLimit
+            ? randomDoubleInInterval(randomGen, leftTargetLimit, rightTargetLimit)
+            : x
+            ;
+    }
+
+    private static double randomDoubleInInterval(final Random randomGen, final double min, final double max) {
+        return min + randomGen.nextDouble() * (max - min);
     }
 
     /* ----------------------------------------- Clases Auxiliares ----------------------------------------------- */

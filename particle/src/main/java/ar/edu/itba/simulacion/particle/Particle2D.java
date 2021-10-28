@@ -197,6 +197,19 @@ public class Particle2D implements XYZWritable {
             ;
     }
 
+    public Particle2D moveCartesian(final double time, final double velocityX, final double velocityY, final double radius) {
+        return Particle2D.builder()
+            .withId         (id)
+            .withX          (getNextX(time))
+            .withY          (getNextY(time))
+            .withVelocityX  (velocityX)
+            .withVelocityY  (velocityY)
+            .withMass       (mass)
+            .withRadius     (radius)
+            .build()
+            ;
+    }
+
     @Override
     public void xyzWrite(Writer writer) throws IOException {
         writer.write(
