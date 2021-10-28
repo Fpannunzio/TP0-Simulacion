@@ -18,7 +18,7 @@ public final class XYZAnimation {
         // static
     }
 
-    public static final int OUTPUT_SAMPLE_RATE  = 100;
+    public static final int OUTPUT_SAMPLE_RATE  = 1;
 
     public static void main(final String[] args) throws IOException {
         if(args.length < 1) {
