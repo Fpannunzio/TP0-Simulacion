@@ -108,7 +108,7 @@ public class PedestrianDynamicsSimulation {
             locked.add(dummyParticle(-2, exitLeft));
             locked.add(dummyParticle(-1, exitRight));
 
-            calculateNextState(lockedParticles.subList(2, lockedParticles.size()), locked::add, escaped::add);
+            calculateNextState(lockedParticles.subList(iteration > 0 ? 2 : 0, lockedParticles.size()), locked::add, escaped::add);
 
             lockedParticles  = locked;
             escapedParticles = escaped;
