@@ -19,6 +19,14 @@ public final class SimulationSettings {
     @Data
     @Jacksonized
     @Builder(setterPrefix = "with")
+    public static class EscapesByTime {
+        public final double time;
+        public final long   escapeCount;
+    }
+
+    @Data
+    @Jacksonized
+    @Builder(setterPrefix = "with")
     public static class PedestrianDynamicsConfig {
         public final double tau;
         public final double beta;
@@ -53,6 +61,22 @@ public final class SimulationSettings {
                 .withRandomGen      (new Random(seed))
                 .build()
                 ;
+        }
+    }
+
+    @Data
+    @Jacksonized
+    @Builder(setterPrefix = "with")
+    public static class MultiRunPedestrianDynamicsConfig {
+        public final int                        runCount;
+        public final PedestrianDynamicsConfig   baseConfig;
+
+        public List<Particle2D> generateInitialState() {
+            return ParticleGeneration.particleGenerator(baseConfig.particleGeneration);
+        }
+
+        public PedestrianDynamicsSimulation toSimulation() {
+            return baseConfig.toSimulation();
         }
     }
 }
