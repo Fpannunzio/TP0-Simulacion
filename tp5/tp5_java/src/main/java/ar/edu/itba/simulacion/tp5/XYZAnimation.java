@@ -30,6 +30,9 @@ public class XYZAnimation {
 
         final PedestrianDynamicsConfig config = mapper.readValue(new File(args[0]), PedestrianDynamicsConfig.class);
 
+        System.out.println("Particle Generation Seed: " + config.particleGeneration.seed);
+        System.out.println("Simulation Seed: " + config.seed);
+
         // TODO(tobi): La generacion de particulas tiene que recibir la seed
         final List<Particle2D> initialState = config.generateInitialState();
         if(initialState.isEmpty()) {
@@ -37,8 +40,6 @@ public class XYZAnimation {
         }
 
         final PedestrianDynamicsSimulation simulation = config.toSimulation();
-
-        System.out.println("Seed: " + simulation.getSeed());
 
         try(final BufferedWriter writer = new BufferedWriter(new FileWriter(config.outputFile))) {
             simulation.simulate(initialState, (i, locked, escaped) -> {

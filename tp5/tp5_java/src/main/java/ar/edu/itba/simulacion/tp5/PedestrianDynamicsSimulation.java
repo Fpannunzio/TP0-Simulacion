@@ -1,5 +1,6 @@
 package ar.edu.itba.simulacion.tp5;
 
+import static ar.edu.itba.simulacion.particle.ParticleUtils.randDouble;
 import static ar.edu.itba.simulacion.particle.neighbours.CellIndexMethod.optimalM;
 
 import java.util.ArrayList;
@@ -29,7 +30,6 @@ public class PedestrianDynamicsSimulation {
     private final double    desiredVelocity;
     private final double    escapeVelocity;
     private final double    spaceWidth;
-    private final long      seed;
 
     // Derived Configuration
     private final double    dt;
@@ -60,7 +60,7 @@ public class PedestrianDynamicsSimulation {
         final double    desiredVelocity,
         final double    escapeVelocity,
         final double    spaceWidth,
-        final long      seed) {
+        final Random    randomGen) {
 
         this.tau                = tau;
         this.beta               = beta;
@@ -70,13 +70,12 @@ public class PedestrianDynamicsSimulation {
         this.spaceWidth         = spaceWidth;
         this.desiredVelocity    = desiredVelocity;
         this.escapeVelocity     = escapeVelocity;
-        this.seed               = seed;
 
         this.dt                 = minRadius / (2 * Math.max(desiredVelocity, escapeVelocity));
         this.exitLeft           = spaceWidth/2 - exitLength /2;
         this.exitRight          = spaceWidth/2 + exitLength /2;
 
-        this.randomGen          = new Random(this.seed);
+        this.randomGen          = randomGen;
         this.cim                = new CellIndexMethod(optimalM(spaceWidth, maxRadius, maxRadius), spaceWidth, maxRadius, false);
 
         this.dr                 = maxRadius * dt / tau;
@@ -202,13 +201,9 @@ public class PedestrianDynamicsSimulation {
         final double x = particle.getX();
 
         return x < leftTargetLimit || x > rightTargetLimit
-            ? randomDoubleInInterval(randomGen, leftTargetLimit, rightTargetLimit)
+            ? randDouble(randomGen, leftTargetLimit, rightTargetLimit)
             : x
             ;
-    }
-
-    private static double randomDoubleInInterval(final Random randomGen, final double min, final double max) {
-        return min + randomGen.nextDouble() * (max - min);
     }
 
     /* ----------------------------------------- Clases Auxiliares ----------------------------------------------- */

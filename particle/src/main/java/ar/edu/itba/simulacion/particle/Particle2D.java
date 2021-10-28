@@ -1,5 +1,7 @@
 package ar.edu.itba.simulacion.particle;
 
+import static ar.edu.itba.simulacion.particle.ParticleUtils.randDouble;
+
 import ar.edu.itba.simulacion.particle.marshalling.XYZWritable;
 import lombok.Builder;
 import lombok.Value;
@@ -8,7 +10,7 @@ import lombok.extern.jackson.Jacksonized;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Collection;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.Random;
 
 @Value
 @Jacksonized
@@ -28,22 +30,21 @@ public class Particle2D implements XYZWritable {
     double  radius;
 
     public static Particle2D randomParticle(
-        final int id,
+        final Random randGen,       final int    id,
         final double minX,          final double maxX,
         final double minY,          final double maxY,
         final double minVelocity,   final double maxVelocity,
         final double minMass,       final double maxMass,
         final double minRadius,     final double maxRadius
     ) {
-        final ThreadLocalRandom rand = ThreadLocalRandom.current();
         return Particle2D.builder()
             .withId         (id)
-            .withX          (minX < maxX ? rand.nextDouble(minX, maxX) : minX)
-            .withY          (minY < maxY ? rand.nextDouble(minY, maxY) : minY)
-            .withVelocityMod(minVelocity < maxVelocity ? rand.nextDouble(minVelocity, maxVelocity) : minVelocity)
-            .withVelocityDir(rand.nextDouble(-Math.PI, Math.PI))
-            .withMass       (minMass < maxMass ? rand.nextDouble(minMass, maxMass) : minMass)
-            .withRadius     (minRadius < maxRadius ? rand.nextDouble(minRadius, maxRadius) : minRadius)
+            .withX          (minX < maxX ? randDouble(randGen, minX, maxX) : minX)
+            .withY          (minY < maxY ? randDouble(randGen, minY, maxY) : minY)
+            .withVelocityMod(minVelocity < maxVelocity ? randDouble(randGen, minVelocity, maxVelocity) : minVelocity)
+            .withVelocityDir(randDouble(randGen, -Math.PI, Math.PI))
+            .withMass       (minMass < maxMass ? randDouble(randGen, minMass, maxMass) : minMass)
+            .withRadius     (minRadius < maxRadius ? randDouble(randGen, minRadius, maxRadius) : minRadius)
             .build()
             ;
     }

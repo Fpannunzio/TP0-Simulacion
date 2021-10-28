@@ -1,6 +1,7 @@
 package ar.edu.itba.simulacion.tp5;
 
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 import ar.edu.itba.simulacion.particle.Particle2D;
@@ -27,7 +28,7 @@ public class SimulationSettings {
         public final double desiredVelocity;
         public final double escapeVelocity;
         @Builder.Default
-        public Long   seed = ThreadLocalRandom.current().nextLong();
+        public       long   seed = ThreadLocalRandom.current().nextLong();
 
         public final ParticleGenerationConfig particleGeneration;
         public final String outputFile;
@@ -46,7 +47,7 @@ public class SimulationSettings {
                 .withDesiredVelocity(desiredVelocity)
                 .withEscapeVelocity (escapeVelocity)
                 .withSpaceWidth     (particleGeneration.spaceWidth)
-                .withSeed           (seed)
+                .withRandomGen      (new Random(seed))
                 .build()
                 ;
         }

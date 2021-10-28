@@ -11,10 +11,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 public final class ParticleGeneration {
-
     private ParticleGeneration() {
         // Static class
     }
@@ -59,13 +60,14 @@ public final class ParticleGeneration {
 
         for(final ParticleGenerationConfig config : configs) {
             generateAdditionalParticles(
-                particles,          config.particleCount,
-                config.spaceWidth,  config.periodicBorder,
-                config.minX,        config.maxX,
-                config.minY,        config.maxY,
-                config.minVelocity, config.maxVelocity,
-                config.minMass,     config.maxMass,
-                config.minRadius,   config.maxRadius
+                particles,
+                new Random(config.seed),config.particleCount,
+                config.spaceWidth,      config.periodicBorder,
+                config.minX,            config.maxX,
+                config.minY,            config.maxY,
+                config.minVelocity,     config.maxVelocity,
+                config.minMass,         config.maxMass,
+                config.minRadius,       config.maxRadius
             );
         }
 
@@ -73,13 +75,14 @@ public final class ParticleGeneration {
     }
 
     public static void generateAdditionalParticles(
-        final List<Particle2D> existingParticles,   final int additionalParticlesCount,
-        final double spaceWidth,                    final boolean periodicBorder,
-        final double minX,                          final double maxX,
-        final double minY,                          final double maxY,
-        final double minVelocity,                   final double maxVelocity,
-        final double minMass,                       final double maxMass,
-        final double minRadius,                     final double maxRadius
+        final List<Particle2D> existingParticles,
+        final Random randGen,       final int       additionalParticlesCount,
+        final double spaceWidth,    final boolean   periodicBorder,
+        final double minX,          final double    maxX,
+        final double minY,          final double    maxY,
+        final double minVelocity,   final double    maxVelocity,
+        final double minMass,       final double    maxMass,
+        final double minRadius,     final double    maxRadius
     ) {
         final double realMinRadius  = Math.max(MIN_RADIUS,  minRadius);
         final double realMinX       = Math.max(MIN_AXIS + realMinRadius,    minX);
@@ -88,12 +91,13 @@ public final class ParticleGeneration {
         final double realMaxY       = Math.min(maxY,        spaceWidth - realMinRadius);
         final double realMinMass    = Math.max(MIN_MASS,    minMass);
 
-        int initParticlesCount = existingParticles.size();
+        final int initParticlesCount = existingParticles.size();
 
         int tries = 0;
         int additionalParticles = 0;
         while(additionalParticles < additionalParticlesCount && tries < MAX_FAILURE_TOLERANCE) {
             final Particle2D particle = Particle2D.randomParticle(
+                randGen,
                 initParticlesCount + additionalParticles,
                 realMinX,       realMaxX,
                 realMinY,       realMaxY,
@@ -122,6 +126,27 @@ public final class ParticleGeneration {
         }
     }
 
+    public static void generateAdditionalParticles(
+        final List<Particle2D> existingParticles,   final int additionalParticlesCount,
+        final double spaceWidth,                    final boolean periodicBorder,
+        final double minX,                          final double maxX,
+        final double minY,                          final double maxY,
+        final double minVelocity,                   final double maxVelocity,
+        final double minMass,                       final double maxMass,
+        final double minRadius,                     final double maxRadius
+    ) {
+        generateAdditionalParticles(
+            existingParticles,
+            ThreadLocalRandom.current(),   additionalParticlesCount,
+            spaceWidth,         periodicBorder,
+            minX,               maxX,
+            minY,               maxY,
+            minVelocity,        maxVelocity,
+            minMass,            maxMass,
+            minRadius,          maxRadius
+        );
+    }
+
     @Data
     @Jacksonized
     @Builder(setterPrefix = "with")
@@ -141,6 +166,9 @@ public final class ParticleGeneration {
         public double  maxRadius;
         public double  minMass;
         public double  maxMass;
+
+        @Builder.Default
+        public Long    seed = ThreadLocalRandom.current().nextLong();
         public String  outputFile;
     }
 }

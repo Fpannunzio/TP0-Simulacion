@@ -15,7 +15,8 @@
     "minRadius": 0.15,
     "maxRadius": 0.15,
     "minMass": 1,
-    "maxMass": 1
+    "maxMass": 1,
+    "seed": 12345
   },
   "seed": 12345,
   "outputFile": "output/anim.exyz"
