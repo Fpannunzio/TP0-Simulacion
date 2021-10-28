@@ -80,7 +80,7 @@ public class PedestrianDynamicsSimulation {
 
         this.dr                 = maxRadius * dt / tau;
         this.leftTargetLimit    = exitLeft + 0.2 * exitLength;
-        this.rightTargetLimit   = exitRight + 0.8 * exitLength;
+        this.rightTargetLimit   = exitRight - 0.2 * exitLength;
         this.radiusRange        = maxRadius - minRadius;
     }
 
@@ -108,7 +108,7 @@ public class PedestrianDynamicsSimulation {
             locked.add(dummyParticle(-2, exitLeft));
             locked.add(dummyParticle(-1, exitRight));
 
-            calculateNextState(lockedParticles.subList(iteration > 0 ? 2 : 0, lockedParticles.size()), locked::add, escaped::add);
+            calculateNextState(lockedParticles, locked::add, escaped::add);
 
             lockedParticles  = locked;
             escapedParticles = escaped;
