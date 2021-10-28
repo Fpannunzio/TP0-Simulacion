@@ -21,19 +21,20 @@ import lombok.Getter;
 public class PedestrianDynamicsSimulation {
 
     // Configuration
-    private final double            tau;
-    private final double            beta;
-    private final double            exitLeft;
-    private final double            exitRight;
-    private final double            minRadius;
-    private final double            maxRadius;
-    private final double            desiredVelocity;
-    private final double            escapeVelocity;
-    private final double            spaceWidth;
-    private final long              seed;
+    private final double    tau;
+    private final double    beta;
+    private final double    exitLength;
+    private final double    minRadius;
+    private final double    maxRadius;
+    private final double    desiredVelocity;
+    private final double    escapeVelocity;
+    private final double    spaceWidth;
+    private final long      seed;
 
     // Derived Configuration
-    private final double            dt;
+    private final double    dt;
+    private final double    exitLeft;
+    private final double    exitRight;
 
     // Internal Configuration
     @Getter(AccessLevel.NONE) private final Random            randomGen;
@@ -51,21 +52,19 @@ public class PedestrianDynamicsSimulation {
 
     @Builder(setterPrefix = "with")
     public PedestrianDynamicsSimulation(
-        final double            tau,
-        final double            beta,
-        final double            exitLeft,
-        final double            exitRight,
-        final double            minRadius,
-        final double            maxRadius,
-        final double            desiredVelocity,
-        final double            escapeVelocity,
-        final double            spaceWidth,
-        final long              seed) {
+        final double    tau,
+        final double    beta,
+        final double    exitLength,
+        final double    minRadius,
+        final double    maxRadius,
+        final double    desiredVelocity,
+        final double    escapeVelocity,
+        final double    spaceWidth,
+        final long      seed) {
 
         this.tau                = tau;
         this.beta               = beta;
-        this.exitLeft           = exitLeft;
-        this.exitRight          = exitRight;
+        this.exitLength         = exitLength;
         this.minRadius          = minRadius;
         this.maxRadius          = maxRadius;
         this.spaceWidth         = spaceWidth;
@@ -74,11 +73,11 @@ public class PedestrianDynamicsSimulation {
         this.seed               = seed;
 
         this.dt                 = minRadius / (2 * Math.max(desiredVelocity, escapeVelocity));
+        this.exitLeft           = spaceWidth/2 - exitLength /2;
+        this.exitRight          = spaceWidth/2 + exitLength /2;
 
         this.randomGen          = new Random(this.seed);
         this.cim                = new CellIndexMethod(optimalM(spaceWidth, maxRadius, maxRadius), spaceWidth, maxRadius, false);
-
-        final double exitLength = exitRight - exitLeft;
 
         this.dr                 = maxRadius * dt / tau;
         this.leftTargetLimit    = exitLeft + 0.2 * exitLength;
