@@ -76,7 +76,7 @@ public class PedestrianDynamicsSimulation {
         this.exitRight          = spaceWidth/2 + exitLength /2;
 
         this.randomGen          = randomGen;
-        this.cim                = new CellIndexMethod(optimalM(spaceWidth, maxRadius, maxRadius), spaceWidth, maxRadius, false);
+        this.cim                = new CellIndexMethod(spaceWidth, 0, false);
 
         this.dr                 = maxRadius * dt / tau;
         this.leftTargetLimit    = exitLeft + 0.2 * exitLength;
@@ -153,17 +153,15 @@ public class PedestrianDynamicsSimulation {
             // Sino, la particula esta completamente dentro de puerta -> No hay colision
         }
 
-        // Verificamos choques con vecinos
+        // Calculamos choques con vecinos
         for(final Particle2D neighbour : neighbours) {
+            // Ponderamos el vector escape con el resto
             final double diffX      = x - neighbour.getX();
             final double diffY      = y - neighbour.getY();
             final double distance   = Math.hypot(diffX, diffY);
 
-            if(distance - r - neighbour.getRadius() <= 0) {
-                // Si colisionaron, ponderamos el vector escape con el resto
-                escapeX += diffX / distance;
-                escapeY += diffY / distance;
-            }
+            escapeX += diffX / distance;
+            escapeY += diffY / distance;
         }
 
         final double newVx;

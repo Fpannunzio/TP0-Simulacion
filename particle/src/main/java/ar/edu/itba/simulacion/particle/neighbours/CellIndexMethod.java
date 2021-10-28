@@ -12,25 +12,34 @@ import java.util.Map;
 import java.util.Set;
 
 public class CellIndexMethod {
-    
-    private final int       M;
+
+    public static final int DYNAMIC_M = -1;
+
+    /** De ser M = DYNAMIC_M, tomamos el valor optimo */
+    private       int       M;
     private final double    L;
     private final double    actionRadius;
     private final boolean   periodicOutline;
 
-    private final double    cellLength;
+    private       double    cellLength;
 
     public static int optimalM(final double L, final double actionRadius, final double maxRadius) {
         return (int) (L / (actionRadius + 2 * maxRadius));
     }
 
+    public CellIndexMethod(final double L, final double actionRadius, final boolean periodicOutline) {
+        this(DYNAMIC_M, L, actionRadius, periodicOutline);
+    }
+
     public CellIndexMethod(final int M, final double L, final double actionRadius, final boolean periodicOutline) {
-        if(actionRadius <= 0) {
-            throw new IllegalArgumentException("Action radius must be positive");
+        if(actionRadius < 0) {
+            throw new IllegalArgumentException("Action radius must not be negative");
         }
-        final int maxMValue = (int) (L / actionRadius);
-        if(maxMValue < M) {
-            throw new IllegalArgumentException("L to M ratio is too small. Max possible value for M is " + maxMValue);
+        if(M != DYNAMIC_M && actionRadius > 0) {
+            final int maxMValue = (int) (L / actionRadius);
+            if(maxMValue < M) {
+                throw new IllegalArgumentException("L to M ratio is too small. Max possible value for M is " + maxMValue);
+            }
         }
 
         this.M                  = M;
@@ -47,6 +56,8 @@ public class CellIndexMethod {
     private static final Comparator<Particle2D> MAX_RADIUS_COMPARATOR = Comparator.comparing(Particle2D::getRadius);
 
     public Map<Integer, Set<Particle2D>> calculateNeighbours(final List<Particle2D> particles) {
+        final boolean dynamic = M == DYNAMIC_M;
+
         final double maxRadius = particles
             .stream()
             .max(MAX_RADIUS_COMPARATOR)
@@ -54,10 +65,14 @@ public class CellIndexMethod {
             .orElseThrow(() -> new IllegalArgumentException("No particles were supplied"))
             ;
 
-        int maxMValue = optimalM(L, actionRadius, maxRadius);
-
-        if(maxMValue < M) {
-            throw new IllegalArgumentException("L to M ratio is too small. Max possible value for M is " + maxMValue);
+        final int optimalM = optimalM(L, actionRadius, maxRadius);
+        if(dynamic) {
+            M = optimalM;
+            cellLength = L / M;
+        } else {
+            if(optimalM < M) {
+                throw new IllegalArgumentException("L to M ratio is too small. Max possible value for M is " + optimalM);
+            }
         }
 
         final Map<Integer, Set<Particle2D>> ret = new HashMap<>(particles.size());
@@ -80,6 +95,10 @@ public class CellIndexMethod {
                     listCellNeighbours(particle, (cellX, cellY) -> addNeighbours(particle, cells[cellX][cellY], ret));
                 }
             }
+        }
+
+        if(dynamic) {
+            M = DYNAMIC_M;
         }
 
         return ret;
