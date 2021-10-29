@@ -27,10 +27,18 @@ public final class SimulationSettings {
     @Data
     @Jacksonized
     @Builder(setterPrefix = "with")
+    public static class DistanceParticle {
+        public final double doorDistance;
+        public final int    particleCount;
+    }
+
+    @Data
+    @Jacksonized
+    @Builder(setterPrefix = "with")
     public static class PedestrianDynamicsConfig {
         public final double tau;
         public final double beta;
-        public final double exitLength;
+        public double exitLength;
         public final double minRadius;
         public final double maxRadius;
         public final double desiredVelocity;
@@ -68,6 +76,23 @@ public final class SimulationSettings {
     @Jacksonized
     @Builder(setterPrefix = "with")
     public static class MultiRunPedestrianDynamicsConfig {
+        public final int                        runCount;
+        public final PedestrianDynamicsConfig   baseConfig;
+
+        public List<Particle2D> generateInitialState() {
+            return ParticleGeneration.particleGenerator(baseConfig.particleGeneration);
+        }
+
+        public PedestrianDynamicsSimulation toSimulation() {
+            return baseConfig.toSimulation();
+        }
+    }
+
+    @Data
+    @Jacksonized
+    @Builder(setterPrefix = "with")
+    public static class MultiConfigRunPedestrianDynamicsConfig {
+        public final List<DistanceParticle>     configurations;
         public final int                        runCount;
         public final PedestrianDynamicsConfig   baseConfig;
 
