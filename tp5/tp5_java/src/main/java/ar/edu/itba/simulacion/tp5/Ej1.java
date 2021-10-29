@@ -31,7 +31,7 @@ public final class Ej1 {
 
         final PedestrianDynamicsSimulation simulation = config.toSimulation();
 
-        final int maxIterations = config.baseConfig.iterations;
+        final int maxIterations = config.baseConfig.maxIterations;
         final double dt = simulation.getDt();
         final List<List<EscapesByTime>> runs = new ArrayList<>(config.runCount);
 

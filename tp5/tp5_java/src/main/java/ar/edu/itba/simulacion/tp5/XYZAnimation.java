@@ -39,7 +39,7 @@ public final class XYZAnimation {
 
         final PedestrianDynamicsSimulation simulation = config.toSimulation();
 
-        final int maxIterations = config.iterations;
+        final int maxIterations = config.maxIterations;
 
         try(final BufferedWriter writer = new BufferedWriter(new FileWriter(config.outputFile))) {
             simulation.simulate(initialState, (i, locked, escaped, justEscaped) -> {

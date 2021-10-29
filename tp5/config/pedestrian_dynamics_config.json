@@ -18,7 +18,6 @@
     "maxMass": 1,
     "seed": 12345
   },
-  "iterations": 1000,
   "seed": 12345,
   "outputFile": "output/anim.exyz"
 }

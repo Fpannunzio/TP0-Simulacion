@@ -37,7 +37,7 @@ public final class SimulationSettings {
         public final double escapeVelocity;
 
         @Builder.Default
-        public       int   iterations = 100_000;
+        public       int   maxIterations = 1_000_000;
         @Builder.Default
         public       long   seed = ThreadLocalRandom.current().nextLong();
 
