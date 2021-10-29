@@ -39,8 +39,8 @@ public final class Ej1 {
             final List<EscapesByTime> escapesAccum = new LinkedList<>();
             final long[] totalEscapesPtr = {0};
 
-            simulation.simulate(config.generateInitialState(), (i, locked, escaped) -> {
-                final int escapeCount = escaped.size();
+            simulation.simulate(config.generateInitialState(), (i, locked, escaped, justEscaped) -> {
+                final int escapeCount = justEscaped.size();
                 if(escapeCount > 0) {
                     totalEscapesPtr[0] += escapeCount;
                     escapesAccum.add(new EscapesByTime(dt * i, totalEscapesPtr[0]));

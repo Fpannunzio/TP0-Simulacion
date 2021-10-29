@@ -20,7 +20,10 @@ import lombok.Getter;
 @Data
 public class PedestrianDynamicsSimulation {
 
-    private static final int FAR_AWAY_TARGET = -10;
+    private static final double EXIT_TARGET_POSITION       = 0;
+    private static final double FAR_AWAY_TARGET_POSITION   = -10;
+    private static final double FAR_AWAY_TARGET_LENGTH     = 3;
+    private static final double TARGET_LIMIT_COEFFICIENT   = 0.2;
 
     // Configuration
     private final double    tau;
@@ -45,6 +48,8 @@ public class PedestrianDynamicsSimulation {
     @Getter(AccessLevel.NONE) private final double  dr;
     @Getter(AccessLevel.NONE) private final double  leftTargetLimit;
     @Getter(AccessLevel.NONE) private final double  rightTargetLimit;
+    @Getter(AccessLevel.NONE) private final double  leftFarAwayTargetLimit;
+    @Getter(AccessLevel.NONE) private final double  rightFarAwayTargetLimit;
     @Getter(AccessLevel.NONE) private final double  radiusRange;
 
     @Builder(setterPrefix = "with")
@@ -73,67 +78,69 @@ public class PedestrianDynamicsSimulation {
         this.exitRight          = spaceWidth/2 + exitLength /2;
 
         this.randomGen          = randomGen;
-        this.cim                = new CellIndexMethod(spaceWidth, 0, false);
+        this.cim                = new CellIndexMethod(spaceWidth - FAR_AWAY_TARGET_POSITION, 0, FAR_AWAY_TARGET_POSITION, 0, false);
 
         this.dr                 = maxRadius * dt / tau;
-        this.leftTargetLimit    = exitLeft + 0.2 * exitLength;
-        this.rightTargetLimit   = exitRight - 0.2 * exitLength;
+        this.leftTargetLimit    = exitLeft + TARGET_LIMIT_COEFFICIENT * exitLength;
+        this.rightTargetLimit   = exitRight - TARGET_LIMIT_COEFFICIENT * exitLength;
         this.radiusRange        = maxRadius - minRadius;
+        this.leftFarAwayTargetLimit    = (spaceWidth/2 - FAR_AWAY_TARGET_LENGTH/2) + TARGET_LIMIT_COEFFICIENT * FAR_AWAY_TARGET_LENGTH;
+        this.rightFarAwayTargetLimit   = (spaceWidth/2 + FAR_AWAY_TARGET_LENGTH/2) - TARGET_LIMIT_COEFFICIENT * FAR_AWAY_TARGET_LENGTH;
     }
 
     public void simulate(final List<Particle2D> initialState, final SimulationStateNotifier notifier) {
         int iteration = 0;
-        List<Particle2D> lockedParticles    = initialState;
-        List<Particle2D> escapedParticles   = List.of();
+        List<Particle2D> currentState   = initialState;
+        int lastLockedCount             = currentState.size();
+        int lastEscapedCount            = 0;
 
-        while(notifier.notify(iteration, lockedParticles, escapedParticles)) {
-            final List<Particle2D> locked    = new ArrayList<>(initialState.size());
-            final List<Particle2D> escaped   = new LinkedList<>();
-            final Consumer<Particle2D> escapedConsumer = escaped::add;
-
-            advanceLockedParticles(lockedParticles, locked::add, escapedConsumer);
-            advanceEscapedParticles(escapedParticles, escapedConsumer);
-
-            lockedParticles  = locked;
-            escapedParticles = escaped;
+        boolean continueIteration       = notifier.notify(iteration, currentState, List.of(), List.of());
+        while(continueIteration) {
             iteration++;
+
+            final List<Particle2D> locked       = new ArrayList<>(lastLockedCount);
+            final List<Particle2D> escaped      = new ArrayList<>(lastEscapedCount);
+            final List<Particle2D> justEscaped  = new LinkedList<>();
+
+            currentState = advanceParticles(currentState, locked::add, escaped::add, justEscaped::add);
+
+            continueIteration = notifier.notify(iteration, locked, escaped, justEscaped) && (!locked.isEmpty() || !escaped.isEmpty());
         }
     }
 
-    public void advanceLockedParticles(final List<Particle2D> lastLockedParticles, final Consumer<Particle2D> lockedConsumer, final Consumer<Particle2D> escapedConsumer) {
-        final Map<Integer, Set<Particle2D>> neighbours = cim.calculateNeighbours(lastLockedParticles);
+    public List<Particle2D> advanceParticles(
+        final List<Particle2D>      lastState,
+        final Consumer<Particle2D>  lockedConsumer,
+        final Consumer<Particle2D>  escapedConsumer,
+        final Consumer<Particle2D>  justEscapedConsumer) {
 
-        for(final Particle2D particle : lastLockedParticles) {
+        final List<Particle2D> ret = new ArrayList<>(lastState.size());
+
+        final Map<Integer, Set<Particle2D>> neighbours = cim.calculateNeighbours(lastState);
+
+        for(final Particle2D particle : lastState) {
             final Particle2D advancedParticle = advanceParticle(particle, neighbours.get(particle.getId()));
-            if(advancedParticle.getY() <= 0) {
-                escapedConsumer.accept(advancedParticle);
-            } else {
-                lockedConsumer.accept(advancedParticle);
+
+            if(!isOutOfBounds(advancedParticle)) {
+                ret.add(advancedParticle);
+
+                if(isEscaped(advancedParticle)) {
+                    escapedConsumer.accept(advancedParticle);
+
+                    if(!isEscaped(particle)) {
+                        justEscapedConsumer.accept(advancedParticle);
+                    }
+                } else {
+                    lockedConsumer.accept(advancedParticle);
+                }
             }
         }
-    }
 
-    private void advanceEscapedParticles(final List<Particle2D> escapedParticles, final Consumer<Particle2D> escapedConsumer) {
-        for(final Particle2D particle : escapedParticles) {
-            final double newR           = calculateNewRadius(particle.getRadius());
-            final double newVMod        = calculateNewVelocity(newR);
-            final double targetDirX     = 0;
-            final double targetDirY     = FAR_AWAY_TARGET - particle.getY();
-            final double targetDirMod   = Math.hypot(targetDirX, targetDirY);
-
-            final Particle2D advancedParticle = particle.moveCartesian(
-                dt,
-                newVMod * (targetDirX / targetDirMod),
-                newVMod * (targetDirY / targetDirMod),
-                newR
-            );
-            if(advancedParticle.getY() > FAR_AWAY_TARGET) {
-                escapedConsumer.accept(advancedParticle);
-            }
-        }
+        return ret;
     }
 
     private Particle2D advanceParticle(final Particle2D particle, final Set<Particle2D> neighbours) {
+        final boolean escaped = isEscaped(particle);
         final double x = particle.getX();
         final double y = particle.getY();
         final double r = particle.getRadius();
@@ -141,40 +148,44 @@ public class PedestrianDynamicsSimulation {
         double escapeX = 0;
         double escapeY = 0;
 
-        // Verificamos choques con bordes
-        if(x - r <= 0) {
-            // borde izquierdo
-            escapeX += 1;
-        } else if(x + r >= spaceWidth) {
-            // borde derecho
-            escapeX -= 1;
-        }
-        if(y + r >= spaceWidth) {
-            // borde superior
-            escapeY -= 1;
-        } else if(y - r <= 0) {
-            // borde inferior
-
-            // Tenemos en cuenta los casos especiales de colision con puerta
-            if(x <= exitLeft || x >= exitRight) {
-                // Centro afuera de puerta -> Colision normal
-                escapeY += 1;
-            } else if(x - r <= exitLeft) {
-                // Particula colisiona con borde izquierdo de puerta
-                final double diffX = x - exitLeft;
-                final double distance = Math.hypot(diffX, y);
-
-                escapeX += diffX / distance;
-                escapeY += y / distance;
-            } else if(x + r >= exitRight) {
-                // Particula colisiona con borde derecho de puerta
-                final double diffX = x - exitRight;
-                final double distance = Math.hypot(diffX, y);
-
-                escapeX += diffX / distance;
-                escapeY += y / distance;
+        if(!escaped) {
+            // Verificamos choques con bordes solo si no escapo
+            if(x - r <= 0) {
+                // borde izquierdo
+                escapeX += 1;
+            } else if(x + r >= spaceWidth) {
+                // borde derecho
+                escapeX -= 1;
             }
-            // Sino, la particula esta completamente dentro de puerta -> No hay colision
+            if(y + r >= spaceWidth) {
+                // borde superior
+                escapeY -= 1;
+            } else if(y - r <= 0) {
+                // borde inferior
+
+                // Tenemos en cuenta los casos especiales de colision con puerta
+                if(x <= exitLeft || x >= exitRight) {
+                    // Centro afuera de puerta -> Colision normal
+                    escapeY += 1;
+                } else if(x - r <= exitLeft) {
+                    // Particula colisiona con borde izquierdo de puerta
+                    final double diffX = x - exitLeft;
+                    final double diffY = y - EXIT_TARGET_POSITION;
+                    final double distance = Math.hypot(diffX, diffY);
+
+                    escapeX += diffX / distance;
+                    escapeY += diffY / distance;
+                } else if(x + r >= exitRight) {
+                    // Particula colisiona con borde derecho de puerta
+                    final double diffX = x - exitRight;
+                    final double diffY = y - EXIT_TARGET_POSITION;
+                    final double distance = Math.hypot(diffX, y);
+
+                    escapeX += diffX / distance;
+                    escapeY += diffY / distance;
+                }
+                // Sino, la particula esta completamente dentro de puerta -> No hay colision
+            }
         }
 
         // Calculamos choques con vecinos
@@ -193,11 +204,11 @@ public class PedestrianDynamicsSimulation {
         final double newR;
         if(escapeX == 0 && escapeY == 0) {
             // No hay colision
-            newR = calculateNewRadius(r);
+            newR = Math.min(maxRadius, r + dr);
 
-            final double newVMod = calculateNewVelocity(newR);
-            final double targetDirX = calculateTargetX(particle) - x;
-            final double targetDirY = -y;
+            final double newVMod = desiredVelocity * Math.pow((newR - minRadius) / radiusRange, beta);
+            final double targetDirX = targetVectorX(x, escaped);
+            final double targetDirY = targetVectorY(y, escaped);
             final double targetDirMod = Math.hypot(targetDirX, targetDirY);
 
             newVx = newVMod * (targetDirX / targetDirMod);
@@ -213,21 +224,25 @@ public class PedestrianDynamicsSimulation {
         return particle.moveCartesian(dt, newVx, newVy, newR);
     }
 
-    private double calculateNewRadius(final double lastRadius) {
-        return Math.min(maxRadius, lastRadius + dr);
+    private boolean isEscaped(final Particle2D particle) {
+        return particle.getY() <= EXIT_TARGET_POSITION;
+    }
+    private boolean isOutOfBounds(final Particle2D particle) {
+        return particle.getY() <= FAR_AWAY_TARGET_POSITION;
     }
 
-    private double calculateNewVelocity(final double newRadius) {
-        return desiredVelocity * Math.pow((newRadius - minRadius) / radiusRange, beta);
-    }
+    private double targetVectorX(final double x, final boolean escaped) {
+        final double leftLimit  = escaped ? leftFarAwayTargetLimit  : leftTargetLimit;
+        final double rightLimit = escaped ? rightFarAwayTargetLimit : rightTargetLimit;
 
-    private double calculateTargetX(final Particle2D particle) {
-        final double x = particle.getX();
-
-        return x < leftTargetLimit || x > rightTargetLimit
-            ? randDouble(randomGen, leftTargetLimit, rightTargetLimit)
-            : x
+        return x < leftLimit || x > rightLimit
+            ? randDouble(randomGen, leftLimit, rightLimit) - x
+            : 0
             ;
+    }
+
+    private double targetVectorY(final double y, final boolean escaped) {
+        return escaped ? FAR_AWAY_TARGET_POSITION - y : EXIT_TARGET_POSITION - y;
     }
 
     /* ----------------------------------------- Clases Auxiliares ----------------------------------------------- */
@@ -236,7 +251,8 @@ public class PedestrianDynamicsSimulation {
     public interface SimulationStateNotifier {
         boolean notify(
             final int               iteration,
-            final List<Particle2D>  state,
-            final List<Particle2D>  escapedParticles);
+            final List<Particle2D>  locked,
+            final List<Particle2D>  escaped,
+            final List<Particle2D>  justEscaped);
     }
 }
