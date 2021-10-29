@@ -216,7 +216,6 @@ public class Particle2D implements XYZWritable {
     public void xyzWrite(Writer writer) throws IOException {
         writer.write(
             PARTICLE_TYPE   + FIELD_SEPARATOR +
-            getId()         + FIELD_SEPARATOR +
             getX()          + FIELD_SEPARATOR +
             getY()          + FIELD_SEPARATOR +
             getVelocityX()  + FIELD_SEPARATOR +
