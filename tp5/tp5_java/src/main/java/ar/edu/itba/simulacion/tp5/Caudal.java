@@ -27,7 +27,7 @@ public final class Caudal {
         final MultiRunPedestrianDynamicsConfig config = mapper.readValue(new File(args[0]),
                 MultiRunPedestrianDynamicsConfig.class);
 
-        final List<List<EscapesByTime>> runs = new ArrayList<>(config.runCount);
+        final List<List<Integer>> runs = new ArrayList<>(config.runCount);
         double dt = 0;
 
         for (int run = 0; run < config.runCount; run++) {
@@ -41,11 +41,11 @@ public final class Caudal {
 
             dt = simulation.getDt();
 
-            final List<EscapesByTime> escapesAccum = new LinkedList<>();
+            final List<Integer> escapesAccum = new LinkedList<>();
 
             simulation.simulate(config.generateInitialState(), (i, locked, escaped, justEscaped) -> {
                 
-                escapesAccum.add(new EscapesByTime(i, justEscaped.size()));
+                escapesAccum.add(justEscaped.size());
 
                 return true;
             });
@@ -59,6 +59,6 @@ public final class Caudal {
     @Data
     public static class Ej2BOutput {
         public final double dt;
-        public final List<List<EscapesByTime>> escapesByRun;
+        public final List<List<Integer>> escapesByRun;
     }
 }
