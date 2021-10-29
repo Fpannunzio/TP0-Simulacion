@@ -80,19 +80,6 @@ public class PedestrianDynamicsSimulation {
         this.radiusRange        = maxRadius - minRadius;
     }
 
-    private static Particle2D dummyParticle(final int id, final double x) {
-        return Particle2D.builder()
-            .withId         (id)
-            .withX          (x)
-            .withY          (0)
-            .withVelocityMod(0)
-            .withVelocityDir(0)
-            .withMass       (1)
-            .withRadius     (0)
-            .build()
-            ;
-    }
-
     public void simulate(final List<Particle2D> initialState, final SimulationStateNotifier notifier) {
         int iteration = 0;
         List<Particle2D> lockedParticles    = initialState;
@@ -101,8 +88,6 @@ public class PedestrianDynamicsSimulation {
         while(notifier.notify(iteration, lockedParticles, escapedParticles)) {
             final List<Particle2D> locked    = new ArrayList<>(initialState.size());
             final List<Particle2D> escaped   = new LinkedList<>();
-            locked.add(dummyParticle(-2, exitLeft));
-            locked.add(dummyParticle(-1, exitRight));
 
             calculateNextState(lockedParticles, locked::add, escaped::add);
 
