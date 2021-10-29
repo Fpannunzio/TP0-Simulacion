@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Arrays;
 import java.util.Collection;
 
 public interface XYZWritable {
@@ -28,6 +29,25 @@ public interface XYZWritable {
     static void xyzWrite(final Writer writer, final Collection<? extends XYZWritable> writable) throws RuntimeException {
         try {
             writeCollection(writer, writable);
+        } catch(final IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @SafeVarargs
+    static void xyzWrite(final Writer writer, final Collection<? extends XYZWritable> ...writables) throws RuntimeException {
+        final long totalSize = Arrays.stream(writables).mapToInt(Collection::size).sum();
+
+        try {
+            writer.write(String.valueOf(totalSize));
+            XYZWritable.newLine(writer);
+            XYZWritable.newLine(writer);
+
+            for(final Collection<? extends XYZWritable> writable : writables) {
+                for(final XYZWritable elem : writable) {
+                    elem.xyzWrite(writer);
+                }
+            }
         } catch(final IOException e) {
             throw new RuntimeException(e);
         }

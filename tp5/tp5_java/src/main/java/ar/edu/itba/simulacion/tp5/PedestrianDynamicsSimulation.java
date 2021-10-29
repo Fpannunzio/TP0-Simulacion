@@ -1,7 +1,6 @@
 package ar.edu.itba.simulacion.tp5;
 
 import static ar.edu.itba.simulacion.particle.ParticleUtils.randDouble;
-import static ar.edu.itba.simulacion.particle.neighbours.CellIndexMethod.optimalM;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -20,6 +19,8 @@ import lombok.Getter;
 
 @Data
 public class PedestrianDynamicsSimulation {
+
+    private static final int FAR_AWAY_TARGET = -10;
 
     // Configuration
     private final double    tau;
@@ -88,8 +89,10 @@ public class PedestrianDynamicsSimulation {
         while(notifier.notify(iteration, lockedParticles, escapedParticles)) {
             final List<Particle2D> locked    = new ArrayList<>(initialState.size());
             final List<Particle2D> escaped   = new LinkedList<>();
+            final Consumer<Particle2D> escapedConsumer = escaped::add;
 
-            calculateNextState(lockedParticles, locked::add, escaped::add);
+            advanceLockedParticles(lockedParticles, locked::add, escapedConsumer);
+            advanceEscapedParticles(escapedParticles, escapedConsumer);
 
             lockedParticles  = locked;
             escapedParticles = escaped;
@@ -97,15 +100,40 @@ public class PedestrianDynamicsSimulation {
         }
     }
 
-    public void calculateNextState(final List<Particle2D> lastState, final Consumer<Particle2D> lockedConsumer, final Consumer<Particle2D> escapedConsumer) {
-        final Map<Integer, Set<Particle2D>> neighbours = cim.calculateNeighbours(lastState);
+    public void advanceLockedParticles(final List<Particle2D> lastLockedParticles, final Consumer<Particle2D> lockedConsumer, final Consumer<Particle2D> escapedConsumer) {
+        final Map<Integer, Set<Particle2D>> neighbours = cim.calculateNeighbours(lastLockedParticles);
 
-        for(final Particle2D particle : lastState) {
-            advanceParticle(particle, neighbours.get(particle.getId()), lockedConsumer, escapedConsumer);
+        for(final Particle2D particle : lastLockedParticles) {
+            final Particle2D advancedParticle = advanceParticle(particle, neighbours.get(particle.getId()));
+            if(advancedParticle.getY() <= 0) {
+                escapedConsumer.accept(advancedParticle);
+            } else {
+                lockedConsumer.accept(advancedParticle);
+            }
         }
     }
 
-    private void advanceParticle(final Particle2D particle, final Set<Particle2D> neighbours, final Consumer<Particle2D> lockedConsumer, final Consumer<Particle2D> escapedConsumer) {
+    private void advanceEscapedParticles(final List<Particle2D> escapedParticles, final Consumer<Particle2D> escapedConsumer) {
+        for(final Particle2D particle : escapedParticles) {
+            final double newR           = calculateNewRadius(particle.getRadius());
+            final double newVMod        = calculateNewVelocity(newR);
+            final double targetDirX     = 0;
+            final double targetDirY     = FAR_AWAY_TARGET - particle.getY();
+            final double targetDirMod   = Math.hypot(targetDirX, targetDirY);
+
+            final Particle2D advancedParticle = particle.moveCartesian(
+                dt,
+                newVMod * (targetDirX / targetDirMod),
+                newVMod * (targetDirY / targetDirMod),
+                newR
+            );
+            if(advancedParticle.getY() > FAR_AWAY_TARGET) {
+                escapedConsumer.accept(advancedParticle);
+            }
+        }
+    }
+
+    private Particle2D advanceParticle(final Particle2D particle, final Set<Particle2D> neighbours) {
         final double x = particle.getX();
         final double y = particle.getY();
         final double r = particle.getRadius();
@@ -165,9 +193,9 @@ public class PedestrianDynamicsSimulation {
         final double newR;
         if(escapeX == 0 && escapeY == 0) {
             // No hay colision
-            newR = Math.min(maxRadius, r + dr);
+            newR = calculateNewRadius(r);
 
-            final double newVMod = desiredVelocity * Math.pow((newR - minRadius) / radiusRange, beta);
+            final double newVMod = calculateNewVelocity(newR);
             final double targetDirX = calculateTargetX(particle) - x;
             final double targetDirY = -y;
             final double targetDirMod = Math.hypot(targetDirX, targetDirY);
@@ -182,14 +210,15 @@ public class PedestrianDynamicsSimulation {
             newR    = minRadius;
         }
 
-        final Particle2D ret = particle.moveCartesian(dt, newVx, newVy, newR);
-        if(ret.getY() <= 0) {
-            // La particula escapo
-            escapedConsumer.accept(ret);
-        } else {
-            // La particula sigue encerrada
-            lockedConsumer.accept(ret);
-        }
+        return particle.moveCartesian(dt, newVx, newVy, newR);
+    }
+
+    private double calculateNewRadius(final double lastRadius) {
+        return Math.min(maxRadius, lastRadius + dr);
+    }
+
+    private double calculateNewVelocity(final double newRadius) {
+        return desiredVelocity * Math.pow((newRadius - minRadius) / radiusRange, beta);
     }
 
     private double calculateTargetX(final Particle2D particle) {

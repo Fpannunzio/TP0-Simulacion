@@ -44,7 +44,7 @@ public final class XYZAnimation {
         try(final BufferedWriter writer = new BufferedWriter(new FileWriter(config.outputFile))) {
             simulation.simulate(initialState, (i, locked, escaped) -> {
                 if(i % OUTPUT_SAMPLE_RATE == 0) {
-                    XYZWritable.xyzWrite(writer, locked);
+                    XYZWritable.xyzWrite(writer, locked, escaped);
                 }
 
                 return i < maxIterations;
