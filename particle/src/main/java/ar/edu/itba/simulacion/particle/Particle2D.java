@@ -113,8 +113,16 @@ public class Particle2D implements XYZWritable {
         return x + time * velocityX;
     }
 
+    public double getNextX(final double time, final double vx) {
+        return x + time * vx;
+    }
+
     public double getNextY(final double time) {
         return y + time * velocityY;
+    }
+
+    public double getNextY(final double time, final double vy) {
+        return y + time * vy;
     }
 
     public Particle2D move(final double time, final double spaceWidth, final boolean periodicBorder) {
@@ -199,11 +207,11 @@ public class Particle2D implements XYZWritable {
             ;
     }
 
-    public Particle2D moveCartesian(final double time, final double velocityX, final double velocityY, final double radius) {
+    public Particle2D eagerMoveCartesian(final double time, final double velocityX, final double velocityY, final double radius) {
         return Particle2D.builder()
             .withId         (id)
-            .withX          (getNextX(time))
-            .withY          (getNextY(time))
+            .withX          (getNextX(time, velocityX))
+            .withY          (getNextY(time, velocityY))
             .withVelocityX  (velocityX)
             .withVelocityY  (velocityY)
             .withMass       (mass)

@@ -26,7 +26,7 @@ public class PedestrianDynamicsSimulation {
     private static final double TARGET_LIMIT_COEFFICIENT   = 0.2;
 
     // Flag para ver que opcion de colision con el borde de la puerta es mejor
-    private static final boolean BORDER_COLLISIONS = false;
+    private static final boolean BORDER_COLLISIONS = true;
 
     // Configuration
     private final double    tau;
@@ -223,7 +223,7 @@ public class PedestrianDynamicsSimulation {
             newR    = minRadius;
         }
 
-        return particle.moveCartesian(dt, newVx, newVy, newR);
+        return particle.eagerMoveCartesian(dt, newVx, newVy, newR);
     }
 
     private boolean isEscaped(final Particle2D particle) {
