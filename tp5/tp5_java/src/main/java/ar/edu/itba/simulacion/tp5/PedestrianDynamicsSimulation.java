@@ -25,6 +25,9 @@ public class PedestrianDynamicsSimulation {
     private static final double FAR_AWAY_TARGET_LENGTH     = 3;
     private static final double TARGET_LIMIT_COEFFICIENT   = 0.2;
 
+    // Flag para ver que opcion de colision con el borde de la puerta es mejor
+    private static final boolean BORDER_COLLISIONS = false;
+
     // Configuration
     private final double    tau;
     private final double    beta;
@@ -162,29 +165,34 @@ public class PedestrianDynamicsSimulation {
                 escapeY -= 1;
             } else if(y - r <= 0) {
                 // borde inferior
+                if(BORDER_COLLISIONS) {
+                    // Tenemos en cuenta los casos especiales de colision con puerta
+                    if(x <= exitLeft || x >= exitRight) {
+                        // Centro afuera de puerta -> Colision normal
+                        escapeY += 1;
+                    } else if(x - r <= exitLeft) {
+                        // Particula colisiona con borde izquierdo de puerta
+                        final double diffX = x - exitLeft;
+                        final double diffY = y - EXIT_TARGET_POSITION;
+                        final double distance = Math.hypot(diffX, diffY);
 
-                // Tenemos en cuenta los casos especiales de colision con puerta
-                if(x <= exitLeft || x >= exitRight) {
-                    // Centro afuera de puerta -> Colision normal
-                    escapeY += 1;
-                } else if(x - r <= exitLeft) {
-                    // Particula colisiona con borde izquierdo de puerta
-                    final double diffX = x - exitLeft;
-                    final double diffY = y - EXIT_TARGET_POSITION;
-                    final double distance = Math.hypot(diffX, diffY);
+                        escapeX += diffX / distance;
+                        escapeY += diffY / distance;
+                    } else if(x + r >= exitRight) {
+                        // Particula colisiona con borde derecho de puerta
+                        final double diffX = x - exitRight;
+                        final double diffY = y - EXIT_TARGET_POSITION;
+                        final double distance = Math.hypot(diffX, y);
 
-                    escapeX += diffX / distance;
-                    escapeY += diffY / distance;
-                } else if(x + r >= exitRight) {
-                    // Particula colisiona con borde derecho de puerta
-                    final double diffX = x - exitRight;
-                    final double diffY = y - EXIT_TARGET_POSITION;
-                    final double distance = Math.hypot(diffX, y);
-
-                    escapeX += diffX / distance;
-                    escapeY += diffY / distance;
+                        escapeX += diffX / distance;
+                        escapeY += diffY / distance;
+                    }
+                    // Sino, la particula esta completamente dentro de puerta -> No hay colision
+                } else {
+                    if(x <= exitLeft || x >= exitRight) {
+                        escapeY += 1;
+                    }
                 }
-                // Sino, la particula esta completamente dentro de puerta -> No hay colision
             }
         }
 
