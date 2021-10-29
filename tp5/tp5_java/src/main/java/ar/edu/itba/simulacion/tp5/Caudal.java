@@ -53,7 +53,7 @@ public final class Caudal {
             runs.add(escapesAccum);
         }
 
-        mapper.writeValue(new File("output/ej2b.json"), new Ej2BOutput(dt, runs));
+        mapper.writeValue(new File("output/caudal.json"), new Ej2BOutput(dt, runs));
     }
 
     @Data

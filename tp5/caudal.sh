@@ -1,8 +1,8 @@
 #!/bin/bash
 echo "Preparando simulacion 🕐️"
 
-CONFIG=config/multi_pedestrian_dynamics_config.json
-DATA="output/ej2b.json"
+CONFIG=config/caudal_config.json
+DATA="output/caudal.json"
 
 mvn -f ../ install -DskipTests -q || exit
 

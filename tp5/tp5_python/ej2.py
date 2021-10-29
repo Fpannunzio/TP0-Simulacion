@@ -7,7 +7,6 @@ from matplotlib import pyplot as plt
 from matplotlib import cm
 from typing import Any, Dict, List, Union
 
-from formater import MathTextSciFormatter
 
 @dataclass
 @from_dict
@@ -32,17 +31,18 @@ def main(data_path):
     ax.tick_params(labelsize=16)
 
     ax.set_xlabel(r'$t$ (s)', size=20)
-    ax.set_ylabel(r'n (t) (1/s)', size=20)
+    ax.set_ylabel(r'descarga(t) (1/s)', size=20)
 
     ax.errorbar(
-        range(particleCount)
-        , meanStd[:,0]
+        meanStd[:,0]
+        , range(particleCount)
         , xerr=meanStd[:,1]
         , color=cm.get_cmap('tab10')(0)
         , capsize=2
     )
     
-    plt.legend(fontsize=14)
+    ax.grid(which="both")
+    ax.set_axisbelow(True)
     plt.show()
 
 def calcMeanStd(times):

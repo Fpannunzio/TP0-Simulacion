@@ -1,61 +1,76 @@
-from dataclasses import dataclass
 import json
 import sys
-import numpy as np
-from models import from_dict
-from matplotlib import pyplot as plt
-from matplotlib import cm
+from dataclasses import dataclass
 from typing import Any, Dict, List, Union
 
-from formater import MathTextSciFormatter
+import numpy as np
+from matplotlib import cm
+from matplotlib import pyplot as plt
+from matplotlib.ticker import AutoMinorLocator, AutoLocator
+
+
+from models import from_dict
+from caudal import caudal
+
+@dataclass
+@from_dict
+class Conf:
+    doorDistance:               float 
+    particleCount:              int
+
 
 @dataclass
 @from_dict
 class Round:
     dt:                         float          
-    vd:                         float 
-    N:                          int
+    distanceParticle:           Conf
     escapesByRun:               List[List[int]]       
 
 @dataclass
 @from_dict
 class RoundSummary:          
-    escapesByRun:               List[Round]
+    rounds:                     List[Round]
 
-def parse_state(data: Dict[str, Any]) -> RoundSummary:
+def parse_state(data: Dict[str, Any]) -> Union[RoundSummary, Round, Conf]:
+    if 'rounds' in data:
         return RoundSummary.from_dict(data)
+    if 'doorDistance' in data:
+        return Conf.from_dict(data)
+    return Round.from_dict(data)
 
 def main(data_path):
     with open(data_path, 'r') as particles_fd:
-        rounds: RoundSummary = json.load(particles_fd, object_hook=parse_state)
+        round_summary: RoundSummary = json.load(particles_fd, object_hook=parse_state)
 
-    times = list(map(lambda e: list(map(lambda p: p.time, e)), rounds.escapesByRun))
-    freedParticles = list(map(lambda e: np.fromiter(map(lambda p: p.escapeCount, e), dtype=int), rounds.escapesByRun))
+    window_size     = 200
+    stable_q_start  = 250
+    stable_q_end    = 1250
 
 
-    maxIterations = min(map(lambda p: p.shape[0], freedParticles)) - 1
-    freedParticles = np.array(list(map(lambda e: e[:maxIterations], freedParticles)))
+    rounds = list(map(lambda round: list(map(lambda sim: np.array(sim), round.escapesByRun)), round_summary.rounds))
 
-    windowSize = 200
-    window = np.lib.stride_tricks.sliding_window_view(np.mean(freedParticles, axis=0), windowSize)
-    q = np.sum(window, axis=1) / windowSize
+    round_q = np.array(list(map(lambda r: mean_and_std(caudal(r, window_size)[stable_q_start:stable_q_end]), rounds)))
 
     fig = plt.figure(figsize=(16, 10))
     ax = fig.add_subplot(1, 1, 1)
 
-
     ax.tick_params(labelsize=16)
 
-    ax.set_xlabel(r'$t$ (s)', size=20)
-    ax.set_ylabel(r'n (t) (1/s)', size=20)
+    ax.set_xlabel(r'$d$: tamaño de la puerta (m)', size=20)
+    ax.set_ylabel(r'caudal medio (1/s)', size=20)
  
-    ax.scatter(range(len(q)), q, marker='o', color=cm.get_cmap('tab20c')(0))## TODO ponemos la seed?
-        # ax.plot(times[i], freedParticles[i], label=f'n(t) iteracion {i}', color=cm.get_cmap('tab20c')(i))
-    
+    d = list(map(lambda r: r.distanceParticle.doorDistance, round_summary.rounds))
 
-    plt.legend(fontsize=14)
+    ax.errorbar(d, round_q[:,0], yerr=round_q[:,1], capsize=2)
+    ax.grid(which="both")
+    ax.xaxis.set_ticks(d)
+    ax.xaxis.set_minor_locator(AutoMinorLocator(n = 2))
+    ax.set_axisbelow(True)
     plt.show()
 
+def mean_and_std(a) -> np.ndarray:
+
+    return np.array((np.mean(a), np.std(a)))
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:

@@ -1,0 +1,26 @@
+{
+  "runCount": 7,
+  "baseConfig": {
+    "tau": 0.5,
+    "beta": 0.9,
+    "exitLength": 1.2,
+    "minRadius": 0.15,
+    "maxRadius": 0.32,
+    "desiredVelocity": 2,
+    "escapeVelocity": 2,
+    "particleGeneration": {
+      "particleCount": 200,
+      "spaceWidth": 20,
+      "periodicBorder": false,
+      "minVelocity": 0,
+      "maxVelocity": 0,
+      "minRadius": 0.15,
+      "maxRadius": 0.15,
+      "minMass": 1,
+      "maxMass": 1,
+      "seed": 12345
+    },
+    "seed": 12345,
+    "outputFile": "output/anim.exyz"
+  }
+}

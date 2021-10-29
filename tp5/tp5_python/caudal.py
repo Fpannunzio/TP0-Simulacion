@@ -6,8 +6,6 @@ from models import from_dict
 from matplotlib import pyplot as plt
 from matplotlib import cm
 from typing import Any, Dict, List, Union
-
-from formater import MathTextSciFormatter
            
 
 @dataclass
@@ -23,32 +21,31 @@ def main(data_path):
     with open(data_path, 'r') as particles_fd:
         rounds: RoundSummary = json.load(particles_fd, object_hook=parse_state)
 
-    times = list(map(lambda e: list(map(lambda p: p.time, e)), rounds.escapesByRun))
-    freedParticles = list(map(lambda e: np.fromiter(map(lambda p: p.escapeCount, e), dtype=int), rounds.escapesByRun))
+    freed_particles = list(map(lambda e: np.array(e), rounds.escapesByRun))
 
-
-    maxIterations = min(map(lambda p: p.shape[0], freedParticles)) - 1
-    freedParticles = np.array(list(map(lambda e: e[:maxIterations], freedParticles)))
-
-    windowSize = 200
-    window = np.lib.stride_tricks.sliding_window_view(np.mean(freedParticles, axis=0), windowSize)
-    q = np.sum(window, axis=1) / windowSize
+    q = caudal(freed_particles, 200)
 
     fig = plt.figure(figsize=(16, 10))
     ax = fig.add_subplot(1, 1, 1)
 
-
     ax.tick_params(labelsize=16)
 
     ax.set_xlabel(r'$t$ (s)', size=20)
-    ax.set_ylabel(r'n (t) (1/s)', size=20)
+    ax.set_ylabel(r'caudal(t) (1/s)', size=20)
  
-    ax.scatter(range(len(q)), q, marker='o', color=cm.get_cmap('tab20c')(0))## TODO ponemos la seed?
-        # ax.plot(times[i], freedParticles[i], label=f'n(t) iteracion {i}', color=cm.get_cmap('tab20c')(i))
+    ax.scatter(np.linspace(0, len(q)*rounds.dt, len(q)), q)
     
-
-    plt.legend(fontsize=14)
+    ax.grid(which="both")
+    ax.set_axisbelow(True)
     plt.show()
+
+def caudal(particles, window_size=200) -> np.ndarray:
+
+    max_iterations = min(map(lambda p: p.shape[0], particles)) - 1
+    truncated_particles = np.array(list(map(lambda e: e[:max_iterations], particles)))
+
+    window = np.lib.stride_tricks.sliding_window_view(np.mean(truncated_particles, axis=0), window_size)
+    return np.sum(window, axis=1) / window_size
 
 
 if __name__ == '__main__':

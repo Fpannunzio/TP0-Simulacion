@@ -7,8 +7,6 @@ from matplotlib import pyplot as plt
 from matplotlib import cm
 from typing import Any, Dict, List, Union
 
-from formater import MathTextSciFormatter
-
 
 @dataclass
 @from_dict
@@ -40,15 +38,16 @@ def main(data_path):
     ax.tick_params(labelsize=16)
 
     ax.set_xlabel(r'$t$ (s)', size=20)
-    ax.set_ylabel(r'n (t) (1/s)', size=20)
+    ax.set_ylabel(r'descarga(t) (1/s)', size=20)
 
 
     for i in range(len(times)): 
         ax.scatter(times[i], freedParticles[i], marker='o', color=cm.get_cmap('tab20c')(i))## TODO ponemos la seed?
         # ax.plot(times[i], freedParticles[i], label=f'n(t) iteracion {i}', color=cm.get_cmap('tab20c')(i))
     
-
-    plt.legend(fontsize=14)
+    ax.grid(which="both")
+    ax.set_axisbelow(True)
+    #plt.legend(fontsize=14)
     plt.show()
 
 
