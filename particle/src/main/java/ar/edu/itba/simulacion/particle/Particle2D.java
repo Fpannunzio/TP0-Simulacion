@@ -17,6 +17,7 @@ import java.util.Random;
 @Builder(setterPrefix = "with")
 public class Particle2D implements XYZWritable {
 
+    private static final String PARTICLE_TYPE = "PARTICLE";
     int     id;
     double  x;
     double  y;
@@ -214,6 +215,8 @@ public class Particle2D implements XYZWritable {
     @Override
     public void xyzWrite(Writer writer) throws IOException {
         writer.write(
+            PARTICLE_TYPE   + FIELD_SEPARATOR +
+            getId()         + FIELD_SEPARATOR +
             getX()          + FIELD_SEPARATOR +
             getY()          + FIELD_SEPARATOR +
             getVelocityX()  + FIELD_SEPARATOR +
