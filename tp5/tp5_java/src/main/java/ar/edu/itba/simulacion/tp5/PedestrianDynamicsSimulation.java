@@ -46,10 +46,6 @@ public class PedestrianDynamicsSimulation {
     @Getter(AccessLevel.NONE) private final double  rightTargetLimit;
     @Getter(AccessLevel.NONE) private final double  radiusRange;
 
-    // Variable State
-    private       int               iteration;
-    private       List<Particle2D>  lastState;
-
     @Builder(setterPrefix = "with")
     public PedestrianDynamicsSimulation(
         final double    tau,
@@ -86,7 +82,7 @@ public class PedestrianDynamicsSimulation {
 
     private static Particle2D dummyParticle(final int id, final double x) {
         return Particle2D.builder()
-            .withId         (-2)
+            .withId         (id)
             .withX          (x)
             .withY          (0)
             .withVelocityMod(0)
