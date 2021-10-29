@@ -12,8 +12,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.Data;
 
-public final class Ej1 {
-    private Ej1() {
+public final class Caudal {
+    private Caudal() {
         // static
     }
 
@@ -28,6 +28,7 @@ public final class Ej1 {
                 MultiRunPedestrianDynamicsConfig.class);
 
         final List<List<EscapesByTime>> runs = new ArrayList<>(config.runCount);
+        double dt = 0;
 
         for (int run = 0; run < config.runCount; run++) {
 
@@ -38,17 +39,13 @@ public final class Ej1 {
 
             final PedestrianDynamicsSimulation simulation = config.toSimulation();
 
-            final double dt = simulation.getDt();
+            dt = simulation.getDt();
 
             final List<EscapesByTime> escapesAccum = new LinkedList<>();
-            final long[] totalEscapesPtr = { 0 };
 
             simulation.simulate(config.generateInitialState(), (i, locked, escaped, justEscaped) -> {
-                final int escapeCount = justEscaped.size();
-                if (escapeCount > 0) {
-                    totalEscapesPtr[0] += escapeCount;
-                    escapesAccum.add(new EscapesByTime(dt * i, totalEscapesPtr[0]));
-                }
+                
+                escapesAccum.add(new EscapesByTime(i, justEscaped.size()));
 
                 return true;
             });
@@ -56,11 +53,12 @@ public final class Ej1 {
             runs.add(escapesAccum);
         }
 
-        mapper.writeValue(new File("output/ej1.json"), new Ej1Output(runs));
+        mapper.writeValue(new File("output/ej2b.json"), new Ej2BOutput(dt, runs));
     }
 
     @Data
-    public static class Ej1Output {
+    public static class Ej2BOutput {
+        public final double dt;
         public final List<List<EscapesByTime>> escapesByRun;
     }
 }

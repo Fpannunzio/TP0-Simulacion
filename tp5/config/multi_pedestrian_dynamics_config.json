@@ -1,5 +1,5 @@
 {
-  "runCount": 10,
+  "runCount": 50,
   "baseConfig": {
     "tau": 0.5,
     "beta": 0.9,
@@ -20,7 +20,6 @@
       "maxMass": 1,
       "seed": 12345
     },
-    "iterations": 1000,
     "seed": 12345,
     "outputFile": "output/anim.exyz"
   }
