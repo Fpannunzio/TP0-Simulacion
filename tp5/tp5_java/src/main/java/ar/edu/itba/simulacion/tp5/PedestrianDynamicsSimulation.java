@@ -151,48 +151,42 @@ public class PedestrianDynamicsSimulation {
         double escapeX = 0;
         double escapeY = 0;
 
-        if(!escaped) {
-            // Verificamos choques con bordes solo si no escapo
-            if(x - r <= 0) {
-                // borde izquierdo
-                escapeX += 1;
-            } else if(x + r >= spaceWidth) {
-                // borde derecho
-                escapeX -= 1;
-            }
-            if(y + r >= spaceWidth) {
-                // borde superior
-                escapeY -= 1;
-            } else if(y - r <= 0) {
-                // borde inferior
-                if(BORDER_COLLISIONS) {
-                    // Tenemos en cuenta los casos especiales de colision con puerta
-                    if(x <= exitLeft || x >= exitRight) {
-                        // Centro afuera de puerta -> Colision normal
-                        escapeY += 1;
-                    } else if(x - r <= exitLeft) {
-                        // Particula colisiona con borde izquierdo de puerta
-                        final double diffX = x - exitLeft;
-                        final double diffY = y - EXIT_TARGET_POSITION;
-                        final double distance = Math.hypot(diffX, diffY);
+        // Verificamos choques con bordes
+        if(x - r <= 0) {
+            // borde izquierdo
+            escapeX += 1;
+        } else if(x + r >= spaceWidth) {
+            // borde derecho
+            escapeX -= 1;
+        }
+        if(y + r >= spaceWidth) {
+            // borde superior
+            escapeY -= 1;
+        } else if((escaped && y + r >= 0) || (!escaped && y - r <= 0)) {
+            // borde inferior
+            // Tenemos en cuenta los casos especiales de colision con puerta
+            if(x <= exitLeft || x >= exitRight) {
+                // Centro afuera de puerta -> Colision normal
+                escapeY += 1;
+            } else if(BORDER_COLLISIONS) {
+                if(x - r <= exitLeft) {
+                    // Particula colisiona con borde izquierdo de puerta
+                    final double diffX = x - exitLeft;
+                    final double diffY = y - EXIT_TARGET_POSITION;
+                    final double distance = Math.hypot(diffX, diffY);
 
-                        escapeX += diffX / distance;
-                        escapeY += diffY / distance;
-                    } else if(x + r >= exitRight) {
-                        // Particula colisiona con borde derecho de puerta
-                        final double diffX = x - exitRight;
-                        final double diffY = y - EXIT_TARGET_POSITION;
-                        final double distance = Math.hypot(diffX, y);
+                    escapeX += diffX / distance;
+                    escapeY += diffY / distance;
+                } else if(x + r >= exitRight) {
+                    // Particula colisiona con borde derecho de puerta
+                    final double diffX = x - exitRight;
+                    final double diffY = y - EXIT_TARGET_POSITION;
+                    final double distance = Math.hypot(diffX, diffY);
 
-                        escapeX += diffX / distance;
-                        escapeY += diffY / distance;
-                    }
-                    // Sino, la particula esta completamente dentro de puerta -> No hay colision
-                } else {
-                    if(x <= exitLeft || x >= exitRight) {
-                        escapeY += 1;
-                    }
+                    escapeX += diffX / distance;
+                    escapeY += diffY / distance;
                 }
+                // Sino, la particula esta completamente dentro de puerta -> No hay colision
             }
         }
 
