@@ -20,6 +20,8 @@ public class CellIndexMethod {
     private final double    L;
     private final double    actionRadius;
     private final boolean   periodicOutline;
+    private final double    offsetX;
+    private final double    offsetY;
 
     private       double    cellLength;
 
@@ -27,11 +29,19 @@ public class CellIndexMethod {
         return (int) (L / (actionRadius + 2 * maxRadius));
     }
 
+    public CellIndexMethod(final double L, final double offsetX, final double offsetY, final double actionRadius, final boolean periodicOutline) {
+        this(DYNAMIC_M, L, offsetX, offsetY, actionRadius, periodicOutline);
+    }
+
     public CellIndexMethod(final double L, final double actionRadius, final boolean periodicOutline) {
         this(DYNAMIC_M, L, actionRadius, periodicOutline);
     }
 
     public CellIndexMethod(final int M, final double L, final double actionRadius, final boolean periodicOutline) {
+        this(M, L, 0, 0, actionRadius, periodicOutline);
+    }
+
+    public CellIndexMethod(final int M, final double L, final double offsetX, final double offsetY, final double actionRadius, final boolean periodicOutline) {
         if(actionRadius < 0) {
             throw new IllegalArgumentException("Action radius must not be negative");
         }
@@ -42,15 +52,26 @@ public class CellIndexMethod {
             }
         }
 
+        if(periodicOutline && (offsetX != 0 || offsetY != 0)) {
+            // TODO(tobi): Soportarlo
+            throw new IllegalArgumentException("Periodic outline with offsets is not yet supported. Sorry!");
+        }
+
         this.M                  = M;
         this.L                  = L;
         this.actionRadius       = actionRadius;
         this.periodicOutline    = periodicOutline;
         this.cellLength         = this.L / this.M;
+        this.offsetX            = offsetX;
+        this.offsetY            = offsetY;
     }
 
-    private int particleToCellAxis(final double particleAxis) {
-        return (int) (particleAxis / cellLength);
+    private int particleXToCell(final double x) {
+        return (int) ((x - offsetX) / cellLength);
+    }
+
+    private int particleYToCell(final double y) {
+        return (int) ((y - offsetY) / cellLength);
     }
 
     private static final Comparator<Particle2D> MAX_RADIUS_COMPARATOR = Comparator.comparing(Particle2D::getRadius);
@@ -117,7 +138,7 @@ public class CellIndexMethod {
 
         // Distribuimos las particulas en la celda correspondiente
         for(final Particle2D particle : particles) {
-            ret[particleToCellAxis(particle.getX())][particleToCellAxis(particle.getY())].add(particle);
+            ret[particleXToCell(particle.getX())][particleYToCell(particle.getY())].add(particle);
         }
 
         return ret;
@@ -137,8 +158,8 @@ public class CellIndexMethod {
     // Como optimizacion, solo listamos la mitad de los vecinos
     // Como todos listan la misma mitad, todos terminan siendo listados
     private void listCellNeighbours(final Particle2D particle, final CoordinateConsumer consumer) {
-        final int cellX = particleToCellAxis(particle.getX());
-        final int cellY = particleToCellAxis(particle.getY());
+        final int cellX = particleXToCell(particle.getX());
+        final int cellY = particleYToCell(particle.getY());
 
         // Top
         if(periodicOutline || cellY + 1 < M) {
