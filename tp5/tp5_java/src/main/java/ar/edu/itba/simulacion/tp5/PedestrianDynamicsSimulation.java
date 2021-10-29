@@ -3,6 +3,7 @@ package ar.edu.itba.simulacion.tp5;
 import static ar.edu.itba.simulacion.particle.ParticleUtils.randDouble;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -97,6 +98,8 @@ public class PedestrianDynamicsSimulation {
         int lastLockedCount             = currentState.size();
         int lastEscapedCount            = 0;
 
+        final BitSet alreadyEscaped = new BitSet(initialState.size());
+
         boolean continueIteration       = notifier.notify(iteration, currentState, List.of(), List.of());
         while(continueIteration) {
             iteration++;
@@ -105,7 +108,12 @@ public class PedestrianDynamicsSimulation {
             final List<Particle2D> escaped      = new ArrayList<>(lastEscapedCount);
             final List<Particle2D> justEscaped  = new LinkedList<>();
 
-            currentState = advanceParticles(currentState, locked::add, escaped::add, justEscaped::add);
+            currentState = advanceParticles(currentState, locked::add, escaped::add, p -> {
+                if(!alreadyEscaped.get(p.getId())) {
+                    alreadyEscaped.set(p.getId());
+                    justEscaped.add(p);
+                }
+            });
 
             continueIteration = notifier.notify(iteration, locked, escaped, justEscaped) && (!locked.isEmpty() || !escaped.isEmpty());
         }
