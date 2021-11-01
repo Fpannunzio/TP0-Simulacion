@@ -1,17 +1,18 @@
 import json
+import math
 import sys
 from dataclasses import dataclass
 from typing import Any, Dict, List, Union
 
 import numpy as np
-from matplotlib import cm
+from matplotlib import cm, markers
 from matplotlib import pyplot as plt
 from matplotlib.ticker import AutoMinorLocator, AutoLocator
-from numpy.core.function_base import linspace
-
 
 from models import from_dict
 from caudal import caudal
+from ej3 import mean_and_std
+
 
 @dataclass
 @from_dict
@@ -48,42 +49,17 @@ def main(data_path):
     stable_q_end    = 1250
 
     rounds = list(map(lambda round: list(map(lambda sim: np.array(sim), round.escapesByRun)), round_summary.rounds))
+
+    round_q = np.array(list(map(lambda r: mean_and_std(caudal(r, window_size)[stable_q_start:stable_q_end]), rounds)))
+    d_vals = np.array(list(map(lambda r: r.distanceParticle.doorDistance, round_summary.rounds)))
+
+    ################################################
+    # Plot ajustes
+    ################################################
     
-    q = list(map(lambda r: caudal(r, round_summary.rounds[0].dt, window_size), rounds))
-    
-    round_q = np.array(list(map(lambda r: mean_and_std(caudal(r, round_summary.rounds[0].dt, window_size)[stable_q_start:stable_q_end]), rounds)))
-    d = np.array(list(map(lambda r: r.distanceParticle.doorDistance, round_summary.rounds)))
 
-    b, errors = lineal_fitting(round_q[:,0], d)
+    b, errors = lineal_fitting(round_q[:,0], d_vals)
 
-    plot_q(round_summary.rounds[0].dt ,q, d)
-
-    plot_q_and_fitted_line(d, round_q, b[np.argmin(errors)])
-
-    plot_error_fitting(b, errors)
-
-    
-    plt.show()
-
-def plot_q(dt, q, d_list):
-    
-    fig = plt.figure(figsize=(16, 10))
-    ax = fig.add_subplot(1, 1, 1)
-
-    ax.tick_params(labelsize=16)
-    ax.set_xlabel(r'$t$ (s)', size=20)
-    ax.set_ylabel(r'$Q(t)$: Caudal ($s^{-1}$)', size=20)
-
-    for qd, d in zip(q, d_list):
-        t = np.linspace(0, len(qd)*dt, len(qd))
-        ax.scatter(t, qd, label=f'd={d}m')
-
-    ax.grid(which="both")
-    ax.legend(fontsize=14)
-    ax.set_axisbelow(True)
-
-def plot_error_fitting(b, errors):
-    
     fig = plt.figure(figsize=(16, 10))
     ax = fig.add_subplot(1, 1, 1)
 
@@ -97,32 +73,34 @@ def plot_error_fitting(b, errors):
     ax.grid(which="both")
 
     ax.set_axisbelow(True)
+    plt.show()
+    
+    
+    # fig = plt.figure('Todos', figsize=(16, 10))
+    # ax = fig.add_subplot(1, 1, 1)
 
-def plot_q_and_fitted_line(d, round_q, b):
-    fig = plt.figure(figsize=(16, 10))
-    ax = fig.add_subplot(1, 1, 1)
-    ax.tick_params(labelsize=16)
-    ax.set_xlabel(r'$d$: Tamaño de la puerta (m)', size=20)
-    ax.set_ylabel(r'$<Q_d>$: Caudal medio ($s^{-1}$)', size=20)
- 
-    ax.errorbar(d, round_q[:,0], yerr=round_q[:,1], capsize=2)
-    ax.plot(d, b*d**1.5, label=f'B={b:.3f}')
+    # ax.tick_params(labelsize=16)
 
-    ax.grid(which="both")
-    ax.xaxis.set_ticks(d)
-    ax.xaxis.set_minor_locator(AutoMinorLocator(n = 2))
-    ax.set_axisbelow(True)
+    # ax.set_xlabel(r'$d (m)$', size=20)
+    # ax.set_ylabel(r'$B (s^{-1}m^{-3/2})$', size=20)
 
-def mean_and_std(a) -> np.ndarray:
+    # ax.plot(d_vals, best_b, 'x:', ms=10)
+    # ax.xaxis.set_ticks(d_vals)
+    # ax.xaxis.set_minor_locator(AutoMinorLocator(n = 2))
+    # ax.grid(which="both")
 
-    return np.array((np.mean(a), np.std(a)))
+    # ax.set_axisbelow(True)
+    
 
-def lineal_fitting(mean_qs, d, start=1, end=2, count=100_000):
+
+
+def lineal_fitting(mean_qs, d, start=0, end=0.2, count=10_000):
 
     b = np.linspace(start, end, count)
     errors = np.sum((b.reshape((b.size, 1)) * d**1.5 - mean_qs) ** 2, axis=1) / d.size
 
     return (b, errors)
+
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:

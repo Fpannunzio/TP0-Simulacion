@@ -23,15 +23,18 @@ def main(data_path):
 
     freed_particles = list(map(lambda e: np.array(e), rounds.escapesByRun))
 
-    q = caudal(freed_particles, 200)
+    W = 100
+
+    q = caudal(freed_particles, rounds.dt, W)
 
     fig = plt.figure(figsize=(16, 10))
     ax = fig.add_subplot(1, 1, 1)
 
     ax.tick_params(labelsize=16)
 
+    ax.set_title(f'W ={W}')
     ax.set_xlabel(r'$t$ (s)', size=20)
-    ax.set_ylabel(r'caudal(t) (1/s)', size=20)
+    ax.set_ylabel(r'caudal(t) ($s^{-1}$)', size=20)
  
     ax.scatter(np.linspace(0, len(q)*rounds.dt, len(q)), q)
     
@@ -39,13 +42,13 @@ def main(data_path):
     ax.set_axisbelow(True)
     plt.show()
 
-def caudal(particles, window_size=200) -> np.ndarray:
+def caudal(particles, dt, window_size=200) -> np.ndarray:
 
     max_iterations = min(map(lambda p: p.shape[0], particles)) - 1
     truncated_particles = np.array(list(map(lambda e: e[:max_iterations], particles)))
 
     window = np.lib.stride_tricks.sliding_window_view(np.mean(truncated_particles, axis=0), window_size)
-    return np.sum(window, axis=1) / window_size
+    return np.sum(window, axis=1) / window_size / dt
 
 
 if __name__ == '__main__':
