@@ -88,8 +88,8 @@ public class PedestrianDynamicsSimulation {
         this.leftTargetLimit    = exitLeft + TARGET_LIMIT_COEFFICIENT * exitLength;
         this.rightTargetLimit   = exitRight - TARGET_LIMIT_COEFFICIENT * exitLength;
         this.radiusRange        = maxRadius - minRadius;
-        this.leftFarAwayTargetLimit    = (spaceWidth/2 - FAR_AWAY_TARGET_LENGTH/2) + TARGET_LIMIT_COEFFICIENT * FAR_AWAY_TARGET_LENGTH;
-        this.rightFarAwayTargetLimit   = (spaceWidth/2 + FAR_AWAY_TARGET_LENGTH/2) - TARGET_LIMIT_COEFFICIENT * FAR_AWAY_TARGET_LENGTH;
+        this.leftFarAwayTargetLimit    = (spaceWidth/2 - FAR_AWAY_TARGET_LENGTH/2);
+        this.rightFarAwayTargetLimit   = (spaceWidth/2 + FAR_AWAY_TARGET_LENGTH/2);
     }
 
     public void simulate(final List<Particle2D> initialState, final SimulationStateNotifier notifier) {

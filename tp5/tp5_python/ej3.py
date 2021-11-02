@@ -44,8 +44,8 @@ def main(data_path):
         round_summary: RoundSummary = json.load(particles_fd, object_hook=parse_state)
 
     window_size     = 200
-    stable_q_start  = 250
-    stable_q_end    = 1250
+    stable_q_start  = int(10    / round_summary.rounds[0].dt)
+    stable_q_end    = int(45    / round_summary.rounds[0].dt)
 
     rounds = list(map(lambda round: list(map(lambda sim: np.array(sim), round.escapesByRun)), round_summary.rounds))
     
@@ -56,7 +56,7 @@ def main(data_path):
 
     b, errors = lineal_fitting(round_q[:,0], d)
 
-    plot_q(round_summary.rounds[0].dt ,q, d)
+    plot_q(round_summary.rounds[0].dt ,q, d, stable_q_start, stable_q_end)
 
     plot_q_and_fitted_line(d, round_q, b[np.argmin(errors)])
 
@@ -65,7 +65,7 @@ def main(data_path):
     
     plt.show()
 
-def plot_q(dt, q, d_list):
+def plot_q(dt, q, d_list, start, end):
     
     fig = plt.figure(figsize=(16, 10))
     ax = fig.add_subplot(1, 1, 1)
@@ -105,12 +105,13 @@ def plot_q_and_fitted_line(d, round_q, b):
     ax.set_xlabel(r'$d$: Tamaño de la puerta (m)', size=20)
     ax.set_ylabel(r'$<Q_d>$: Caudal medio ($s^{-1}$)', size=20)
  
-    ax.errorbar(d, round_q[:,0], yerr=round_q[:,1], capsize=2)
-    ax.plot(d, b*d**1.5, label=f'B={b:.3f}')
+    ax.errorbar(d, round_q[:,0], yerr=round_q[:,1], capsize=2, label=r'<Q_d>')
+    ax.plot(d, b*d**1.5, label=r'$Q(d) = Bd^{3/2}$')
 
     ax.grid(which="both")
     ax.xaxis.set_ticks(d)
     ax.xaxis.set_minor_locator(AutoMinorLocator(n = 2))
+    ax.legend(fontsize=14)
     ax.set_axisbelow(True)
 
 def mean_and_std(a) -> np.ndarray:

@@ -45,8 +45,8 @@ public final class Ej3 {
 
                 config.baseConfig.seed = config.baseConfig.seed + run;
 
-                System.out.println("Particle Generation Seed: " + config.baseConfig.particleGeneration.seed);
-                System.out.println("Simulation Seed: " + config.baseConfig.seed);
+                // System.out.println("Particle Generation Seed: " + config.baseConfig.particleGeneration.seed);
+                // System.out.println("Simulation Seed: " + config.baseConfig.seed);
 
                 final PedestrianDynamicsSimulation simulation = config.toSimulation();
 

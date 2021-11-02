@@ -8,11 +8,11 @@ count = 256
 startx = 0
 starty = 0
 L = 20
-d = 1.2
+d = 3
 wallR = 0.05
 filePath = sys.argv[1] if len(sys.argv) > 1 else "door.exyz"
 
-farAwayTargetY = -10
+farAwayTargetY = -3
 
 # END CONFIG
 
