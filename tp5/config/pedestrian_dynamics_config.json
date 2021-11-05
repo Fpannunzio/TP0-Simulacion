@@ -1,13 +1,13 @@
 {
   "tau": 0.5,
   "beta": 0.9,
-  "exitLength": 1.2,
+  "exitLength": 3.0,
   "minRadius": 0.15,
   "maxRadius": 0.32,
   "desiredVelocity": 2,
   "escapeVelocity": 2,
   "particleGeneration": {
-    "particleCount": 200,
+    "particleCount": 380,
     "spaceWidth": 20,
     "periodicBorder": false,
     "minVelocity": 0,

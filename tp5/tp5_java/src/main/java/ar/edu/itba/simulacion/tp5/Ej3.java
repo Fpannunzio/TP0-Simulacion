@@ -29,39 +29,45 @@ public final class Ej3 {
 
         final int totalConfig = config.configurations.size();
         final List<Round> rounds = new ArrayList<>(totalConfig);
-
-        for (int j = 0; j < totalConfig; j++) {
+        double dt = 0;
+        for (int r = 0; r < totalConfig; r++) {
             
-            final double exitLength = config.configurations.get(j).getDoorDistance();
-            final int particleCount = config.configurations.get(j).getParticleCount();
+            final double exitLength = config.configurations.get(r).getDoorDistance();
+            final int particleCount = config.configurations.get(r).getParticleCount();
 
             config.baseConfig.exitLength = exitLength;
             config.baseConfig.particleGeneration.particleCount = particleCount;
             
-            final List<List<Integer>> escapesByRun = new ArrayList<>(config.runCount);
-            double dt = 0;
+            final List<List<Double>> escapesByRun = new ArrayList<>(config.runCount);
+            
+
+            for (int j = 0; j < config.baseConfig.particleGeneration.particleCount; j++) {
+                escapesByRun.add(new ArrayList<>(config.runCount));
+            }
 
             for (int run = 0; run < config.runCount; run++) {
 
                 config.baseConfig.seed = config.baseConfig.seed + run;
 
-                // System.out.println("Particle Generation Seed: " + config.baseConfig.particleGeneration.seed);
-                // System.out.println("Simulation Seed: " + config.baseConfig.seed);
+                System.out.println("Particle Generation Seed: " + config.baseConfig.particleGeneration.seed);
+                System.out.println("Simulation Seed: " + config.baseConfig.seed);
 
                 final PedestrianDynamicsSimulation simulation = config.toSimulation();
-
                 dt = simulation.getDt();
-
-                final List<Integer> escapesAccum = new LinkedList<>();
+                final double auxDt = dt;
+                final int[] particlesEscaped = {0};
 
                 simulation.simulate(config.generateInitialState(), (i, locked, escaped, justEscaped) -> {
                     
-                    escapesAccum.add(justEscaped.size());
-
-                    return true;
+                    final int escapeCount = justEscaped.size();
+                    if(escapeCount > 0) {
+                    for (int index = 0; index < escapeCount; index++) {
+                        escapesByRun.get(particlesEscaped[0]).add(auxDt * i);
+                        particlesEscaped[0]++;
+                    }
+                }
+                return true;
                 });
-
-                escapesByRun.add(escapesAccum);
             }
             rounds.add(new Round(dt, new DistanceParticle(exitLength, particleCount), escapesByRun));
         }
@@ -78,7 +84,7 @@ public final class Ej3 {
         public final double dt;
         public final DistanceParticle distanceParticle;
 
-        public final List<List<Integer>> escapesByRun;
+        public final List<List<Double>> escapesByRun;
     }
 
     

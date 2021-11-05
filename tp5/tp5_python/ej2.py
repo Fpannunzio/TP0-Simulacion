@@ -31,7 +31,7 @@ def main(data_path):
     ax.tick_params(labelsize=16)
 
     ax.set_xlabel(r'$t$ (s)', size=20)
-    ax.set_ylabel(r'descarga(t)', size=20)
+    ax.set_ylabel(r'descarga media(t)', size=20)
 
     ax.errorbar(
         meanStd[:,0]
