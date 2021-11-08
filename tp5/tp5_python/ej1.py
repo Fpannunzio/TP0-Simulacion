@@ -37,12 +37,12 @@ def main(data_path):
 
     ax.tick_params(labelsize=16)
 
-    ax.set_xlabel(r'$t$ (s)', size=20)
-    ax.set_ylabel(r'descarga(t)', size=20)
+    ax.set_xlabel(r'$t$ (s)', size=24)
+    ax.set_ylabel(r'n(t): descarga', size=24)
 
 
     for i in range(len(times)): 
-        ax.scatter(times[i], freedParticles[i], marker='o', color=cm.get_cmap('tab20c')(i))## TODO ponemos la seed?
+        ax.plot(times[i], freedParticles[i], color=cm.get_cmap('tab20c')(i))## TODO ponemos la seed?
         # ax.plot(times[i], freedParticles[i], label=f'n(t) iteracion {i}', color=cm.get_cmap('tab20c')(i))
     
     ax.grid(which="both")
